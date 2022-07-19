@@ -2,8 +2,33 @@
 #include "stdafx.h"
 #ifndef StructDefination_h
 #define StructDefination_h
+
+struct UserInfo {
+	string username;
+	unsigned int status; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
+	unsigned int coin = 0;
+	unsigned int HP[3] = { 1000, 0, 0 };
+	int suntudong[4] = { 50, -200, -200, -200 };
+	int laze[4] = { -90, -90, -90, -90 };
+	unsigned int rocket = 0;
+	int teamId = -1; // -1 if haven't join any team
+};
+
+// define user session struct info
+typedef struct SocketInfo {
+	SOCKET connSocket;
+	char clientIP[INET_ADDRSTRLEN];
+	int clientPort;
+};
+
+struct LoginSession {
+	SocketInfo socketInfo;
+	UserInfo userInfo;
+	char buff[2048];
+};
+
 typedef struct DataThread {
-	SocketInfo clientInfo[MAX_CLIENT_IN_A_THREAD + 1];
+	LoginSession loginSession[MAX_CLIENT_IN_A_THREAD + 1];
 	WSAEVENT events[MAX_CLIENT_IN_A_THREAD + 1];
 	DWORD nEvents = 0;
 	int hasThread = 0;
@@ -15,28 +40,6 @@ typedef struct DataThread {
 struct Account {
 	string username;
 	string password;
-};
-
-
-// define user session struct info
-typedef struct SocketInfo {
-	SOCKET connSocket;
-	char clientIP[INET_ADDRSTRLEN];
-	int clientPort;
-};
-struct UserInfo {
-	string username;
-	unsigned int status; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
-	unsigned int coin = 0;
-	unsigned int HP[3] = { 1000, 0, 0 };
-	int suntudong[4] = { 50, -200, -200, -200 };
-	int laze[4] = { -90, -90, -90, -90 };
-	unsigned int rocket = 0;
-	int teamId = -1; // -1 if haven't join any team
-};
-struct LogginSession {
-	SocketInfo socketInfo;
-	UserInfo userInfo;
 };
 
 
@@ -64,7 +67,7 @@ struct Question {
 struct Team {
 	unsigned int id;
 	string name;
-	LogginSession** members;
+	LoginSession** members;
 	int status = 0; // 0 if not ingame, 1 if ingame
 	int roomId = -1;
 };

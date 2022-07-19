@@ -1,18 +1,16 @@
-
-
 #include "StructDefination.h"
 #include "stdafx.h"
 
 // Define global variables
 Account accounts[];
-LogginSession* logginSessions[];
+LoginSession* loginSessions[];
 Team* teams[];
 Room* rooms[];
 Question* questions[];
 
 
 
-UserInfo acc[MAX_NUM_ACCOUNT];
+LoginSession acc[MAX_NUM_ACCOUNT];
 CRITICAL_SECTION critical;
 list<char*> splitMsg(char* msg);
 DataThread dataThread[MAX_THREAD];
@@ -26,136 +24,18 @@ int SERVER_PORT = 5500;
 * @param	siArray		An array of pointers of socket information struct
 * @param	n	Index of the removed socket
 */
-void freeSockInfo(SocketInfo* siArray, int n);
+void freeSockInfo(LoginSession* siArray, int n);
 
-queue<char*> recvStreamProcessing(SocketInfo &userInfo, char buff[BUFF_SIZE]);
-/**
-* The closeEventInArray function release an event and remove it from an array
-* @param	eventArr	An array of event object handles
-* @param	n	Index of the removed event object
-*/
-
+queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]);
 void closeEventInArray(WSAEVENT* eventArr, int n);
-
-/**
-* @function login: Check case in login situation and respond to the corresponding message
-*
-* @param it: a pointer to client input
-* @param clientInfo: a LoginState variable with the user's infomation
-*
-* return: 10 if login successful
-11 if the account is blocked
-12 if the account is not available
-**/
-char* login(char* it, SocketInfo &clientInfo);
-
-/**
-* @function logout: The function to logout the user
-*
-* @param clientInfo: a LoginState variable with the user's infomation
-*
-* return: 30 if login successful
-*
-**/
-char* logout(SocketInfo &clientInfo);
-
-/**
-* @function readfile: Get the list of users and their information and push them to an array
-*
-* @param pathname: The path of account.txt file
-*
-* return: Number of account
-*
-**/
-int readfile(string pathname);
-
-/**
-* @function splitAccountData: Split inline data with account and status into account and status of the account
-*
-* @param inlineData: Data to split
-* @param del: the delimiter in the inline data
-*
-* return: account's information with Account type
-**/
-UserInfo splitAccountData(string inlineData, string del);
-
-/**
-* @function splitData: Split inline data into vector of token by delimiter
-*
-* @param inlineData: Data to split
-* @param del: the delimiter in the inline data
-*
-* return: Vector of token
-**/
 vector<string> splitData(string inlineData, string del);
-
-/**
-* @function checkLogin: check the username and status of the
-*
-* @param username: the username that the user provides
-* @param accounts: The vector of vector of valid account
-*
-* return: 10 if username is available and is not block
-11 if username is available and block
-12 if username is not available
-**/
-int checklogin(string username, UserInfo accounts[], int numOfAccount);
-
-/**
-* @function Send: The send() wrapper function
-*
-**/
 int Send(SOCKET s, char *buff, int size, int flags);
-
-/**
-* @function Receive: The receive() wrapper function
-**/
 int Receive(SOCKET s, char *buff, int size, int flags);
-
-/**
-* @function workingThread: The function to use in the child process
-*
-* @param param: The start index of LoginState array that child process manages
-**/
 unsigned __stdcall workingThread(void* params);
-
-/**
-* @function interactWithClient: The function to get user input, handle input and send result to client
-*
-* @param buff: the data receive from client
-* @param clientInfo: a LoginState variable with the user's infomation
-*
-**/
-void interactWithClient(SocketInfo &userInfo, char buff[BUFF_SIZE]);
-
-/**
-* @function splitMsg: Split a string into substrings by ending delimiter
-*
-* @param msg: a pointer to input string
-*
-* @return: a pointer to link list of string after split
-**/
+void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]);
 list<char*> splitMsg(char* msg);
-
-/**
-* @function isNumber: Check if a string is a number
-*
-* @param text: A pointer to a text
-*
-* @return: 0 if string isn't a number
-1 if string is a number.
-**/
 int isNumber(char* text);
-
-/**
-* @function handleResponse: handle data before the response to the
-*
-* @param it: a char pointer to client input
-* @param clientInfo: a LoginState variable with the user's infomation
-*
-* return: Message to send to client after the handle
-**/
-char* handleResponse(char* it, SocketInfo &clientInfo);
+char* handleResponse(char* it, LoginSession &loginSession);
 
 
 int main(int argc, char* argv[]) {
@@ -215,7 +95,7 @@ int main(int argc, char* argv[]) {
 	int clientAddrLen = sizeof(clientAddr);
 	for (int i = 0; i < MAX_THREAD; i++) {
 		for (int j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
-			dataThread[i].clientInfo[j].connSocket = 0;
+			dataThread[i].loginSession[j].socketInfo.connSocket = 0;
 		}
 	}
 
@@ -231,13 +111,13 @@ int main(int argc, char* argv[]) {
 			cout << "Accept from client: " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << endl;
 			for (i = 0; i < MAX_THREAD; i++) {
 				for (j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
-					if (dataThread[i].clientInfo[j].connSocket == 0) {
-						dataThread[i].clientInfo[j].connSocket = connSock;
-						dataThread[i].clientInfo[j].clientPort = ntohs(clientAddr.sin_port);
-						strcpy(dataThread[i].clientInfo[j].clientIP, inet_ntoa(clientAddr.sin_addr));
+					if (dataThread[i].loginSession[j].socketInfo.connSocket == 0) {
+						dataThread[i].loginSession[j].socketInfo.connSocket = connSock;
+						dataThread[i].loginSession[j].socketInfo.clientPort = ntohs(clientAddr.sin_port);
+						strcpy(dataThread[i].loginSession[j].socketInfo.clientIP, inet_ntoa(clientAddr.sin_addr));
 						dataThread[i].events[j] = WSACreateEvent();
 						dataThread[i].nEvents++;
-						WSAEventSelect(dataThread[i].clientInfo[j].connSocket, dataThread[i].events[j], FD_READ | FD_CLOSE);
+						WSAEventSelect(dataThread[i].loginSession[j].socketInfo.connSocket, dataThread[i].events[j], FD_READ | FD_CLOSE);
 						EnterCriticalSection(&critical);
 						numOfConn++;
 						LeaveCriticalSection(&critical);
@@ -282,10 +162,10 @@ unsigned __stdcall workingThread(void* params) {
 			if (index == WSA_WAIT_TIMEOUT) {
 				continue;
 			}
+
 			// Chi so chinh xac cua bo bao su kien	
 			index = index - WSA_WAIT_EVENT_0;
-			WSAEnumNetworkEvents(dataThread[startIndex].clientInfo[index].connSocket, dataThread[startIndex].events[index], &sockEvent);
-
+			WSAEnumNetworkEvents(dataThread[startIndex].loginSession[index].socketInfo.connSocket, dataThread[startIndex].events[index], &sockEvent);
 			int ret;
 			char rcvBuff[BUFF_SIZE + 1];
 			if (sockEvent.lNetworkEvents & FD_READ) {
@@ -293,10 +173,10 @@ unsigned __stdcall workingThread(void* params) {
 					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
 					continue;
 				}
-				ret = Receive(dataThread[startIndex].clientInfo[index].connSocket, rcvBuff, BUFF_SIZE, 0);
+				ret = Receive(dataThread[startIndex].loginSession[index].socketInfo.connSocket, rcvBuff, BUFF_SIZE, 0);
 				if (ret <= 0) {
 					// Close socket
-					freeSockInfo(dataThread[startIndex].clientInfo, index);
+					freeSockInfo(dataThread[startIndex].loginSession, index);
 					closeEventInArray(dataThread[startIndex].events, index);
 					EnterCriticalSection(&critical);
 					dataThread[startIndex].nEvents--;
@@ -305,7 +185,7 @@ unsigned __stdcall workingThread(void* params) {
 				}
 				else {
 					rcvBuff[ret] = 0;
-					interactWithClient(dataThread[startIndex].clientInfo[index], rcvBuff);
+					interactWithClient(dataThread[startIndex].loginSession[index], rcvBuff);
 					WSAResetEvent(dataThread[startIndex].events[index]);
 				}
 			}
@@ -316,7 +196,7 @@ unsigned __stdcall workingThread(void* params) {
 					continue;
 				}
 
-				freeSockInfo(dataThread[startIndex].clientInfo, index);
+				freeSockInfo(dataThread[startIndex].loginSession, index);
 				closeEventInArray(dataThread[startIndex].events, index);
 				EnterCriticalSection(&critical);
 				dataThread[startIndex].nEvents--;
@@ -335,8 +215,8 @@ unsigned __stdcall workingThread(void* params) {
 
 
 
-void freeSockInfo(SocketInfo* siArray, int n) {
-	closesocket(siArray[n].connSocket);
+void freeSockInfo(LoginSession* siArray, int n) {
+	closesocket(siArray[n].socketInfo.connSocket);
 	for (int i = n; i < MAX_CLIENT_IN_A_THREAD; i++) {
 		siArray[i] = siArray[i + 1];
 	}
@@ -348,13 +228,12 @@ void closeEventInArray(WSAEVENT* eventArr, int n) {
 		eventArr[i] = eventArr[i + 1];
 }
 
-queue<char*> recvStreamProcessing(SocketInfo &userInfo, char buff[BUFF_SIZE]) {
+queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 	queue<char*> statements;
 	list<char*> tokens;
-	strcat(userInfo.buff, buff);
-	string stringConvert = string(userInfo.buff);
-	tokens = splitMsg(userInfo.buff);
-
+	strcat(loginSession.buff, buff);
+	string stringConvert = string(loginSession.buff);
+	tokens = splitMsg(loginSession.buff);
 	int posOfEndED = stringConvert.length() - strlen(ENDING_DELIMITER);
 	if (stringConvert.find(ENDING_DELIMITER, posOfEndED) == posOfEndED) {
 		for (list<char*>::iterator it = tokens.begin(); it != tokens.end(); it++) {
@@ -362,14 +241,14 @@ queue<char*> recvStreamProcessing(SocketInfo &userInfo, char buff[BUFF_SIZE]) {
 			strcpy(temp, *it);
 			statements.push(temp);
 		}
-		strcpy(userInfo.buff, "");
+		strcpy(loginSession.buff, "");
 	}
 	// Case ENDING_DELIMITER is not in the end of message
 	else {
 		for (list<char*>::iterator it = tokens.begin(); it != tokens.end(); it++) {
 			// Token is the last element of list of token
 			if (it == (--tokens.end())) {
-				strcpy(userInfo.buff, *it);
+				strcpy(loginSession.buff, *it);
 			}
 			else {
 				char* temp = (char*)malloc(strlen(*it));
@@ -382,20 +261,21 @@ queue<char*> recvStreamProcessing(SocketInfo &userInfo, char buff[BUFF_SIZE]) {
 }
 
 
-void interactWithClient(SocketInfo &userInfo, char buff[BUFF_SIZE]) {
-	SOCKET connectedSocket = userInfo.connSocket;
+void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
+	SOCKET connectedSocket = loginSession.socketInfo.connSocket;
 	char* sendData;
 	char* statement;
-	queue<char*> statements = recvStreamProcessing(userInfo, buff);
+	queue<char*> statements = recvStreamProcessing(loginSession, buff);
 	while (!statements.empty()) {
 		statement = statements.front();
+
 		statements.pop();
-		sendData = handleResponse(statement, userInfo);
+		sendData = handleResponse(statement, loginSession);
 		Send(connectedSocket, sendData, strlen(sendData), 0);
 	}
 }
 
-char* handleResponse(char* it, SocketInfo &clientInfo) {
+char* handleResponse(char* it, LoginSession &loginSession) {
 	string command = splitData(it, " ")[0];
 	if (command != "USER") {
 		cout << "You are not login!" << endl;
