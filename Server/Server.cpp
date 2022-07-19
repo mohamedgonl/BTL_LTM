@@ -1,42 +1,8 @@
 #include "StructDefination.h"
+#include "Controllers.h"
 #include "stdafx.h"
-
-// Define global variables
-Account accounts[];
-LoginSession* loginSessions[];
-Team* teams[];
-Room* rooms[];
-Question* questions[];
-
-
-
-LoginSession acc[MAX_NUM_ACCOUNT];
-CRITICAL_SECTION critical;
-list<char*> splitMsg(char* msg);
-DataThread dataThread[MAX_THREAD];
-int numOfAccount = 0;
-int numOfThread = 0;
-int numOfConn = 0;
-int SERVER_PORT = 5500;
-
-/**
-* The freeSockInfo function remove a socket from array
-* @param	siArray		An array of pointers of socket information struct
-* @param	n	Index of the removed socket
-*/
-void freeSockInfo(LoginSession* siArray, int n);
-
-queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]);
-void closeEventInArray(WSAEVENT* eventArr, int n);
-vector<string> splitData(string inlineData, string del);
-int Send(SOCKET s, char *buff, int size, int flags);
-int Receive(SOCKET s, char *buff, int size, int flags);
-unsigned __stdcall workingThread(void* params);
-void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]);
-list<char*> splitMsg(char* msg);
-int isNumber(char* text);
-char* handleResponse(char* it, LoginSession &loginSession);
-
+#include "FunctionPrototypes.h"
+#include "GlobalVariable.h"
 
 int main(int argc, char* argv[]) {
 	if (argc == 2) {
@@ -146,7 +112,6 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-
 unsigned __stdcall workingThread(void* params) {
 	int startIndex = (int)params;
 	WSANETWORKEVENTS sockEvent;
@@ -213,54 +178,6 @@ unsigned __stdcall workingThread(void* params) {
 	}
 }
 
-
-
-void freeSockInfo(LoginSession* siArray, int n) {
-	closesocket(siArray[n].socketInfo.connSocket);
-	for (int i = n; i < MAX_CLIENT_IN_A_THREAD; i++) {
-		siArray[i] = siArray[i + 1];
-	}
-}
-
-void closeEventInArray(WSAEVENT* eventArr, int n) {
-	WSACloseEvent(eventArr[n]);
-	for (int i = n; i < MAX_CLIENT_IN_A_THREAD; i++)
-		eventArr[i] = eventArr[i + 1];
-}
-
-queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]) {
-	queue<char*> statements;
-	list<char*> tokens;
-	strcat(loginSession.buff, buff);
-	string stringConvert = string(loginSession.buff);
-	tokens = splitMsg(loginSession.buff);
-	int posOfEndED = stringConvert.length() - strlen(ENDING_DELIMITER);
-	if (stringConvert.find(ENDING_DELIMITER, posOfEndED) == posOfEndED) {
-		for (list<char*>::iterator it = tokens.begin(); it != tokens.end(); it++) {
-			char* temp = (char*)malloc(strlen(*it));
-			strcpy(temp, *it);
-			statements.push(temp);
-		}
-		strcpy(loginSession.buff, "");
-	}
-	// Case ENDING_DELIMITER is not in the end of message
-	else {
-		for (list<char*>::iterator it = tokens.begin(); it != tokens.end(); it++) {
-			// Token is the last element of list of token
-			if (it == (--tokens.end())) {
-				strcpy(loginSession.buff, *it);
-			}
-			else {
-				char* temp = (char*)malloc(strlen(*it));
-				strcpy(temp, *it);
-				statements.push(temp);
-			}
-		}
-	}
-	return statements;
-}
-
-
 void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 	SOCKET connectedSocket = loginSession.socketInfo.connSocket;
 	char* sendData;
@@ -287,64 +204,4 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 		}
 	}
 }
-
-vector<string> splitData(string inlineData, string del)
-{
-	vector<string> data;
-	int end = inlineData.find(del);
-	data.push_back(inlineData.substr(0, end));
-	data.push_back(inlineData.substr(end + del.size()));
-	return data;
-}
-
-
-list<char*> splitMsg(char* msg) {
-	list<char*> tmp;
-	char* token = strtok(msg, ENDING_DELIMITER);
-	// loop through the string to extract all other tokens
-	while (token != NULL) {
-		tmp.push_back(token);
-		token = strtok(NULL, ENDING_DELIMITER);
-	}
-	return tmp;
-}
-
-/* The recv() wrapper function */
-int Receive(SOCKET s, char *buff, int size, int flags) {
-	int n;
-
-	n = recv(s, buff, size, flags);
-	if (n == SOCKET_ERROR) {
-		printf("Error: %", WSAGetLastError());
-	}
-
-	return n;
-}
-
-/* The send() wrapper function*/
-int Send(SOCKET s, char *buff, int size, int flags) {
-	int n;
-
-	n = send(s, buff, size, flags);
-	if (n == SOCKET_ERROR) {
-		printf("Error: %", WSAGetLastError());
-	}
-
-	return n;
-}
-
-//Check if string is number
-int isNumber(char* text) {
-	int j = strlen(text);
-
-	while (j--)
-	{
-		if (text[j] > 47 && text[j] < 58) {
-			continue;
-		}
-		return 0;
-	}
-	return 1;
-}
-
 

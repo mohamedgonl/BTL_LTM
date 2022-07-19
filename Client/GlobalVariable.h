@@ -1,0 +1,2 @@
+int SERVER_PORT = 5500;
+char* SERVER_ADDR = "127.0.0.1";
