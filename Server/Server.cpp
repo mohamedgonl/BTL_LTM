@@ -194,14 +194,18 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 
 char* handleResponse(char* it, LoginSession &loginSession) {
 	string command = splitData(it, " ")[0];
-	if (command != "USER") {
-		cout << "You are not login!" << endl;
-		return NOT_LOGIN;
+	if (action.find(command) == action.end()) {
+		cout << "Invalid command" << endl;
+		return INVALID_COMMAND;
 	}
 	else {
-		if (command == "USER") {
-			return SUCCESS_LOGIN;
+		switch (action.find(command)->second) {
+		case 2: {
+			return RES_LOGIN_SUCCESS;
+		}
+		case 3: {
+			return RES_SIGNUP_SUCCESS;
+		}
 		}
 	}
 }
-

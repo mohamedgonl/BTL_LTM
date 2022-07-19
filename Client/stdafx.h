@@ -15,20 +15,18 @@
 #include <iostream>
 #include <string>
 #include <list>
+using namespace std;
 #define BUFF_SIZE 2048
 #define ENDING_DELIMITER "/"
-#define SUCCESS_LOGIN 10
-#define ACCOUNT_BLOCK 11
-#define INVALID_ACCOUNT 12
-#define LOGIN_IN_ANOTHER_CLIENT 13
-#define ANOTHER_ACCOUNT_IN_SESSION 14
-#define SUCCESS_POST 20
-#define SUCCESS_LOGOUT 30
-#define NOT_LOGIN 21
-#define INVALID_COMMAND 99
 #pragma comment(lib, "Ws2_32.lib")
 
-using namespace std;
 
+#ifndef RESPONSE_CODE
+
+#define INVALID_COMMAND 99
+#define RES_LOGIN_SUCCESS 110
+#define RES_SIGNUP_SUCCESS 120
+
+#endif // !RESPONSE_CODE
 
 // TODO: reference additional headers your program requires here

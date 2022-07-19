@@ -100,32 +100,12 @@ string handleUserInput(string userInput) {
 
 void handleResponse(char* res) {
 	switch (atoi(res)) {
-	case SUCCESS_LOGIN: {
+	case RES_LOGIN_SUCCESS: {
 		cout << "Login successful!" << endl;
 		break;
 	}
-	case ACCOUNT_BLOCK: {
-		cout << "Your account is block!" << endl;
-		break;
-	}
-	case INVALID_ACCOUNT: {
-		cout << "Your account is not available!" << endl;
-		break;
-	}
-	case ANOTHER_ACCOUNT_IN_SESSION: {
-		cout << "Have another account is login in this device!" << endl;
-		break;
-	}
-	case NOT_LOGIN: {
-		cout << "You are not login. Please login to operate that function!" << endl;
-		break;
-	}
-	case SUCCESS_POST: {
-		cout << "Post articles successful!" << endl;
-		break;
-	}
-	case SUCCESS_LOGOUT: {
-		cout << "Logout successful!" << endl;
+	case RES_SIGNUP_SUCCESS: {
+		cout << "Sign up successful!" << endl;
 		break;
 	}
 	case INVALID_COMMAND: {
