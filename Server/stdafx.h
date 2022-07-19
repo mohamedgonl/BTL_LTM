@@ -27,4 +27,14 @@ using namespace std;
 #define NOT_LOGIN "21"
 #define INVALID_COMMAND "99"
 #define MAX_THREAD 50
+#include <fstream> 
 #pragma comment (lib, "Ws2_32.lib")
+
+// Define global variables
+Account accounts[100];
+LoginSession* loginSessions[100];
+Team* teams[];
+Room* rooms[];
+Question* questions[];
+string fileDirectory;
+

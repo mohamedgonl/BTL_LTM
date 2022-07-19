@@ -1,12 +1,6 @@
 #include "StructDefination.h"
 #include "stdafx.h"
 
-// Define global variables
-Account accounts[];
-LoginSession* loginSessions[];
-Team* teams[];
-Room* rooms[];
-Question* questions[];
 
 
 
