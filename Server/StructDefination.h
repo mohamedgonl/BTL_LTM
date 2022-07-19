@@ -8,7 +8,7 @@ struct UserInfo {
 	unsigned int status; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
 	unsigned int coin = 0;
 	unsigned int HP[3] = { 1000, 0, 0 };
-	int suntudong[4] = { 50, -200, -200, -200 };
+	int sungtudong[4] = { 50, -200, -200, -200 };
 	int laze[4] = { -90, -90, -90, -90 };
 	unsigned int rocket = 0;
 	int teamId = -1; // -1 if haven't join any team
@@ -36,12 +36,10 @@ typedef struct DataThread {
 
 
 // define account info struct
-
 struct Account {
 	string username;
 	string password;
 };
-
 
 // item struct define
 struct Item_Armor {
@@ -59,7 +57,7 @@ struct Item_Attack {
 struct Question {
 	int status = 0;
 	string description;
-	unsigned int key; // key = 1 || 2 || 3 || 4
+	unsigned int key; // key = 1 || 2 || 3 || 4 
 	unsigned int coin;
 };
 
