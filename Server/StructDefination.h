@@ -5,7 +5,7 @@
 
 struct UserInfo {
 	string username;
-	unsigned int status; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
+	unsigned int status; // unloggedin = 0  , 1 = waitingroom, 2 = team_member, 3 = team_leader, 4 = ingame&live, 5 = ingame_dead
 	unsigned int coin = 0;
 	unsigned int HP[3] = { 1000, 0, 0 };
 	int sungtudong[4] = { 50, -200, -200, -200 };

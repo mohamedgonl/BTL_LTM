@@ -166,16 +166,22 @@ string getAllTeams(UserInfo* userInfo) {
 
 	string response= "210|";
 	for (int i = 0; i < sizeof(teams); i++) {
+		if (teams[i]->members[0] != NULL) { // if team has linked to team leader
 		response += std::to_string(teams[i]->id);
 		response += " "+teams[i]->name;
-		response += " "+ std::to_string(sizeof (teams[i]->members)) +"|";
+		int numOfMems = 0;
+		for (int j = 0; j < 3; j++) {
+			if (teams[i]->members[j] != NULL) numOfMems++;
+		}
+		response += " "+ std::to_string(numOfMems) +"|";
+		}
 	}
 	return response;
 }
 
 // 5. Join team
 
-string joinTeam(UserInfo* userInfo, int teamId) {
+string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 	for (int i = 0; i < sizeof(teams); i++) {
 		if (teams[i]->id == teamId) {
 			if (sizeof(teams[i]->members) < 3) {
@@ -193,10 +199,75 @@ string joinTeam(UserInfo* userInfo, int teamId) {
 }
 
 //6. create team
-string createTeam(UserInfo* userInfo, string teamName) {
+string createTeam(LoginSession* userInfo, string teamName) {
 	Team newTeam;
-	for(int i =0 ; i< MAX_TEAM)
+	int i;
+	for (i = 0; i < MAX_TEAM; i++) {
+		// find the team hasnt link to any team leader
+		if (teams[i]->members[0] == NULL) {
+			newTeam.id = i;
+			newTeam.members[0] = userInfo;
+			newTeam.name = teamName;
+			break;
+		}
+	}
+	if (i >= MAX_TEAM) return "231";
+	else return "230";
+}
 
+//7. Sign out
+string accountSignOut(string username) {
+	int i;
+	for (i = 0; i < MAX_CLIENT; i++) {
+		// find logginsession has same username
+		if (!strcmp(loginSessions[i]->userInfo.username.c_str, username.c_str)) {
+			// check status
+			switch (loginSessions[i]->userInfo.status){
+			case 0: return "211";
+			case 1: { 
+				resetUserInfo(loginSessions[i]);
+				return "240";
+			};
+			case 2: { // room member
+				// pop the user out of team 
+				for (int j = 1; j < 3; j++) {
+					LoginSession* member = teams[loginSessions[i]->userInfo.teamId]->members[j];
+					if (member != NULL && ! strcmp(member->userInfo.username.c_str, username.c_str)) {
+						teams[loginSessions[i]->userInfo.teamId]->members[j] = NULL;
+					}
+				}
+				resetUserInfo(loginSessions[i]);
+				return "240";
+			case 3: {
+
+			}
+			};
+			default:
+				break;
+			}
+		}
+	}
+	// if this account hasnt logged in
+	return "211";
+}
+
+void resetUserInfo(LoginSession* loginSession) {
+	loginSession->userInfo.coin = 0;
+	loginSession->userInfo.HP[0] = 1000;
+	loginSession->userInfo.HP[1] = 0;
+	loginSession->userInfo.HP[2] = 0;
+	loginSession->userInfo.laze[0] = -90;
+	loginSession->userInfo.laze[1] = -90;
+	loginSession->userInfo.laze[2] = -90;
+	loginSession->userInfo.laze[3] = -90;
+	loginSession->userInfo.rocket = 0;
+	loginSession->userInfo.status = 0;
+	loginSession->userInfo.sungtudong[0] = 50;
+	loginSession->userInfo.sungtudong[1] = -200;
+	loginSession->userInfo.sungtudong[2] = -200;
+	loginSession->userInfo.sungtudong[3] = -200;
+	loginSession->userInfo.teamId = -1;
+	loginSession->userInfo.username = "";
 }
 
 #endif // !Handle user statement
