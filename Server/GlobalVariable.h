@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "StructDefination.h"
+#ifndef GlobalVariable_h
+#define GlobalVariable_h
 
 Account accounts[MAX_NUM_ACCOUNT];
 LoginSession* loginSessions[MAX_CLIENT];
@@ -45,4 +47,5 @@ map<string, int> action = {
 };
  
 
+#endif 
 
