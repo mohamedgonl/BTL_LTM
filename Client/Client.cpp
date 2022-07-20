@@ -4,6 +4,90 @@
 #include "FunctionPrototypes.h"
 #include "Controller.h"
 
+int status = 0;
+
+int showMenu(int status) {
+	string userInput;
+	switch (status)
+	{
+	case 0: {
+		cout << "================ Menu ================" << endl;
+		cout << "1. Login " << endl;
+		cout << "2. Sign up " << endl;
+		cout << "Please select your options [1,2]: ";
+		cin >> userInput;
+		break;
+	}
+	case 1: {
+		cout << "================ Waitting ================" << endl;
+		cout << "1. Get list room " << endl;
+		cout << "2. Join room " << endl;
+		cout << "3. Create room " << endl;
+		cout << "4. Sign out " << endl;
+		cout << "Please select your options [1,2,3,4]: ";
+		cin >> userInput;
+		break;
+	}
+	default: {
+
+	}
+	}
+
+	if (isNumber(userInput)) {
+		return stoi(userInput);
+	}
+	else {
+		return 0;
+	}
+}
+
+
+string handleUserInput(int option) {
+	string userInput ;
+	switch (status)
+	{
+	case 0: {
+		string username;
+		string password;
+		cout << "Please input your username: ";
+		cin >> username;
+		cout << "Please input your password: ";
+		cin >> password;
+		if (option == 1) {
+			userInput = "USER " + username + " " + password;
+		}
+		if (option == 2) {
+			userInput = "SIGNUP " + username + " " + password;
+		}
+		break;
+	}
+	case 1: {
+		if (option == 1) {
+			userInput = "GETTEAMS";
+		}
+		if (option == 2) {
+			string id;
+			cout << "Please input ID team: ";
+			cin >> id;
+			userInput = "JOIN " + id;
+		}
+		if (option == 3) {
+			string teamName;
+			cout << "Please input your name team: ";
+			cin >> teamName;
+			userInput = "CREATE " + teamName;
+		}
+		if (option == 4) {
+			userInput = "SIGNOUT";
+		}
+	}
+
+	}
+	
+	// Handle user input here
+	return userInput;
+}
+
 int main(int argc, char* argv[]) {
 	// Handle command line parameter
 	if (argc == 3) {
@@ -66,10 +150,21 @@ int main(int argc, char* argv[]) {
 
 		int option;
 		while (true) {
-			string inputData;
-			cout << "Input your statement: " << endl;
-			getline(cin,inputData);
-			string userInput = handleUserInput(inputData);
+			option = showMenu(status);
+			
+			while (status == 0 && option <= 0 || option >= 3) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(status);
+			}
+
+			while (status == 1 && option <= 0 || option >= 5) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(status);
+			}
+			
+			//cout << "Input your statement: " << endl;
+			//getline(cin, inputData);
+			string userInput = handleUserInput(option);
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";
 				getline(cin, userInput);
@@ -93,15 +188,12 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-string handleUserInput(string userInput) {
-	// Handle user input here
-	return userInput;
-}
 
 void handleResponse(char* res) {
 	switch (atoi(res)) {
 	case RES_LOGIN_SUCCESS: {
 		cout << "Login successful!" << endl;
+		status = 1;
 		break;
 	}
 	case RES_SIGNUP_SUCCESS: {
