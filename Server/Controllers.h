@@ -249,12 +249,17 @@ string accountSignOut(string username) {
 				team->members[1] = NULL;
 				team->members[2] = NULL;
 				// reset team leader info
-				LogginS* teamLeader = team->members[0];
-
-
-
-				
+				LoginSession* teamLeader = team->members[0];
+				resetUserInfo(teamLeader);
+				return "240";
 			}
+			case 4: 
+			case 5: {
+				// reset data in team, userinfo
+				UserInfo* user = &loginSessions[i]->userInfo;
+				teams[user->teamId]->members; // if this player is the last one alive of team ?????
+			}
+
 			};
 			default:
 				break;
@@ -263,6 +268,50 @@ string accountSignOut(string username) {
 	}
 	// if this account hasnt logged in
 	return "211";
+}
+// 8. Get out of team
+string getOutTeam(UserInfo* userInfo) {
+
+	if (userInfo->teamId == -1) return "311";
+	switch (userInfo->status){
+	case 0: {
+		return "211";
+	}
+	case 2: {
+		// kick member out of team
+		if (!strcmp(teams[userInfo->teamId]->members[1]->userInfo.username.c_str, userInfo->username.c_str)) {
+			teams[userInfo->teamId]->members[1] = NULL;
+		}
+		else teams[userInfo->teamId]->members[2] = NULL;
+		// reset member status and roomId
+		userInfo->status = 1;
+		userInfo->teamId = -1;
+		return "310";
+	}
+	case 3: {// team leader
+		// update member info and kick out of team
+		Team* team = teams[userInfo->teamId];
+		team->members[1]->userInfo.status = 1;
+		team->members[1]->userInfo.teamId = -1;
+		team->members[2]->userInfo.status = 1;
+		team->members[2]->userInfo.teamId = -1;
+		for (int i = 0; i < 3; i++) {
+			team->members[i] = NULL;
+		}
+		//update user info
+		userInfo->status = 1;
+		userInfo->teamId = -1;
+		return "310";
+	}
+	case 4: {
+
+	}
+	default:
+		break;
+	}
+
+
+
 }
 
 void resetUserInfo(LoginSession* loginSession) {
