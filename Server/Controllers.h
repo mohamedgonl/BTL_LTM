@@ -238,8 +238,22 @@ string accountSignOut(string username) {
 				}
 				resetUserInfo(loginSessions[i]);
 				return "240";
-			case 3: {
+			case 3: { // team leader
+				// reset team members
+				Team* team = teams[loginSessions[i]->userInfo.teamId];
+				team->members[1]->userInfo.teamId = -1;
+				team->members[2]->userInfo.teamId = -1;
+				team->members[1]->userInfo.status = 1;
+				team->members[2]->userInfo.status = 1;
+				// kick team member
+				team->members[1] = NULL;
+				team->members[2] = NULL;
+				// reset team leader info
+				LogginS* teamLeader = team->members[0];
 
+
+
+				
 			}
 			};
 			default:
