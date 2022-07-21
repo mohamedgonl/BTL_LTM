@@ -4,12 +4,11 @@
 #include "FunctionPrototypes.h"
 #include "Controller.h"
 
-int status = 0;
-
 int showMenu(int status) {
 	string userInput;
 	switch (status)
 	{
+// not login
 	case 0: {
 		cout << "================ Menu ================" << endl;
 		cout << "1. Login " << endl;
@@ -18,6 +17,7 @@ int showMenu(int status) {
 		cin >> userInput;
 		break;
 	}
+// in waiting room
 	case 1: {
 		cout << "================ Waitting ================" << endl;
 		cout << "1. Get list room " << endl;
@@ -27,6 +27,22 @@ int showMenu(int status) {
 		cout << "Please select your options [1,2,3,4]: ";
 		cin >> userInput;
 		break;
+	}
+// in a team
+	case 2: {
+		cout << "================ In team ================" << endl;
+		cout << "1. Get list member " << endl;
+		cout << "2. Leave team " << endl;
+		cout << "Please select your options [1,2]: ";
+	}
+// host'room
+	case 3: {
+		cout << "================ Host ================" << endl;
+		cout << "1. Get users in waiting room" << endl;
+		cout << "2. Verify user want to join team" << endl;
+		cout << "3. Refuse user to join team" << endl;
+		cout << "4. Invite user to join team" << endl;
+		//cout << "5. 
 	}
 	default: {
 
@@ -82,6 +98,22 @@ string handleUserInput(int option) {
 		}
 	}
 
+	case 2: {
+		if (option == 1) {
+			userInput = "GETMEMBERS";
+		}
+		if (option == 2) {
+			userInput = "OUTTEAM";
+		}
+	}
+	case 3: {
+		if (option == 1) {
+			userInput = "GETUSERS";
+		}
+		if (option == 2) {
+			userInput = "M_ACCEPT username";
+		}
+	}
 	}
 	
 	// Handle user input here
@@ -189,21 +221,4 @@ int main(int argc, char* argv[]) {
 }
 
 
-void handleResponse(char* res) {
-	switch (atoi(res)) {
-	case RES_LOGIN_SUCCESS: {
-		cout << "Login successful!" << endl;
-		status = 1;
-		break;
-	}
-	case RES_SIGNUP_SUCCESS: {
-		cout << "Sign up successful!" << endl;
-		break;
-	}
-	case INVALID_COMMAND: {
-		cout << "Command is incorrect!" << endl;
-		break;
-	}
-	}
-}
 
