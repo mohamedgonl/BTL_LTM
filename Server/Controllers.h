@@ -132,21 +132,24 @@ queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZ
 
 	// 2. Login
 	string loginAccount(string username, string password, UserInfo* userInfo) {
-
 	// check if account is logged in
-	for (int i = 0; i < sizeof(loginSessions); i++) {
-		if (!loginSessions[i]->userInfo.username.compare(username)) return "113";
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (loginSessions[i]) {
+			if (! ((loginSessions[i]->userInfo.username).compare(username))) return "113";
+		}
 	}
 	// if this account has not logged in
-	for (int i = 0; i < sizeof(accounts); i++) {
-		if (!accounts[i].username.compare(username)) {
-			if (!accounts[i].password.compare(password)) { // if username and password matched
-			// update user info
-				userInfo->username = username;
-				userInfo->status = 1;
-				return "110";
+	for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
+		if (&accounts[i]) {
+			if (!accounts[i].username.compare(username)) {
+				if (!accounts[i].password.compare(password)) { // if username and password matched
+				// update user info
+					userInfo->username = username;
+					userInfo->status = 1;
+					return "110";
+				}
+				else return "112";
 			}
-			else return "112";
 		}
 	}
 	return "111";
@@ -156,9 +159,10 @@ queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZ
 
 string registerAccount(string username, string password) {
 	for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
-		if (! (accounts[i].username.compare(username)) ) // if username is existed
-			return "121";
-	}
+		if (&accounts[i])
+			if (!(accounts[i].username.compare(username)) ) // if username is existed
+				return "121";
+		}
 	// save account to data file
 	try
 	{
@@ -191,8 +195,8 @@ string getAllTeams(UserInfo* userInfo) {
 	if (userInfo->status == 0) return "211";
 
 	string response= "210|";
-	for (int i = 0; i < sizeof(teams); i++) {
-		if (teams[i]->members[0] != NULL) { // if team has linked to team leader
+	for (int i = 0; i < MAX_TEAM; i++) {
+		if (teams[i]!=NULL && teams[i]->members[0] != NULL) { // if team has linked to team leader
 		response += std::to_string(teams[i]->id);
 		response += " "+teams[i]->name;
 		int numOfMems = 0;
@@ -208,9 +212,14 @@ string getAllTeams(UserInfo* userInfo) {
 // 5. Join team
 
 string joinTeam(UserInfo* userInfo, unsigned int teamId) {
-	for (int i = 0; i < sizeof(teams); i++) {
-		if (teams[i]->id == teamId) {
-			if (sizeof(teams[i]->members) < 3) {
+	for (int i = 0; i < MAX_TEAM; i++) {
+		if (teams[i]!=NULL && teams[i]->id == teamId) {
+			// find numbers of member in team
+			int numOfMems = 0;
+			for (int j = 0; j < 3; j++) {
+				if (teams[i]->members[j] != NULL) numOfMems++;
+			}
+			if (numOfMems < 3) {
 				string s = "230|" + userInfo->username;
 				// send join request to team leader
 				char* _s = (char*)malloc(s.length() * sizeof(char));
@@ -247,7 +256,7 @@ string accountSignOut(string username) {
 	int i;
 	for (i = 0; i < MAX_CLIENT; i++) {
 		// find logginsession has same username
-		if (!strcmp(loginSessions[i]->userInfo.username.c_str(), username.c_str())) {
+		if (loginSessions[i] && !strcmp(loginSessions[i]->userInfo.username.c_str(), username.c_str())) {
 			// check status
 			switch (loginSessions[i]->userInfo.status){
 			case 0: return "211";

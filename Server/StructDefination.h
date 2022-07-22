@@ -13,7 +13,6 @@ struct UserInfo {
 	unsigned int rocket = 0;
 	int teamId = -1; // -1 if haven't join any team
 };
-
 // define user session struct info
 typedef struct SocketInfo {
 	SOCKET connSocket;
@@ -23,7 +22,7 @@ typedef struct SocketInfo {
 
 struct LoginSession {
 	SocketInfo socketInfo;
-	UserInfo userInfo;
+	UserInfo userInfo ;
 	char buff[2048];
 };
 

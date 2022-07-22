@@ -4,7 +4,7 @@
 #include "FunctionPrototypes.h"
 #include "GlobalVariable.h"
 
-int main1(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 	if (argc == 2) {
 		if (isNumber(argv[1])) {
 			if (atoi(argv[1]) >= 0 && atoi(argv[1]) <= 65535) {
@@ -111,10 +111,7 @@ int main1(int argc, char* argv[]) {
 	WSACleanup();
 	return 0;
 }
-int main() {
-	string res = registerAccount("longnq23422", "123");
-	cout << res;
-}
+
 unsigned __stdcall workingThread(void* params) {
 	int startIndex = (int)params;
 	WSANETWORKEVENTS sockEvent;
