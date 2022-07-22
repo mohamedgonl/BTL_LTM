@@ -4,9 +4,16 @@
 #include "FunctionPrototypes.h"
 #include "Controller.h"
 
-int showMenu(int status) {
+
+struct paramThread {
+	SOCKET connectedSocket;
+	sockaddr_in serverAddr;
+};
+
+int showMenu(int *status) {
+	bool crash = false;
 	string userInput;
-	switch (status)
+	switch (*status)
 	{
 // not login
 	case 0: {
@@ -14,7 +21,15 @@ int showMenu(int status) {
 		cout << "1. Login " << endl;
 		cout << "2. Sign up " << endl;
 		cout << "Please select your options [1,2]: ";
-		cin >> userInput;
+		
+		while (cin >> userInput) {
+			if (*status != 0) break;
+		};
+		string x;
+		getline(cin, x);
+		if (*status != 0) {
+			crash++;
+		}
 		break;
 	}
 // in waiting room
@@ -26,6 +41,9 @@ int showMenu(int status) {
 		cout << "4. Sign out " << endl;
 		cout << "Please select your options [1,2,3,4]: ";
 		cin >> userInput;
+		string x;
+		getline(cin, x);
+		cout << "Status = 1" << endl;
 		break;
 	}
 // in a team
@@ -34,6 +52,7 @@ int showMenu(int status) {
 		cout << "1. Get list member " << endl;
 		cout << "2. Leave team " << endl;
 		cout << "Please select your options [1,2]: ";
+		break;
 	}
 // host'room
 	case 3: {
@@ -42,14 +61,15 @@ int showMenu(int status) {
 		cout << "2. Verify user want to join team" << endl;
 		cout << "3. Refuse user to join team" << endl;
 		cout << "4. Invite user to join team" << endl;
+		break;
 		//cout << "5. 
 	}
 	default: {
 
 	}
 	}
-
-	if (isNumber(userInput)) {
+	if (isNumber(userInput) && !crash) {
+		
 		return stoi(userInput);
 	}
 	else {
@@ -59,22 +79,25 @@ int showMenu(int status) {
 
 
 string handleUserInput(int option) {
-	string userInput ;
+	string userInput;
 	switch (status)
 	{
 	case 0: {
 		string username;
 		string password;
 		cout << "Please input your username: ";
-		cin >> username;
+		getline(cin, username);
 		cout << "Please input your password: ";
-		cin >> password;
+		getline(cin, password);
 		if (option == 1) {
-			userInput = "USER " + username + " " + password;
+			userInput = "LOGIN " + username + " " + password;
+			cout << userInput;
 		}
 		if (option == 2) {
 			userInput = "SIGNUP " + username + " " + password;
+			cout << userInput;
 		}
+		if (status != 0) break;
 		break;
 	}
 	case 1: {
@@ -96,6 +119,7 @@ string handleUserInput(int option) {
 		if (option == 4) {
 			userInput = "SIGNOUT";
 		}
+		break;
 	}
 
 	case 2: {
@@ -105,6 +129,7 @@ string handleUserInput(int option) {
 		if (option == 2) {
 			userInput = "OUTTEAM";
 		}
+		break;
 	}
 	case 3: {
 		if (option == 1) {
@@ -113,11 +138,46 @@ string handleUserInput(int option) {
 		if (option == 2) {
 			userInput = "M_ACCEPT username";
 		}
+		break;
 	}
 	}
 	
 	// Handle user input here
 	return userInput;
+}
+
+unsigned __stdcall echoThread(void *paramUndefined) {
+	paramThread param = *((paramThread*)paramUndefined);
+	SOCKET connectedSocket = param.connectedSocket;
+	sockaddr_in serverAddr = param.serverAddr;
+	int serverAddrLen = sizeof(serverAddr);
+	char buff[BUFF_SIZE], buffer[BUFF_SIZE] = "", temp[BUFF_SIZE] = "";
+	int ret;
+	char *p;
+	// 1024
+	bool logging = false;
+	char userLogged[50];
+	while (1) {
+		ret = recv(connectedSocket, buff, BUFF_SIZE, 0);
+		if (ret == SOCKET_ERROR) {
+			printf("Error %d: Cannot receive data.\n", WSAGetLastError());
+			// Disconnect client
+			break;
+		}
+		else if (ret == 0) {
+			printf("Client disconnects.\n");
+			// Disconnect client
+			break;
+		}
+		else if (strlen(buff) > 0) {
+			buff[ret] = 0;
+			printf("Receive from server %s\n", buff);
+			handleResponse(buff);
+		}
+	}
+	printf("Out ra roi \n");
+	closesocket(connectedSocket);
+	return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -157,7 +217,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Set time-out for receiving
-	int tv = 10000; //Time-out interval: 10000ms
+	int tv = 100000; //Time-out interval: 10000ms
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
 
 	// Specify server address
@@ -171,31 +231,40 @@ int main(int argc, char* argv[]) {
 		printf("Error %d: Cannot connect server.\n", WSAGetLastError());
 		return 0;
 	}
+	
 	printf("Connected server!\n");
 
+
 	// Communicate with server
+	
 	char buff[BUFF_SIZE], temp[BUFF_SIZE];
 	string userInput;
+	paramThread param;
+	param.connectedSocket = client;
+	param.serverAddr = serverAddr;
 	int ret, messageLen, num;
+	_beginthreadex(0, 0, echoThread, (void *)&param, 0, 0);
 
 	while (1) {
 
 		int option;
 		while (true) {
-			option = showMenu(status);
+			option = showMenu(&status);
 			
 			while (status == 0 && option <= 0 || option >= 3) {
 				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(status);
+				option = showMenu(&status);
 			}
 
 			while (status == 1 && option <= 0 || option >= 5) {
 				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(status);
+				option = showMenu(&status);
 			}
 			
 			//cout << "Input your statement: " << endl;
 			//getline(cin, inputData);
+			cout << "option : " << option << endl;
+			cout << "Da den tan day" << endl;
 			string userInput = handleUserInput(option);
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";
@@ -204,11 +273,13 @@ int main(int argc, char* argv[]) {
 			userInput = userInput + ENDING_DELIMITER;
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
-			ret = Receive(client, buff, BUFF_SIZE, 0);
-			if (ret > 0) {
+			//Sleep(100);
+			cout << buff;
+			//ret = Receive(client, buff, BUFF_SIZE, 0);
+			/*if (ret > 0) {
 				buff[ret] = 0;
 				handleResponse(buff);
-			}
+			}*/
 		}
 	}
 	// Close socket

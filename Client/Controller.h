@@ -39,14 +39,15 @@ int showMenu() {
 		return 0;
 	}
 }
+
 int status = 0;
 
 void handleResponse(char* res) {
 	switch (atoi(res)) {
 	case RES_LOGIN_SUCCESS: {
-		cout << "Login successful!" << endl;
 		status = 1;
-		break;
+		cout << "Login successful!" << endl;
+		return;
 	}
 	case RES_SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
@@ -78,13 +79,17 @@ void handleResponse(char* res) {
 	}
 	case CREATE_TEAM_SUCCESS: {
 		cout << "Create team successfully" << endl;
+		break;
 	}
 	case RES_NOT_AUTHORIZE: {
 		cout << "You are unauthorized" << endl;
+		break;
 	}
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Send request to join team successfully" << endl;
+		break;
 	}
+
 	}
 }
 

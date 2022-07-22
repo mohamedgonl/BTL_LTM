@@ -75,6 +75,12 @@ int main(int argc, char* argv[]) {
 			int i, j;
 			bool isFinded = false;
 			cout << "Accept from client: " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << endl;
+			/*while (1) {
+				Sleep(2000);
+			char* sendData = "Binh lam roi \n";
+			Send(connSock, sendData, strlen(sendData), 0);
+			}*/
+			
 			for (i = 0; i < MAX_THREAD; i++) {
 				for (j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
 					if (dataThread[i].loginSession[j].socketInfo.connSocket == 0) {
@@ -130,6 +136,7 @@ unsigned __stdcall workingThread(void* params) {
 
 			// Chi so chinh xac cua bo bao su kien	
 			index = index - WSA_WAIT_EVENT_0;
+
 			WSAEnumNetworkEvents(dataThread[startIndex].loginSession[index].socketInfo.connSocket, dataThread[startIndex].events[index], &sockEvent);
 			int ret;
 			char rcvBuff[BUFF_SIZE + 1];
@@ -149,7 +156,9 @@ unsigned __stdcall workingThread(void* params) {
 					LeaveCriticalSection(&critical);
 				}
 				else {
+					
 					rcvBuff[ret] = 0;
+					cout << rcvBuff;
 					interactWithClient(dataThread[startIndex].loginSession[index], rcvBuff);
 					WSAResetEvent(dataThread[startIndex].events[index]);
 				}
@@ -187,7 +196,9 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 		statement = statements.front();
 
 		statements.pop();
+		//cin >> sendData;
 		sendData = handleResponse(statement, loginSession);
+		printf("send to client %s\n", sendData);
 		Send(connectedSocket, sendData, strlen(sendData), 0);
 	}
 }

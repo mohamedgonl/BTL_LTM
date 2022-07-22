@@ -41,7 +41,6 @@ list<char*> splitMsg(char* msg) {
 
 int Receive(SOCKET s, char *buff, int size, int flags) {
 	int n;
-
 	n = recv(s, buff, size, flags);
 	if (n == SOCKET_ERROR) {
 		printf("Error: %", WSAGetLastError());
