@@ -22,19 +22,7 @@ using namespace std;
 #define SERVER_ADDR "127.0.0.1"
 #define ENDING_DELIMITER "/"
 #define MAX_THREAD 50
-<<<<<<< HEAD
-#include <fstream> 
-#pragma comment (lib, "Ws2_32.lib")
 
-// Define global variables
-Account accounts[100];
-LoginSession* loginSessions[100];
-Team* teams[];
-Room* rooms[];
-Question* questions[];
-string fileDirectory;
-
-=======
 #pragma comment (lib, "Ws2_32.lib")
 
 #ifndef RESPONSE_CODE
@@ -44,4 +32,4 @@ string fileDirectory;
 #define RES_SIGNUP_SUCCESS "120"
 
 #endif // !RESPONSE_CODE
->>>>>>> ae0cb19829a6d10e3c22c3777d210e1c6c6d7c2e
+

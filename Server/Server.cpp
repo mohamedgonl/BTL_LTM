@@ -1,42 +1,8 @@
 #include "StructDefination.h"
 #include "Controllers.h"
 #include "stdafx.h"
-<<<<<<< HEAD
-
-
-
-
-LoginSession acc[MAX_NUM_ACCOUNT];
-CRITICAL_SECTION critical;
-list<char*> splitMsg(char* msg);
-DataThread dataThread[MAX_THREAD];
-int numOfAccount = 0;
-int numOfThread = 0;
-int numOfConn = 0;
-int SERVER_PORT = 5500;
-
-/**
-* The freeSockInfo function remove a socket from array
-* @param	siArray		An array of pointers of socket information struct
-* @param	n	Index of the removed socket
-*/
-void freeSockInfo(LoginSession* siArray, int n);
-
-queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]);
-void closeEventInArray(WSAEVENT* eventArr, int n);
-vector<string> splitData(string inlineData, string del);
-int Send(SOCKET s, char *buff, int size, int flags);
-int Receive(SOCKET s, char *buff, int size, int flags);
-unsigned __stdcall workingThread(void* params);
-void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]);
-list<char*> splitMsg(char* msg);
-int isNumber(char* text);
-char* handleResponse(char* it, LoginSession &loginSession);
-
-=======
 #include "FunctionPrototypes.h"
 #include "GlobalVariable.h"
->>>>>>> ae0cb19829a6d10e3c22c3777d210e1c6c6d7c2e
 
 int main(int argc, char* argv[]) {
 	if (argc == 2) {

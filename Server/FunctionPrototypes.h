@@ -1,3 +1,5 @@
+#ifndef FunctionPrototypes_h
+#define FunctionPrototypes_h
 void freeSockInfo(LoginSession* siArray, int n);
 queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]);
 void closeEventInArray(WSAEVENT* eventArr, int n);
@@ -9,5 +11,5 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]);
 list<char*> splitMsg(char* msg);
 int isNumber(char* text);
 char* handleResponse(char* it, LoginSession &loginSession);
-
+#endif 
 
