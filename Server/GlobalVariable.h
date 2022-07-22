@@ -1,11 +1,14 @@
 #include "stdafx.h"
 #include "StructDefination.h"
 
+#ifndef GlobalVariable
+#define GlobalVariable
 Account accounts[MAX_NUM_ACCOUNT];
-LoginSession* loginSessions[MAX_CLIENT];
+LoginSession *loginSessions[MAX_CLIENT];
 Team* teams[MAX_TEAM];
 Room* rooms[MAX_ROOM];
 Question* questions[MAX_QUESTION];
+QuestionDescription* questionDescriptions[MAX_QUESTION];
 LoginSession acc[MAX_NUM_ACCOUNT];
 CRITICAL_SECTION critical;
 list<char*> splitMsg(char* msg);
@@ -24,7 +27,7 @@ map<string, int> action = {
 	{ "OUTTEAM", 8 },
 	{ "GETMEMBERS", 9 },
 	{ "GETUSERS", 10 },
-	{ "MACCEPT", 11 },
+	{ "M_ACCEPT", 11 },
 	{ "M_DECLINE", 12 },
 	{ "INVITED", 13 },
 	{ "ACCEPT", 14 },
@@ -44,4 +47,7 @@ map<string, int> action = {
 };
  
 
+
+
+#endif // !GlobalVariable
 

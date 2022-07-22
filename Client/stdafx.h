@@ -26,6 +26,8 @@ using namespace std;
 #define INVALID_COMMAND 99
 #define RES_LOGIN_SUCCESS 110
 #define RES_SIGNUP_SUCCESS 120
+#define RES_LOGIN_NOT_LOGIN 211
+
 
 #endif // !RESPONSE_CODE
 

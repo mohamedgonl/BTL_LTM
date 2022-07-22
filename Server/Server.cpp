@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "FunctionPrototypes.h"
 #include "GlobalVariable.h"
-
+#pragma once
 int main(int argc, char* argv[]) {
 	if (argc == 2) {
 		if (isNumber(argv[1])) {
@@ -57,14 +57,28 @@ int main(int argc, char* argv[]) {
 	// Communicate with client
 	SOCKET connSock;
 	char buff[BUFF_SIZE + 1];
+	// Init array data
 	sockaddr_in clientAddr;
-	int clientAddrLen = sizeof(clientAddr);
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		LoginSession loginSession = {
+
+		};
+		loginSessions[i] = &loginSession;
+	}
+	for (int i = 0; i < MAX_TEAM; i++) {
+		Team team = {
+
+		};
+		teams[i] = &team;
+	}
 	for (int i = 0; i < MAX_THREAD; i++) {
 		for (int j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
 			dataThread[i].loginSession[j].socketInfo.connSocket = 0;
 		}
 	}
 
+
+	int clientAddrLen = sizeof(clientAddr);
 	InitializeCriticalSection(&critical);
 	while (1) {
 		connSock = accept(listenSock, (sockaddr*)&clientAddr, &clientAddrLen);
@@ -87,6 +101,12 @@ int main(int argc, char* argv[]) {
 						EnterCriticalSection(&critical);
 						numOfConn++;
 						LeaveCriticalSection(&critical);
+						for (int k = 0; k < MAX_CLIENT; k++) {
+							if (loginSessions[k]->socketInfo.connSocket == 0) {
+								loginSessions[k] = &dataThread[i].loginSession[j];
+								break;
+							}
+						}
 						isFinded = true;
 						break;
 					}
@@ -117,7 +137,7 @@ unsigned __stdcall workingThread(void* params) {
 	WSANETWORKEVENTS sockEvent;
 	DWORD index;
 	while (1) {
-		if (dataThread[startIndex].nEvents > 0) {
+			if (dataThread[startIndex].nEvents > 0) {
 			index = WSAWaitForMultipleEvents(dataThread[startIndex].nEvents, dataThread[startIndex].events, FALSE, 1, FALSE);
 			if (index == WSA_WAIT_FAILED) {
 				printf("Error %d: WSAWaitForMultipleEvents() failed\n", WSAGetLastError());
@@ -200,12 +220,25 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 	}
 	else {
 		switch (action.find(command)->second) {
-		case 2: {
-			return RES_LOGIN_SUCCESS;
+		case 10: {
+			string responseData = getListUserInWaitingRoom(loginSession);
+			char* returnData = (char*)malloc(responseData.length()*sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
 		}
-		case 3: {
+		case 11: {
+			string responseData = acceptRequestJoinTeam(loginSession, splitData(it, " ")[1]);
+			char* returnData = (char*)malloc(responseData.length()*sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 2: {
+			loginSession.userInfo.status = 3;
+			loginSession.userInfo.username = "hmm";
 			return RES_SIGNUP_SUCCESS;
 		}
 		}
 	}
 }
+
+

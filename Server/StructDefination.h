@@ -4,18 +4,19 @@
 #define StructDefination_h
 
 struct UserInfo {
-	string username;
-	unsigned int status; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
-	unsigned int coin = 0;
+	string username = "";
+	unsigned int status=1; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
+	unsigned int coin =0 ;
 	unsigned int HP[3] = { 1000, 0, 0 };
 	int sungtudong[4] = { 50, -200, -200, -200 };
 	int laze[4] = { -90, -90, -90, -90 };
 	unsigned int rocket = 0;
+	int lastTimeATK = 0;
 	int teamId = -1; // -1 if haven't join any team
 };
 
 // define user session struct info
-typedef struct SocketInfo {
+struct SocketInfo {
 	SOCKET connSocket;
 	char clientIP[INET_ADDRSTRLEN];
 	int clientPort;
@@ -27,7 +28,7 @@ struct LoginSession {
 	char buff[2048];
 };
 
-typedef struct DataThread {
+struct DataThread {
 	LoginSession loginSession[MAX_CLIENT_IN_A_THREAD + 1];
 	WSAEVENT events[MAX_CLIENT_IN_A_THREAD + 1];
 	DWORD nEvents = 0;
@@ -53,19 +54,26 @@ struct Item_Attack {
 	unsigned int dame;
 };
 
+struct QuestionDescription {
+	string question;
+	string answers[4];
+};
+
 // define question struct
 struct Question {
-	int status = 0;
-	string description;
-	unsigned int key; // key = 1 || 2 || 3 || 4 
+	int id;
+	int status = 0; // 0 has answered, 1: answered
+	QuestionDescription* description;
+	string key; // key = 1 || 2 || 3 || 4 
+
 	unsigned int coin;
 };
 
 // define team struct
 struct Team {
 	unsigned int id;
-	string name;
-	LoginSession** members;
+	string name = "";
+	LoginSession* members[3];
 	int status = 0; // 0 if not ingame, 1 if ingame
 	int roomId = -1;
 };
@@ -73,7 +81,7 @@ struct Team {
 // define room struct
 
 struct Room {
-	int id;
+	int id = -1;
 	int status;
 	Team* team1;
 	Team* team2;
