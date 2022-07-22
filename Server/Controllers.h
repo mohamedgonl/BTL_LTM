@@ -141,7 +141,7 @@ queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZ
 	for (int i = 0; i < sizeof(accounts); i++) {
 		if (!accounts[i].username.compare(username)) {
 			if (!accounts[i].password.compare(password)) { // if username and password matched
-																	   // update user info
+			// update user info
 				userInfo->username = username;
 				userInfo->status = 1;
 				return "110";
@@ -155,25 +155,32 @@ queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZ
 // 3. Register
 
 string registerAccount(string username, string password) {
-	for (int i = 0; i < sizeof(accounts); i++) {
-		if (!accounts[i].username.compare(username)) // if username is existed
+	for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
+		if (! (accounts[i].username.compare(username)) ) // if username is existed
 			return "121";
 	}
-
 	// save account to data file
-
 	try
 	{
-		ofstream file(fileDirectory);
-		file << username << " " << password<<"\n";
-
+		fstream file;
+		string account = username + " " + password;
+		file.open(fileDirectory,ios::app);
+		if (file) {
+			file << account << endl;
+			file.close();
+			return "120";
+		}
+		else {
+			cout << "File not existed";
+			file.close();
+			return "122";
+		}
 	}
 	catch (const std::exception&)
 	{
 		cout << "Error at function 3.Register: Save data error\n";
 		return "122";
 	}
-	return "120";
 }
 
 // 4. Get list all teams
@@ -363,7 +370,19 @@ string getFreePlayers(UserInfo* userInfo) {
 // 21. Buy item
 
 string buyItem(string item, UserInfo* userInfo) {
-	return "buyitem";
+	switch (userInfo->status){
+	case 0: return "221";
+	case 1: return "311";
+	case 2:
+	case 3: return "413";
+	case 5: return "414";
+	case 4: {
+
+	}
+	default:
+		cout << "Error at 21. Buy item function\n";
+		break;
+	}
 }
 
 // 22. Get info of all players in the game

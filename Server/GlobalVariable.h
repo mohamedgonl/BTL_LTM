@@ -16,7 +16,7 @@ int numOfAccount = 0;
 int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
-string fileDirectory;
+string fileDirectory="C:\\Users\\long\\Desktop\\account.txt";
 map<string, int> action = {
 	{ "LOGIN", 2 },
 	{ "SIGNUP", 3 },
@@ -45,7 +45,7 @@ map<string, int> action = {
 	{ "SURR", 27 },
 	{ "ENDGAME", 28 },
 };
- 
+
 
 #endif 
 
