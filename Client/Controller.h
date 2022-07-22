@@ -41,9 +41,13 @@ int showMenu() {
 }
 
 int status = 0;
+string listTeamInvite;
 
 void handleResponse(char* res) {
-	switch (atoi(res)) {
+	char subbuff[4];
+	memcpy( subbuff, &res[0], 3 );
+	subbuff[3] = '\0';
+	switch (atoi(subbuff)) {
 	case RES_LOGIN_SUCCESS: {
 		status = 1;
 		cout << "Login successful!" << endl;
@@ -89,7 +93,20 @@ void handleResponse(char* res) {
 		cout << "Send request to join team successfully" << endl;
 		break;
 	}
-
+	case RECEIVE_INVITATION_SUCCESS: {
+		if (status == 0) {
+			cout << "Receive invitation form team id: " << (res + 4) << endl;
+			listTeamInvite = listTeamInvite + (res + 4) + " ";
+			cout << listTeamInvite;
+		}
+		else {
+			string decline ;
+			string pre = "261|";
+		    decline = pre + (res + 4);
+			
+		}
+		break;
+	}
 	}
 }
 

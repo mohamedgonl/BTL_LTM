@@ -199,6 +199,10 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 		//cin >> sendData;
 		sendData = handleResponse(statement, loginSession);
 		printf("send to client %s\n", sendData);
+		sendData = "363|32";
+		Send(connectedSocket, sendData, strlen(sendData), 0);
+		Sleep(100);
+		sendData = "363|33";
 		Send(connectedSocket, sendData, strlen(sendData), 0);
 	}
 }

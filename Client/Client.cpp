@@ -22,9 +22,8 @@ int showMenu(int *status) {
 		cout << "2. Sign up " << endl;
 		cout << "Please select your options [1,2]: ";
 		
-		while (cin >> userInput) {
-			if (*status != 0) break;
-		};
+		cin >> userInput;
+			
 		string x;
 		getline(cin, x);
 		if (*status != 0) {
@@ -39,7 +38,8 @@ int showMenu(int *status) {
 		cout << "2. Join room " << endl;
 		cout << "3. Create room " << endl;
 		cout << "4. Sign out " << endl;
-		cout << "Please select your options [1,2,3,4]: ";
+		cout << "5. Accept invitation to join team" << endl;
+		cout << "Please select your options [1,2,3,4,5]: ";
 		cin >> userInput;
 		string x;
 		getline(cin, x);
@@ -61,8 +61,19 @@ int showMenu(int *status) {
 		cout << "2. Verify user want to join team" << endl;
 		cout << "3. Refuse user to join team" << endl;
 		cout << "4. Invite user to join team" << endl;
-		break;
-		//cout << "5. 
+		cout << "5. Kick user" << endl;
+		cout << "6. Get all teams" << endl;
+		cout << "7. Challenge team" << endl; 
+		cout << "8. Accept challenge" << endl;
+		cout << "9. Decline challenge" << endl;
+		cout << "10. Surrender" << endl;
+	}
+	case 4: {
+		cout << "1. BUY item" << endl;
+		cout << "2. Get information in game" << endl;
+		cout << "3. Get own information" << endl;
+		cout << "4. Attack oponent" << endl;
+		cout << "5. Answer quiz" << endl;
 	}
 	default: {
 
@@ -120,6 +131,20 @@ string handleUserInput(int option) {
 			userInput = "SIGNOUT";
 		}
 		break;
+
+		if (option == 5) {
+			string id;
+			cout << "Accept invitation to join team with id:" << endl;
+			cin >> id;
+			userInput = "Accept " + id;
+
+		}
+		if (option == 6) {
+			string id;
+			cout << "Decline invitation to join team with id:" << endl;
+			cin >> id;
+			userInput = "Decline " + id;
+		}
 	}
 
 	case 2: {
@@ -130,6 +155,8 @@ string handleUserInput(int option) {
 			userInput = "OUTTEAM";
 		}
 		break;
+
+
 	}
 	case 3: {
 		if (option == 1) {
@@ -139,6 +166,65 @@ string handleUserInput(int option) {
 			userInput = "M_ACCEPT username";
 		}
 		break;
+		if (option == 3) {
+			userInput = "M_DECLINE username";
+		}
+		if (option == 4) {
+			string username;
+			cout << "Username you want to invite:";
+			cin >> username;
+			userInput = "INVITE "+username;
+		}
+		if (option == 5) {
+			string username;
+			cout << "Username you want to kick:";
+			cin >> username;
+			userInput = "KICK " + username;
+		}
+		if (option == 6) {
+			userInput = "GETTEAMS";
+		}
+		if (option == 7) {
+			string teamId;
+			cout << "Teamid you want to challenge:";
+			cin >> teamId;
+			userInput = "CHALLENGE " + teamId;
+		}
+		if (option == 8) {
+			userInput = "ACCEPTCHALLENGE";
+		}
+		if (option == 9) {
+			userInput = "DECLINECHALLENGE";
+		}
+		if (option == 10) {
+			userInput = "SURR";
+		}
+	}
+	case 4: {
+		if (option == 1) {
+			string item_name;
+			cout << "Item name you want to buy:";
+			cin >> item_name;
+			userInput = "BUY " + item_name;
+		}
+		if (option == 2) {
+			userInput = "GETALL";
+		}
+		if (option == 3) {
+			userInput = "GETMINE";
+		}
+		if (option == 4) {
+			string oponent_name;
+			cout << "Oponent name you want to attack:";
+			cin >> oponent_name;
+			userInput = "ATK " + oponent_name;
+		}
+		if (option == 5) {
+			string key;
+			cout << "Input your key" << endl;
+			cin >> key;
+			userInput = "ANS " + key;
+		}
 	}
 	}
 	
@@ -273,7 +359,7 @@ int main(int argc, char* argv[]) {
 			userInput = userInput + ENDING_DELIMITER;
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
-			//Sleep(100);
+			Sleep(100);
 			cout << buff;
 			//ret = Receive(client, buff, BUFF_SIZE, 0);
 			/*if (ret > 0) {
