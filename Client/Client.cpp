@@ -93,11 +93,9 @@ int showMenu(int *status) {
 	}
 	}
 	if (isNumber(userInput) && !crash) {
-		cout << "Return dung giao tri" << endl;
 		return stoi(userInput);
 	}
 	else {
-		cout << "Return sai gia tri" << endl;
 		return 0;
 	}
 }

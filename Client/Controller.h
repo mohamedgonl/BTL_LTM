@@ -49,6 +49,8 @@ void handleResponse(char* res) {
 	char subbuff[4];
 	memcpy( subbuff, &res[0], 3 );
 	subbuff[3] = '\0';
+	string pre;
+	bool Res = false;
 	switch (atoi(subbuff)) {
 	case RES_LOGIN_SUCCESS: {
 		if (status == 0) {
@@ -106,7 +108,7 @@ void handleResponse(char* res) {
 	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
 		if (status == 1) {
 			cout << "Join team id: " << res + 4 << endl;
-			string pre = res + 4;
+			pre = res + 4;
 			if (isNumber(pre)) {
 				status = 2;
 				idTeam = stoi(pre);
@@ -127,11 +129,7 @@ void handleResponse(char* res) {
 		else {
 			string pre = "261|";
 			pre = pre + (res + 4);
-			/*cout << pre;*/
-			char* returnData = (char*)malloc(pre.length() * sizeof(char));
-			strcpy(returnData, pre.c_str());
-
-			Send(global, returnData, strlen(returnData), 0);
+			
 		}
 		break;
 	}
@@ -146,6 +144,39 @@ void handleResponse(char* res) {
 			cout << "Player " << res + 4 << " decline your invitation!";
 		}
 		break;
+	}
+	case GET_ALL_TEAMS: {
+		if (status == 3) {
+			cout << "Player " << res + 4 << " decline your invitation!";
+		}
+		break;
+	}
+	case CHALLENGE_SUCCESS: {
+		if (status == 3) {
+			cout << "Your request chanllenge to team " << res + 4 << "is sent successfully!"  << endl;
+		}
+		break;
+	}
+	case RECVEICE_REQUEST_CHALLENGE: {
+		if (status == 3) {
+			cout << "Team id: " << res + 4 << " sent request challenge!" << endl;
+			pre = "390";
+		}
+		if (status == 2) {
+
+		}
+		break;
+	}
+	case MATCHING_GAME_SUCCESS: {
+		if (status == 2 || status == 3) {
+
+		}
+	}
+
+	if (Res) {
+		char* returnData = (char*)malloc(pre.length() * sizeof(char));
+		strcpy(returnData, pre.c_str());
+		Send(global, returnData, strlen(returnData), 0);
 	}
 
 	}

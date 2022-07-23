@@ -211,8 +211,8 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 			rcvBuff[ret] = 0;
 			cout << rcvBuff;
 		}
-		Sleep(1000);
-		/*sendData = "340|12";
+		Sleep(10000);
+		sendData = "340|12";
 		Send(connectedSocket, sendData, strlen(sendData), 0);
 		ret = Receive(connectedSocket, rcvBuff, BUFF_SIZE, 0);
 		if (ret <= 0) {
@@ -221,7 +221,7 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 		else {
 			rcvBuff[ret] = 0;
 			cout << rcvBuff;
-		}*/
+		}
 	}
 }
 
