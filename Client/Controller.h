@@ -57,10 +57,15 @@ void handleResponse(char* res) {
 			status = 1;
 			cout << "Login successful!" << endl;
 		}
-		return;
+		break;
 	}
 	case RES_SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
+		break;
+	}
+	case LOGOUT_SUCCESS: {
+		cout << "Sign out success!" << endl;
+		status = 0;
 		break;
 	}
 	case INVALID_COMMAND: {
@@ -95,6 +100,10 @@ void handleResponse(char* res) {
 		cout << "You are unauthorized" << endl;
 		break;
 	}
+	case NOT_IN_A_TEAM: {
+		cout << "You are not in any team!" << endl;
+		break;
+	}
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Send request to join team successfully" << endl;
 		break;
@@ -105,7 +114,35 @@ void handleResponse(char* res) {
 		}
 		break;
 	}
+
+//11
 	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
+		if (status == 3) {
+			cout << "Send accept request success!" << endl;
+		}
+		break;
+	}
+	case USER_NOT_ONLINE: {
+		if (status == 3) {
+			cout << "This user is not online!" << endl;
+		}
+		break;
+	}
+	case USER_IN_ANOTHER_TEAM: {
+		if (status == 3) {
+			cout << "This user is on another team!" << endl;
+		}
+		break;
+	}
+	case USER_NOT_HOSTTEAM: {
+		cout << "You are not a leader!" << endl;
+		break;
+	}
+	case TEAM_IS_ALREADY_FULL: {
+		cout << "Your team is full!" << endl;
+		break;
+	}
+	case JOIN_TEAM_SUCCESS: {
 		if (status == 1) {
 			cout << "Join team id: " << res + 4 << endl;
 			pre = res + 4;
@@ -114,30 +151,81 @@ void handleResponse(char* res) {
 				idTeam = stoi(pre);
 			}
 		}
+		break;
 	}
 	case ACCEPT_USER_JOIN_TEAM_FAIL: {
-		if (status == 1) {
-			cout << "Team id: " << res + 4 << " decline you join!" << endl;
+		if (status == 3) {
+			cout << "Send request accept fail!" << endl;
 		}
+		break;
+	}
+
+//12
+	case DENY_JOIN_TEAM_SUCCESS: {
+		if (status == 3) {
+			cout << "Deny join team success" << endl;
+		}
+		break;
+	}
+	
+	case USER_IN_ANOTHER_TEAM_12 : {
+		if (status == 3) {
+			cout << "This user is on another team!" << endl;
+		}
+		break;
+	}
+	case JOIN_TEAM_FAIL: {
+		if (status == 1) {
+			cout << "You are refused to join by team " << res + 4 << endl;
+		}
+		break;
+	}
+	case DENY_JOIN_TEAM_FAIL: {
+		if (status == 3) {
+			cout << "Send request deny fail!" << endl;
+		}
+		break;
+	}
+
+//13
+	case INVITE_USER_JOINTEAM_SUCCESS: {
+		if (status == 3) {
+			cout << "Send invitation success!" << endl;
+		}
+		break;
+	}
+	case USER_IN_ANOTHER_TEAM_13: {
+		if (status == 3) {
+			cout << "This user is on another team!" << endl;
+		}
+		break;
 	}
 	case RECEIVE_INVITATION_SUCCESS: {
 		if (status == 1) {
 			cout << "Receive invitation form team id: " << (res + 4) << endl;
-			//listTeamInvite = listTeamInvite + (res + 4) + " ";
 		}
 		else {
 			string pre = "261|";
 			pre = pre + (res + 4);
-
 		}
 		break;
 	}
+
+//14
 	case USER_ACCEPT_JOINTEAM_SUCCESS: {
 		if (status == 3) {
-			cout << "Player " << res + 4 << " accept your invitation!";
+			cout << "Player " << res + 4 << " accept your invitation!" << endl;
 		}
 		break;
 	}
+	case TEAM_INVALID: {
+		if (status == 1) {
+			cout << "This team does not exist!" << endl;
+		}
+		break;
+	}
+
+//15
 	case USER_REFUSE_JOINTEAM_SUCCESS: {
 		if (status == 3) {
 			cout << "Player " << res + 4 << " decline your invitation!";
