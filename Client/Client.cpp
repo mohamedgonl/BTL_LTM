@@ -23,7 +23,7 @@ int showMenu(int *status) {
 		cin >> userInput;
 		string x;
 		getline(cin, x);
-		//if (*status != 0) crash = true;
+		if (*status != 0) crash = true;
 		break;
 	}
 // in waiting room
@@ -38,7 +38,7 @@ int showMenu(int *status) {
 		cin >> userInput;
 		string x;
 		getline(cin, x);
-		//if (*status != 1) crash = true;
+		if (*status != 1) crash = true;
 		break;
 	}
 // in a team
@@ -293,7 +293,7 @@ unsigned __stdcall echoThread(void *paramUndefined) {
 		}
 		else if (strlen(buff) > 0) {
 			buff[ret] = 0;
-			//printf("Receive from server %s\n", buff);
+			cout << buff << endl;
 			handleResponse(buff);
 		}
 	}
@@ -373,27 +373,27 @@ int main(int argc, char* argv[]) {
 		while (true) {
 			option = showMenu(&status);
 			
-			while (status == 0 && option <= 0 || option >= 3) {
+			while (status == 0 && (option <= 0 || option >= 3)) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
 
-			while (status == 1 && option <= 0 || option >= 6) {
+			while (status == 1 && (option <= 0 || option >= 6)) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
 
-			while (status == 2 && option <= 0 || option >= 3) {
+			while (status == 2 && (option <= 0 || option >= 3)) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
 
-			while (status == 3 && option <= 0 || option >= 11) {
+			while (status == 3 && (option <= 0 || option >= 11)) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
 
-			while (status == 4 && option <= 0 || option >= 6) {
+			while (status == 4 && (option <= 0 || option >= 6)) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
