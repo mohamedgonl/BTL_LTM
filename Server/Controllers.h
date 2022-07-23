@@ -231,7 +231,7 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 		if (&accounts[i]) {
 			if (!accounts[i].username.compare(username)) {
 				if (!accounts[i].password.compare(password)) { // if username and password matched
-				// update user info
+															   // update user info
 					userInfo->username = username;
 					userInfo->status = 1;
 					return "110";
@@ -266,7 +266,7 @@ string registerAccount(string username, string password) {
 		string account = username + " " + password;
 		file.open(accountFileDirectory, ios::app);
 		if (file) {
-			file <<account<<endl;
+			file << account << endl;
 			file.close();
 			return "120";
 		}
@@ -292,13 +292,15 @@ string getAllTeams(UserInfo* userInfo) {
 	string response = "210|";
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[i] != NULL) {
-			response += std::to_string(teams[i]->id);
-			response += " " + teams[i]->name;
-			int numofMems = 0;
-			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j]) numofMems++;
+			if (teams[i]->id != -1) {
+				response += std::to_string(teams[i]->id);
+				response += " " + teams[i]->name;
+				int numofMems = 0;
+				for (int j = 0; j < 3; j++) {
+					if (teams[i]->members[j]) numofMems++;
+				}
+				response += " " + std::to_string(numofMems) + "|";
 			}
-			response += " " + std::to_string(numofMems) + "|";
 		}
 	}
 	return response;
@@ -314,20 +316,22 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[i] != NULL && teams[i]->id == teamId) {
-			int numofMems = 0;
-			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j]) numofMems++;
+		if (teams[i] != NULL) {
+			if (teams[i]->id == teamId) {
+				int numofMems = 0;
+				for (int j = 0; j < 3; j++) {
+					if (teams[i]->members[j]) numofMems++;
+				}
+				if (numofMems< 3) { // team member max 
+					string s = "230|" + userInfo->username;
+					// send join request to team leader
+					char* _s = (char*)malloc(s.length() * sizeof(char));
+					strcpy(_s, s.c_str());
+					Send((teams[i]->members)[0]->socketInfo.connSocket, _s, sizeof(_s), 0);
+					return "220";
+				}
+				else return "221";
 			}
-			if (numofMems < 3) { // team member max 
-				string s = "230|" + userInfo->username;
-				// send join request to team leader
-				char* _s = (char*)malloc(s.length() * sizeof(char));
-				strcpy(_s, s.c_str());
-				Send((teams[i]->members)[0]->socketInfo.connSocket, _s, sizeof(_s), 0);
-				return "220";
-			}
-			else return "221";
 		}
 	}
 	// teamId not existed
@@ -383,8 +387,8 @@ string getOutTeam(UserInfo* userInfo) {
 	case 1: {
 		return "311";
 	}
-	case 2: {
-		// kick member out of team
+	case 2: {// team member
+			 // kick member out of team
 		if (!strcmp(teams[userInfo->teamId]->members[1]->userInfo.username.c_str(), userInfo->username.c_str())) {
 			teams[userInfo->teamId]->members[1] = NULL;
 		}
@@ -395,21 +399,22 @@ string getOutTeam(UserInfo* userInfo) {
 		return "310";
 	}
 	case 3: {// team leader
-		// update member info and kick out of team
+			 // find team  and reset members
 		Team* team = teams[userInfo->teamId];
-		team->members[1]->userInfo.status = 1;
-		team->members[1]->userInfo.teamId = -1;
-		team->members[2]->userInfo.status = 1;
-		team->members[2]->userInfo.teamId = -1;
 		for (int i = 0; i < 3; i++) {
-			team->members[i] = NULL;
+			if (team->members[i]) {
+				team->members[i]->userInfo.status = 1;
+				team->members[i]->userInfo.teamId = -1;
+				team->members[i] = NULL;
+			}
 		}
-		//update user info
-		userInfo->status = 1;
-		userInfo->teamId = -1;
+		//reset team
+		team->id = -1;
+		team->name = "";
 		return "310";
 	}
 	case 4:
+		return "Ingame";
 	case 5: {
 		return "312";
 	};
@@ -421,19 +426,26 @@ string getOutTeam(UserInfo* userInfo) {
 
 // 9. Get team members
 string getTeamMembers(UserInfo* userInfo) {
-	if (userInfo->status == 0) return "211";
-	if (userInfo->status == 1 || userInfo->teamId == -1) return "311";
+	//login check
+	if (userInfo->status == 0) return "Unloggin";
+	// in a team
+	if (userInfo->status == 1) return "Not in a team";
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 
 	Team* team = teams[userInfo->teamId];
 	string response = "320|";
-	for (int i = 0; i < MAX_TEAM; i++) {
-		LoginSession* mem = team->members[i];
-		if (mem != NULL) {
-			response += mem->userInfo.username + " ";
+	for (int i = 0; i < 3; i++) {
+		if (team->members[i]) {
+			LoginSession* mem = team->members[i];
+			if (mem != NULL) {
+				response += mem->userInfo.username + " ";
+			}
 		}
 	}
 	return response;
 }
+
 
 /*
 10. Get list user in waiting room
