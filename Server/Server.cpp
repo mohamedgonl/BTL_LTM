@@ -132,7 +132,6 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-
 unsigned __stdcall sendQuestionThread(void* params) {
 	while (true) {
 		createQuestion();
@@ -254,7 +253,7 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			break;
 		}
 		case 7: {
-			responseData = accountSignOut(splitData(it, " ")[1]);
+			responseData = accountSignOut(&loginSession.userInfo);
 			break;
 		}
 		case 8: {
