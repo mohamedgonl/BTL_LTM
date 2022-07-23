@@ -23,7 +23,7 @@ int showMenu(int *status) {
 		cin >> userInput;
 		string x;
 		getline(cin, x);
-		if (*status != 0) crash = true;
+		//if (*status != 0) crash = true;
 		break;
 	}
 // in waiting room
@@ -38,7 +38,7 @@ int showMenu(int *status) {
 		cin >> userInput;
 		string x;
 		getline(cin, x);
-		if (*status != 1) crash = true;
+		//if (*status != 1) crash = true;
 		break;
 	}
 // in a team
@@ -111,11 +111,9 @@ string handleUserInput(int option) {
 		getline(cin, password);
 		if (option == 1) {
 			userInput = "LOGIN " + username + " " + password;
-			cout << userInput;
 		}
 		if (option == 2) {
 			userInput = "SIGNUP " + username + " " + password;
-			cout << userInput;
 		}
 		break;
 	}
@@ -295,7 +293,7 @@ unsigned __stdcall echoThread(void *paramUndefined) {
 		}
 		else if (strlen(buff) > 0) {
 			buff[ret] = 0;
-			printf("Receive from server %s\n", buff);
+			//printf("Receive from server %s\n", buff);
 			handleResponse(buff);
 		}
 	}
@@ -411,7 +409,7 @@ int main(int argc, char* argv[]) {
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
 			Sleep(100);
-			cout << buff;
+			//cout << buff;
 			//ret = Receive(client, buff, BUFF_SIZE, 0);
 			/*if (ret > 0) {
 				buff[ret] = 0;

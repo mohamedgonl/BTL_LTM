@@ -30,9 +30,6 @@ vector<string> splitData(string inlineData, string del)
 		end = inlineData.find(del, start);
 	}
 	data.push_back(inlineData.substr(start, end - start));
-	for (int i = 0; i < data.size(); i++) {
-		cout << data[i] << endl;
-	}
 	return data;
 }
 
@@ -91,7 +88,9 @@ vector<string> readFile(string pathname) {
 	{
 		while (getline(myfile, line))
 		{
-			inlineData.push_back(line);
+			if (line != "") {
+				inlineData.push_back(line);
+			}
 		}
 		myfile.close();
 	}
@@ -267,7 +266,7 @@ string registerAccount(string username, string password) {
 		string account = username + " " + password;
 		file.open(accountFileDirectory, ios::app);
 		if (file) {
-			file << account << endl;
+			file <<account<<endl;
 			file.close();
 			return "120";
 		}
