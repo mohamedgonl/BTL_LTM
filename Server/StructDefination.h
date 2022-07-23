@@ -34,7 +34,6 @@ struct DataThread {
 	int hasThread = 0;
 };
 
-
 // define account info struct
 struct Account {
 	string username;
@@ -47,6 +46,7 @@ struct Item_Armor {
 	unsigned int price;
 	unsigned int armor;
 };
+
 struct Item_Attack {
 	string name;
 	unsigned int price;
@@ -56,10 +56,10 @@ struct Item_Attack {
 };
 
 struct QuestionDescription {
-	string question="";
+	string question = "";
 	string answers[4] = { "","","","" };
-	string key="";
-	unsigned int coin=0;
+	string key = "";
+	unsigned int coin = 0;
 };
 
 // define question struct
@@ -71,7 +71,7 @@ struct Question {
 
 // define team struct
 struct Team {
-	int id=-1;
+	int id = -1;
 	string name = "";
 	LoginSession* members[3] = { {},{},{} };
 	int status = 0; // 0 if not ingame, 1 if ingame
@@ -82,7 +82,7 @@ struct Team {
 
 struct Room {
 	int id = -1;
-	int status=0;
+	int status = 0;
 	Team* team1;
 	Team* team2;
 	Question questions[MAX_QUESTION];

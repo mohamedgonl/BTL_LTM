@@ -129,6 +129,7 @@ void endGame(Team* team) {
 	team->members[1]->userInfo.status = 2;
 	team->members[2]->userInfo.status = 2;
 }
+
 void resetUserInfo(LoginSession* loginSession) {
 	loginSession->userInfo.coin = 0;
 	loginSession->userInfo.HP[0] = 1000;
@@ -315,7 +316,7 @@ string accountSignOut(string username) {
 				return "240";
 			};
 			case 2: { // room member
-				// pop the user out of team 
+					  // pop the user out of team 
 				for (int j = 1; j < 3; j++) {
 					LoginSession* member = teams[loginSessions[i]->userInfo.teamId]->members[j];
 					if (member != NULL && !strcmp(member->userInfo.username.c_str(), username.c_str())) {
@@ -326,7 +327,7 @@ string accountSignOut(string username) {
 				return "240";
 			};
 			case 3: { // team leader
-				// reset team members
+					  // reset team members
 				Team* team = teams[loginSessions[i]->userInfo.teamId];
 				team->members[1]->userInfo.teamId = -1;
 				team->members[2]->userInfo.teamId = -1;

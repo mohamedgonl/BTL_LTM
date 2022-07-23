@@ -4,6 +4,284 @@
 #include "FunctionPrototypes.h"
 #include "Controller.h"
 
+struct paramThread {
+	SOCKET connectedSocket;
+	sockaddr_in serverAddr;
+};
+
+int showMenu(int *status) {
+	bool crash = false;
+	string userInput;
+	switch (*status)
+	{
+// not login
+	case 0: {
+		cout << "================ Menu ================" << endl;
+		cout << "1. Login " << endl;
+		cout << "2. Sign up " << endl;
+		cout << "Please select your options [1,2]: ";
+		
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 0) crash = true;
+		cout << "Dang nhap trong status = 0";
+		break;
+	}
+// in waiting room
+	case 1: {
+		cout << "================ Waitting ================" << endl;
+		cout << "1. Get list room " << endl;
+		cout << "2. Join room " << endl;
+		cout << "3. Create room " << endl;
+		cout << "4. Sign out " << endl;
+		cout << "5. Accept invitation to join team" << endl;
+		cout << "Please select your options [1,2,3,4,5]: ";
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 1) crash = true;
+		break;
+	}
+// in a team
+	case 2: {
+		cout << "================ In team ================" << endl;
+		cout << "1. Get list member " << endl;
+		cout << "2. Leave team " << endl;
+		cout << "Please select your options [1,2]: ";
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 2) crash = true;
+		break;
+	}
+// host'room
+	case 3: {
+		cout << "================ Host ================" << endl;
+		cout << "1. Get users in waiting room" << endl;
+		cout << "2. Verify user want to join team" << endl;
+		cout << "3. Refuse user to join team" << endl;
+		cout << "4. Invite user to join team" << endl;
+		cout << "5. Kick user" << endl;
+		cout << "6. Get all teams" << endl;
+		cout << "7. Challenge team" << endl; 
+		cout << "8. Accept challenge" << endl;
+		cout << "9. Decline challenge" << endl;
+		cout << "10. Surrender" << endl;
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 3) crash = true;
+		break;
+	}
+	case 4: {
+		cout << "================ In game ================" << endl;
+		cout << "1. BUY item" << endl;
+		cout << "2. Get information in game" << endl;
+		cout << "3. Get own information" << endl;
+		cout << "4. Attack oponent" << endl;
+		cout << "5. Answer quiz" << endl;
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 4) crash = true;
+		break;
+	}
+	default: {
+
+	}
+	}
+	if (isNumber(userInput) && !crash) {
+		return stoi(userInput);
+	}
+	else {
+		return 0;
+	}
+}
+
+
+string handleUserInput(int option) {
+	string userInput;
+	switch (status)
+	{
+	case 0: {
+		string username;
+		string password;
+		cout << "Please input your username: ";
+		getline(cin, username);
+		cout << "Please input your password: ";
+		getline(cin, password);
+		if (option == 1) {
+			userInput = "LOGIN " + username + " " + password;
+			cout << userInput;
+		}
+		if (option == 2) {
+			userInput = "SIGNUP " + username + " " + password;
+			cout << userInput;
+		}
+		break;
+	}
+	case 1: {
+		if (option == 1) {
+			userInput = "GETTEAMS";
+		}
+		if (option == 2) {
+			string id;
+			cout << "Please input ID team: ";
+			cin >> id;
+			userInput = "JOIN " + id;
+		}
+		if (option == 3) {
+			string teamName;
+			cout << "Please input your name team: ";
+			cin >> teamName;
+			userInput = "CREATE " + teamName;
+		}
+		if (option == 4) {
+			userInput = "SIGNOUT";
+		}
+		break;
+
+		if (option == 5) {
+			string id;
+			cout << "Accept invitation to join team with id: " << endl;
+			cin >> id;
+			userInput = "ACCEPT " + id;
+
+		}
+		if (option == 6) {
+			string id;
+			cout << "Decline invitation to join team with id: " << endl;
+			cin >> id;
+			userInput = "DECLINE " + id;
+		}
+	}
+
+	case 2: {
+		if (option == 1) {
+			userInput = "GETMEMBERS";
+		}
+		if (option == 2) {
+			userInput = "OUTTEAM";
+		}
+		break;
+
+
+	}
+	case 3: {
+		if (option == 1) {
+			userInput = "GETUSERS";
+		}
+		if (option == 2) {
+			string username;
+			cout << "Username you want to accecpt :";
+			cin >> username;
+			userInput = "M_ACCEPT " + username;
+		}
+		break;
+		if (option == 3) {
+			string username;
+			cout << "Username you want to decline :";
+			cin >> username;
+			userInput = "M_DECLINE " + username;
+		}
+		if (option == 4) {
+			string username;
+			cout << "Username you want to invite:";
+			cin >> username;
+			userInput = "INVITE " + username;
+		}
+		if (option == 5) {
+			string username;
+			cout << "Username you want to kick:";
+			cin >> username;
+			userInput = "KICK " + username;
+		}
+		if (option == 6) {
+			userInput = "GETTEAMS";
+		}
+		if (option == 7) {
+			string teamId;
+			cout << "Teamid you want to challenge:";
+			cin >> teamId;
+			userInput = "CHALLENGE " + teamId;
+		}
+		if (option == 8) {
+			userInput = "ACCEPTCHALLENGE";
+		}
+		if (option == 9) {
+			userInput = "DECLINECHALLENGE";
+		}
+		if (option == 10) {
+			userInput = "SURR";
+		}
+	}
+	case 4: {
+		if (option == 1) {
+			string item_name;
+			cout << "Item name you want to buy:";
+			cin >> item_name;
+			userInput = "BUY " + item_name;
+		}
+		if (option == 2) {
+			userInput = "GETALL";
+		}
+		if (option == 3) {
+			userInput = "GETMINE";
+		}
+		if (option == 4) {
+			string oponent_name;
+			cout << "Oponent name you want to attack:";
+			cin >> oponent_name;
+			userInput = "ATK " + oponent_name;
+		}
+		if (option == 5) {
+			string key;
+			cout << "Input your key" << endl;
+			cin >> key;
+			userInput = "ANS " + key;
+		}
+	}
+	}
+	
+	// Handle user input here
+	return userInput;
+}
+
+unsigned __stdcall echoThread(void *paramUndefined) {
+	paramThread param = *((paramThread*)paramUndefined);
+	SOCKET connectedSocket = param.connectedSocket;
+	sockaddr_in serverAddr = param.serverAddr;
+	int serverAddrLen = sizeof(serverAddr);
+	char buff[BUFF_SIZE], buffer[BUFF_SIZE] = "", temp[BUFF_SIZE] = "";
+	int ret;
+	char *p;
+	// 1024
+	bool logging = false;
+	char userLogged[50];
+	while (1) {
+		ret = recv(connectedSocket, buff, BUFF_SIZE, 0);
+		if (ret == SOCKET_ERROR) {
+			printf("Error %d: Cannot receive data.\n", WSAGetLastError());
+			// Disconnect client
+			break;
+		}
+		else if (ret == 0) {
+			printf("Client disconnects.\n");
+			// Disconnect client
+			break;
+		}
+		else if (strlen(buff) > 0) {
+			buff[ret] = 0;
+			printf("Receive from server %s\n", buff);
+			handleResponse(buff);
+		}
+	}
+	printf("Out ra roi \n");
+	closesocket(connectedSocket);
+	return 0;
+}
+
 int main(int argc, char* argv[]) {
 	// Handle command line parameter
 	if (argc == 3) {
@@ -42,7 +320,6 @@ int main(int argc, char* argv[]) {
 
 	// Set time-out for receiving
 	int tv = 100000; //Time-out interval: 10000ms
-
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
 
 	// Specify server address
@@ -56,21 +333,55 @@ int main(int argc, char* argv[]) {
 		printf("Error %d: Cannot connect server.\n", WSAGetLastError());
 		return 0;
 	}
+	
 	printf("Connected server!\n");
 
+
 	// Communicate with server
+	
 	char buff[BUFF_SIZE], temp[BUFF_SIZE];
 	string userInput;
+	paramThread param;
+	param.connectedSocket = client;
+	param.serverAddr = serverAddr;
 	int ret, messageLen, num;
+	global = client;
+	_beginthreadex(0, 0, echoThread, (void *)&param, 0, 0);
 
 	while (1) {
 
 		int option;
 		while (true) {
-			string inputData;
-			cout << "Input your statement: " << endl;
-			getline(cin, inputData);
-			string userInput = handleUserInput(inputData);
+			option = showMenu(&status);
+			
+			while (status == 0 && option <= 0 || option >= 3) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 1 && option <= 0 || option >= 6) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 2 && option <= 0 || option >= 3) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 3 && option <= 0 || option >= 11) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 4 && option <= 0 || option >= 6) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+			
+			//cout << "Input your statement: " << endl;
+			//getline(cin, inputData);
+			string userInput = handleUserInput(option);
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";
 				getline(cin, userInput);
@@ -78,12 +389,14 @@ int main(int argc, char* argv[]) {
 			userInput = userInput + ENDING_DELIMITER;
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
-			ret = Receive(client, buff, BUFF_SIZE, 0);
-			if (ret > 0) {
+			Sleep(100);
+			cout << buff;
+			//ret = Receive(client, buff, BUFF_SIZE, 0);
+			/*if (ret > 0) {
 				buff[ret] = 0;
 				cout << "Receive from server: " << buff << endl;
 				handleResponse(buff);
-			}
+			}*/
 		}
 	}
 	// Close socket
@@ -99,21 +412,3 @@ string handleUserInput(string userInput) {
 	// Handle user input here
 	return userInput;
 }
-
-void handleResponse(char* res) {
-	switch (atoi(res)) {
-	case RES_LOGIN_SUCCESS: {
-		cout << "Login successful!" << endl;
-		break;
-	}
-	case RES_SIGNUP_SUCCESS: {
-		cout << "Sign up successful!" << endl;
-		break;
-	}
-	case INVALID_COMMAND: {
-		cout << "Command is incorrect!" << endl;
-		break;
-	}
-	}
-}
-
