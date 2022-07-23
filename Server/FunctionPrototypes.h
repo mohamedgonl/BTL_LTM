@@ -42,7 +42,6 @@ string getMine(UserInfo* userInfo);
 string attackEnemy(LoginSession &loginSession, string username);
 string answerQuiz(LoginSession &loginSession, int quizId, string key);
 string surrender(LoginSession &loginSession);
-
 #endif // !HandleUserInput
 
 #endif // !FunctionPrototypes

@@ -44,7 +44,8 @@ map<string, int> action = {
 	{ "ATK", 24 },
 	{ "ANS", 26 },
 	{ "SURR", 27 },
-	{ "ENDGAME", 28 },
+	{ "TEST", 28 },
+	{ "TEST1", 29 },
 };
 // item
 const Item_Armor Armor[3] = { {"HP",1,1}, {"bArmor", 1000, 500 },{"aArmor", 2000, 1500} };

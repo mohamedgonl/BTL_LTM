@@ -81,6 +81,28 @@ int isNumber(char* text) {
 	return 1;
 }
 
+//int readfile(string pathname) {
+//	// read account
+//	string line;
+//	ifstream myfile(pathname);
+//	int count = 0;
+//	if (myfile.is_open())
+//	{
+//		while (getline(myfile, line))
+//		{
+//			acc[count] = splitData(line, " ");
+//			count++;
+//		}
+//		myfile.close();
+//		return count;
+//	}
+//	else {
+//		cout << "Unable to open file. Please confirm your path to account.txt file./n";
+//		return 0;
+//	}
+//}
+
+
 #endif // !Handle WSA Event
 
 #ifndef Handle user statement
@@ -407,7 +429,6 @@ string getListUserInWaitingRoom(LoginSession &loginSession) {
 		return RES_GETUSERS_IN_GAME;
 	}
 	string list_team = "|";
-	cout << list_team << endl;
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		if (loginSessions[i] != NULL) {
 			if (loginSessions[i]->userInfo.status == 1) {
@@ -1307,6 +1328,7 @@ string surrender(LoginSession &loginSession) {
 	LeaveCriticalSection(&critical);
 	return RES_SURR_SUCCESS;
 }
+
 
 #endif // !Handle user statement
 

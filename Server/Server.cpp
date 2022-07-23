@@ -59,16 +59,15 @@ int main(int argc, char* argv[]) {
 	char buff[BUFF_SIZE + 1];
 	// Init array data
 	sockaddr_in clientAddr;
-	//for (int i = 0; i < MAX_CLIENT; i++) {
-	//	LoginSession loginSession = {
 
-	//	};
-	//	loginSessions[i] = &loginSession;
+	//for (int i = 0; i < MAX_TEAM; i++) {
+	//	Team* team = new Team;
+	//	teams[i] = team;
 	//}
-	for (int i = 0; i < MAX_TEAM; i++) {
-		Team* team = new Team;
-		teams[i] = team;
-	}
+	//for (int i = 0; i < MAX_ROOM; i++) {
+	//	Room* room = new Room;
+	//	rooms[i] = room;
+	//}
 	for (int i = 0; i < MAX_THREAD; i++) {
 		for (int j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
 			dataThread[i].loginSession[j].socketInfo.connSocket = 0;

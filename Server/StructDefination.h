@@ -56,10 +56,10 @@ struct Item_Attack {
 };
 
 struct QuestionDescription {
-	string question;
+	string question="";
 	string answers[4] = { "","","","" };
-	string key;
-	unsigned int coin;
+	string key="";
+	unsigned int coin=0;
 };
 
 // define question struct
@@ -71,9 +71,9 @@ struct Question {
 
 // define team struct
 struct Team {
-	unsigned int id;
+	int id=-1;
 	string name = "";
-	LoginSession* members[3];
+	LoginSession* members[3] = { {},{},{} };
 	int status = 0; // 0 if not ingame, 1 if ingame
 	int roomId = -1;
 };
@@ -82,7 +82,7 @@ struct Team {
 
 struct Room {
 	int id = -1;
-	int status;
+	int status=0;
 	Team* team1;
 	Team* team2;
 	Question questions[MAX_QUESTION];
