@@ -41,7 +41,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Set time-out for receiving
-	int tv = 10000; //Time-out interval: 10000ms
+	int tv = 100000; //Time-out interval: 10000ms
+
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
 
 	// Specify server address
@@ -80,6 +81,7 @@ int main(int argc, char* argv[]) {
 			ret = Receive(client, buff, BUFF_SIZE, 0);
 			if (ret > 0) {
 				buff[ret] = 0;
+				cout << "Receive from server: " << buff << endl;
 				handleResponse(buff);
 			}
 		}

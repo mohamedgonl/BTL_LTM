@@ -26,5 +26,6 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId);
 string attackEnemy(LoginSession &loginSession, string username);
 string answerQuiz(LoginSession &loginSession, int quizId, string key);
 string surrender(LoginSession &loginSession);
-
+unsigned __stdcall sendQuestionThread(void* params);
+void createQuestion();
 #endif // !FunctionPrototypes

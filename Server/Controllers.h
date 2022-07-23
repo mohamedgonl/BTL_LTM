@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "GlobalVariable.h"
 #pragma once
@@ -24,9 +23,20 @@ void closeEventInArray(WSAEVENT* eventArr, int n) {
 vector<string> splitData(string inlineData, string del)
 {
 	vector<string> data;
+	//int end = inlineData.find(del);
+	//data.push_back(inlineData.substr(0, end));
+	//data.push_back(inlineData.substr(end + del.size()));
+	int start = 0;
 	int end = inlineData.find(del);
-	data.push_back(inlineData.substr(0, end));
-	data.push_back(inlineData.substr(end + del.size()));
+	while (end != -1) {
+		data.push_back(inlineData.substr(start, end - start));
+		start = end + del.size();
+		end = inlineData.find(del, start);
+	}
+	data.push_back(inlineData.substr(start, end - start));
+	for (int i = 0; i < data.size(); i++) {
+		cout << data[i] << endl;
+	}
 	return data;
 }
 
@@ -137,8 +147,10 @@ string getListUserInWaitingRoom(LoginSession &loginSession) {
 	string list_team = "|";
 	cout << list_team << endl;
 	for (int i = 0; i < MAX_CLIENT; i++) {
-		if (loginSessions[i]->userInfo.status == 1) {
-			list_team = list_team + loginSessions[i]->userInfo.username + " ";
+		if (loginSessions[i] != NULL) {
+			if (loginSessions[i]->userInfo.status == 1) {
+				list_team = list_team + loginSessions[i]->userInfo.username + " ";
+			}
 		}
 	}
 	return RES_GETUSERS_SUCCESS + list_team;
@@ -166,9 +178,12 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 	// Handle user not available
 	int userIndex = -1;
 	for (int i = 0; i < MAX_CLIENT; i++) {
-		if (loginSessions[i]->userInfo.username == nameOfRequestUser) {
-			userIndex = i;
-			break;
+		if (loginSessions[i] != NULL) {
+			if (loginSessions[i]->userInfo.username == nameOfRequestUser) {
+				userIndex = i;
+				break;
+			}
+
 		}
 	}
 	if (userIndex == -1) {
@@ -184,7 +199,7 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 	int teamID = loginSession.userInfo.teamId;
 	int availableSlotIndex = -1;
 	for (int i = 0; i < 3; i++) {
-		if (teams[teamID]->members[i]->userInfo.username != "") {
+		if (teams[teamID]->members[i] == NULL) {
 			availableSlotIndex = i;
 			break;
 		}
@@ -233,9 +248,12 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 	// Handle user not available
 	int userIndex = -1;
 	for (int i = 0; i < MAX_CLIENT; i++) {
-		if (loginSessions[i]->userInfo.username == nameOfRequestUser) {
-			userIndex = i;
-			break;
+		if (loginSessions[i] != NULL) {
+			if (loginSessions[i]->userInfo.username == nameOfRequestUser) {
+				userIndex = i;
+				break;
+			}
+
 		}
 	}
 	if (userIndex == -1) {
@@ -245,19 +263,6 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 	// Handle user in another room
 	if (loginSessions[userIndex]->userInfo.status >= 2) {
 		return RES_M_ACCEPT_USER_IN_ANOTHER_ROOM;
-	}
-
-	// Handle team is full
-	int teamID = loginSession.userInfo.teamId;
-	int availableSlotIndex = -1;
-	for (int i = 0; i < 3; i++) {
-		if (teams[teamID]->members[i]->userInfo.username != "") {
-			availableSlotIndex = i;
-			break;
-		}
-	}
-	if (availableSlotIndex == -1) {
-		return RES_M_ACCEPT_TEAM_FULL;
 	}
 
 	// Handle send response to user request
@@ -296,9 +301,11 @@ string inviteJoinTeam(LoginSession &loginSession, string usernameUser) {
 	// Handle user not available
 	int userIndex = -1;
 	for (int i = 0; i < MAX_CLIENT; i++) {
-		if (loginSessions[i]->userInfo.username == usernameUser) {
-			userIndex = i;
-			break;
+		if (loginSessions[i] != NULL) {
+			if (loginSessions[i]->userInfo.username == usernameUser) {
+				userIndex = i;
+				break;
+			}
 		}
 	}
 	if (userIndex == -1) {
@@ -342,7 +349,7 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	// Handle team is full
 	int availableSlotIndex = -1;
 	for (int i = 0; i < 3; i++) {
-		if (teams[teamID]->members[i]->userInfo.username != "") {
+		if (teams[teamID]->members[i] == NULL) {
 			availableSlotIndex = i;
 			break;
 		}
@@ -358,7 +365,7 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 
 	// Handle send response to user request
 	string sendBackData = RES_ACCEPT_INVITE_SEND_TO_LEADER;
-	sendBackData = sendBackData + "|" + to_string(loginSession.userInfo.teamId);
+	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
@@ -394,7 +401,7 @@ string declineInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 
 	// Handle send response to user request
 	string sendBackData = RES_DECLINE_INVITE_SEND_TO_LEADER;
-	sendBackData = sendBackData + "|" + to_string(loginSession.userInfo.teamId);
+	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
@@ -425,8 +432,11 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 	}
 	int userIndex = -1;
 	for (int i = 0; i < 3; i++) {
-		if (teams[loginSession.userInfo.teamId]->members[i]->userInfo.username == username) {
-			userIndex = i;
+		if (teams[loginSession.userInfo.teamId]->members[i] != NULL) {
+			if (teams[loginSession.userInfo.teamId]->members[i]->userInfo.username == username) {
+				userIndex = i;
+				break;
+			}
 		}
 	}
 
@@ -445,7 +455,7 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 	}
 	teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.status = 1;
 	teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.teamId = -1;
-	teams[loginSession.userInfo.teamId]->members[userIndex] = {};
+	teams[loginSession.userInfo.teamId]->members[userIndex] = NULL;
 
 	// Handle success accept user
 	return RES_USER_NOT_IN_TEAM;
@@ -477,11 +487,14 @@ string getAllTeams(LoginSession &loginSession) {
 		if (i != teamIndex && teams[i]->name != "") {
 			int numOfUser = 0;
 			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j]->userInfo.username != "") {
-					numOfUser++;
+				if (teams[i]->members[j] != NULL) {
+					if (teams[i]->members[j]->userInfo.username != "") {
+						numOfUser++;
+					}
+
 				}
 			}
-			list_team += to_string(i) + " " + teams[i]->name + " " + to_string(numOfUser) + "|";
+			list_team = list_team + to_string(i) + " " + teams[i]->name + " " + to_string(numOfUser) + "|";
 		}
 	}
 	return 	RES_GETTEAMS_SUCCESS + list_team;
@@ -509,7 +522,7 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	int teamIndex = loginSession.userInfo.teamId;
 	int numOfMember = 0;
 	for (int i = 0; i < 3; i++) {
-		if (teams[teamIndex]->members[i]->userInfo.username != "") {
+		if (teams[teamIndex]->members[i] != NULL) {
 			numOfMember++;
 		}
 	}
@@ -528,7 +541,7 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 
 	int numOfEnemyMember = 0;
 	for (int i = 0; i < 3; i++) {
-		if (teams[enemyTeamId]->members[i]->userInfo.username != "") {
+		if (teams[enemyTeamId]->members[i] != NULL) {
 			numOfEnemyMember++;
 		}
 	}
@@ -580,7 +593,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 	int teamIndex = loginSession.userInfo.teamId;
 	int numOfMember = 0;
 	for (int i = 0; i < 3; i++) {
-		if (teams[teamIndex]->members[i]->userInfo.username != "") {
+		if (teams[teamIndex]->members[i] != NULL) {
 			numOfMember++;
 		}
 	}
@@ -591,7 +604,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 
 	int numOfEnemyMember = 0;
 	for (int i = 0; i < 3; i++) {
-		if (teams[enemyTeamId]->members[i]->userInfo.username != "") {
+		if (teams[enemyTeamId]->members[i] != NULL) {
 			numOfEnemyMember++;
 		}
 	}
@@ -609,20 +622,23 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
 	for (int i = 1; i < 3; i++) {
-		teams[enemyTeamId]->members[i]->userInfo.status = 4;
+		teams[teamIndex]->members[i]->userInfo.status = 4;
 		Send(teams[teamIndex]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
 	loginSession.userInfo.status = 4;
 	int roomIndex = -1;
 	for (int i = 0; i < MAX_ROOM; i++) {
-		if (rooms[i]->id == -1) {
-			Room room = {};
-			room.id = i;
-			room.status = 1;
-			room.team1 = teams[teamIndex];
-			room.team2 = teams[enemyTeamId];
-			rooms[i] = &room;
+		if (rooms[i] == NULL) {
+			Room* room = new Room;
+			room->id = i;
+			room->status = 1;
+			room->team1 = teams[teamIndex];
+			room->team2 = teams[enemyTeamId];
+			rooms[i] = room;
 			roomIndex = i;
+			EnterCriticalSection(&critical);
+			numOfRoom++;
+			LeaveCriticalSection(&critical);
 			break;
 		}
 	}
@@ -656,7 +672,7 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 		return RES_GETUSERS_IN_GAME;
 	}
 
-	if (teams[enemyTeamId]->name == "") {
+	if (teams[enemyTeamId] == NULL) {
 		return RES_CHALLENGE_ENEMY_NOT_EXIST;
 	}
 
@@ -697,9 +713,6 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		return RES_SURR_DEADTH;
 	}
 
-	// get current time and check if last attack < 5s
-
-	//
 
 	int teamId = loginSession.userInfo.teamId;
 	int roomId = teams[teamId]->roomId;
@@ -719,10 +732,21 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		return RES_ATK_MEMBER_HAS_DEATH;
 	}
 
+	// get current time and check if last attack < 5s
+	clock_t atkTime;
+	atkTime = clock();
+	if ((float)(atkTime - loginSession.userInfo.lastTimeATK) / CLOCKS_PER_SEC < 5) {
+		return RES_ATK_IN_PENDING;
+	}
+	loginSession.userInfo.lastTimeATK = atkTime;
+
+	// Caculate damage of attack ??????
 	int damage = 0;
-	// Caculate damage of attack
-	LoginSession* enemy = teams[enemyTeamId]->members[enemyIndex];
+	
+
+
 	// Caculate user info
+	LoginSession* enemy = teams[enemyTeamId]->members[enemyIndex];
 	int i = 2;
 	while (damage > 0) {
 		if (enemy->userInfo.HP[i] > 0) {
@@ -779,9 +803,12 @@ string attackEnemy(LoginSession &loginSession, string username) {
 					Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 				}
 			}
-
 			endGame(teams[teamId]);
 			endGame(teams[enemyTeamId]);
+			rooms[roomId] = NULL;
+			EnterCriticalSection(&critical);
+			numOfRoom--;
+			LeaveCriticalSection(&critical);
 			return sendBackData;
 		}
 
@@ -806,6 +833,51 @@ string attackEnemy(LoginSession &loginSession, string username) {
 
 
 /*
+26. Create quiz
+*/
+
+void createQuestion() {
+	int roomHasTravel = 0;
+	for (int i = 0; i < MAX_ROOM; i++) {
+		if (roomHasTravel == numOfRoom) {
+			break;
+		}
+		else {
+			if (rooms[i] != NULL) {
+				roomHasTravel++;
+				int descriptionQuesionID = (std::rand() % (MAX_QUESTION));
+				Question question;
+				question.description = &questionDescriptions[descriptionQuesionID];
+				for (int j = 0; j < MAX_QUESTION; j++) {
+					if (rooms[i]->questions[j].id != -1) {
+						question.id = j;
+						rooms[i]->questions[j] = question;
+						// Handle send response to user request
+						string sendBackData = RES_NEW_QUESTION;
+						sendBackData += "|" + question.description->question + "|";
+						for (int k = 0; k < 4; k++) {
+							if (question.description->answers[k] != "") {
+								sendBackData += question.description->answers[k] + "|";
+							}
+						}
+						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+						strcpy(dataSend, sendBackData.c_str());
+						for (int k = 0; k < 3; k++) {
+							Send(rooms[i]->team1->members[k]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+						}
+						for (int k = 0; k < 3; k++) {
+							Send(rooms[i]->team2->members[k]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+/*
 26. Answer quiz
 */
 
@@ -825,13 +897,20 @@ string answerQuiz(LoginSession &loginSession, int quizId, string key) {
 		return RES_SURR_DEADTH;
 	}
 
-	if (questions[quizId]->status == 1) {
+	int teamID = loginSession.userInfo.teamId;
+	int roomID = teams[teamID]->roomId;
+
+	if (rooms[roomID]->questions[quizId].id == -1) {
+		return RES_ANS_NOT_EXIST;
+	}
+
+	if (rooms[roomID]->questions[quizId].status == 1) {
 		return RES_ANS_HAS_ANSWER;
 	}
 
-	if (questions[quizId]->key == key) {
-		loginSession.userInfo.coin += questions[quizId]->coin;
-		questions[quizId]->status = 1;
+	if (rooms[roomID]->questions[quizId].description->key == key) {
+		loginSession.userInfo.coin += rooms[roomID]->questions[quizId].description->coin;
+		rooms[roomID]->questions[quizId].status = 1;
 		return RES_ANS_CORRECT;
 	}
 	else {
@@ -868,7 +947,7 @@ string surrender(LoginSession &loginSession) {
 	// Handle send response to user request
 	string sendBackData = RES_SURR_ANNOUNCE;
 	int roomID = teams[teamIndexUserSurr]->roomId;
-	int idTeamWin = rooms[teams[teamIndexUserSurr]->roomId]->team1->id == teamIndexUserSurr ? rooms[teams[teamIndexUserSurr]->roomId]->team1->id : rooms[teams[teamIndexUserSurr]->roomId]->team2->id;
+	int idTeamWin = rooms[teams[teamIndexUserSurr]->roomId]->team1->id == teamIndexUserSurr ? rooms[teams[teamIndexUserSurr]->roomId]->team2->id : rooms[teams[teamIndexUserSurr]->roomId]->team1->id;
 	sendBackData = sendBackData + "|" + to_string(idTeamWin);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
@@ -877,16 +956,17 @@ string surrender(LoginSession &loginSession) {
 	endGame(teams[idTeamWin]);
 
 	for (int i = 1; i < 3; i++) {
-		teams[teamIndexUserSurr]->members[i]->userInfo.status = 4;
 		Send(teams[teamIndexUserSurr]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
 	for (int i = 0; i < 3; i++) {
-		teams[idTeamWin]->members[i]->userInfo.status = 4;
 		Send(teams[idTeamWin]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
 
-	rooms[roomID] = {};
+	rooms[roomID] = NULL;
 
+	EnterCriticalSection(&critical);
+	numOfRoom--;
+	LeaveCriticalSection(&critical);
 	return RES_SURR_SUCCESS;
 }
 
@@ -911,6 +991,7 @@ void endGame(Team* team) {
 		team->members[i]->userInfo.sungtudong[1] = -200;
 		team->members[i]->userInfo.sungtudong[2] = -200;
 		team->members[i]->userInfo.sungtudong[3] = -200;
+		team->members[i]->userInfo.lastTimeATK = 0;
 	}
 	team->members[0]->userInfo.status = 3;
 	team->members[1]->userInfo.status = 2;

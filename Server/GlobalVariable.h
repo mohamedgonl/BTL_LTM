@@ -7,12 +7,12 @@ Account accounts[MAX_NUM_ACCOUNT];
 LoginSession *loginSessions[MAX_CLIENT];
 Team* teams[MAX_TEAM];
 Room* rooms[MAX_ROOM];
-Question* questions[MAX_QUESTION];
-QuestionDescription* questionDescriptions[MAX_QUESTION];
+QuestionDescription questionDescriptions[MAX_QUESTION];
 LoginSession acc[MAX_NUM_ACCOUNT];
 CRITICAL_SECTION critical;
 list<char*> splitMsg(char* msg);
 DataThread dataThread[MAX_THREAD];
+int numOfRoom = 0;
 int numOfAccount = 0;
 int numOfThread = 0;
 int numOfConn = 0;
@@ -29,7 +29,7 @@ map<string, int> action = {
 	{ "GETUSERS", 10 },
 	{ "M_ACCEPT", 11 },
 	{ "M_DECLINE", 12 },
-	{ "INVITED", 13 },
+	{ "INVITE", 13 },
 	{ "ACCEPT", 14 },
 	{ "DECLINE", 15 },
 	{ "KICK", 16 },
@@ -45,6 +45,7 @@ map<string, int> action = {
 	{ "SURR", 27 },
 	{ "ENDGAME", 28 },
 };
+
  
 
 

@@ -4,14 +4,14 @@
 #define StructDefination_h
 
 struct UserInfo {
-	string username = "";
+	string username = "startname";
 	unsigned int status=1; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
 	unsigned int coin =0 ;
 	unsigned int HP[3] = { 1000, 0, 0 };
 	int sungtudong[4] = { 50, -200, -200, -200 };
 	int laze[4] = { -90, -90, -90, -90 };
 	unsigned int rocket = 0;
-	int lastTimeATK = 0;
+	clock_t lastTimeATK = 0;
 	int teamId = -1; // -1 if haven't join any team
 };
 
@@ -56,17 +56,16 @@ struct Item_Attack {
 
 struct QuestionDescription {
 	string question;
-	string answers[4];
+	string answers[4] = {"","","",""};
+	string key;
+	unsigned int coin;
 };
 
 // define question struct
 struct Question {
-	int id;
+	int id=-1;
 	int status = 0; // 0 has answered, 1: answered
 	QuestionDescription* description;
-	string key; // key = 1 || 2 || 3 || 4 
-
-	unsigned int coin;
 };
 
 // define team struct
@@ -85,6 +84,7 @@ struct Room {
 	int status;
 	Team* team1;
 	Team* team2;
+	Question questions[MAX_QUESTION];
 };
 
 

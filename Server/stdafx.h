@@ -4,6 +4,7 @@
 #include <WS2tcpip.h>
 #include <process.h>
 #include <list>
+#include <time.h>
 #include <string>
 #include <queue>
 #include <iostream>
@@ -68,12 +69,15 @@ using namespace std;
 #define RES_SURR_ANNOUNCE "500"
 #define RES_SURR_SUCCESS "461"
 #define RES_ANS_HAS_ANSWER "451"
+#define RES_NEW_QUESTION "400"
 #define RES_ANS_CORRECT "450"
 #define RES_ANS_INCORRECT "452"
+#define RES_ANS_NOT_EXIST "453"
 #define RES_ATK_MEMBER_NOT_EXIST "442"
 #define RES_ATK_MEMBER_HAS_DEATH "441"
 #define RES_ATK_SEND_TO_DEATH_MEMBER "447"
 #define RES_ATK_SEND_TO_ALL_MEMBER "445"
+#define RES_ATK_IN_PENDING "443"
 #define RES_ATK_SEND_TO_ALL_MEMBER_ABOUT_DEATH_MEMBER "446"
 #define RES_ATK_WIN "447"
 #define RES_ATK_SUCCESS "440"

@@ -59,17 +59,15 @@ int main(int argc, char* argv[]) {
 	char buff[BUFF_SIZE + 1];
 	// Init array data
 	sockaddr_in clientAddr;
-	for (int i = 0; i < MAX_CLIENT; i++) {
-		LoginSession loginSession = {
+	//for (int i = 0; i < MAX_CLIENT; i++) {
+	//	LoginSession loginSession = {
 
-		};
-		loginSessions[i] = &loginSession;
-	}
+	//	};
+	//	loginSessions[i] = &loginSession;
+	//}
 	for (int i = 0; i < MAX_TEAM; i++) {
-		Team team = {
-
-		};
-		teams[i] = &team;
+		Team* team = new Team;
+		teams[i] = team;
 	}
 	for (int i = 0; i < MAX_THREAD; i++) {
 		for (int j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
@@ -79,6 +77,7 @@ int main(int argc, char* argv[]) {
 
 
 	int clientAddrLen = sizeof(clientAddr);
+	_beginthreadex(0, 0, &sendQuestionThread, NULL, 0, 0);
 	InitializeCriticalSection(&critical);
 	while (1) {
 		connSock = accept(listenSock, (sockaddr*)&clientAddr, &clientAddrLen);
@@ -102,7 +101,7 @@ int main(int argc, char* argv[]) {
 						numOfConn++;
 						LeaveCriticalSection(&critical);
 						for (int k = 0; k < MAX_CLIENT; k++) {
-							if (loginSessions[k]->socketInfo.connSocket == 0) {
+							if (loginSessions[k] == NULL) {
 								loginSessions[k] = &dataThread[i].loginSession[j];
 								break;
 							}
@@ -132,12 +131,20 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
+
+unsigned __stdcall sendQuestionThread(void* params) {
+	while (true) {
+		createQuestion();
+		Sleep(5000);
+	}
+}
+
 unsigned __stdcall workingThread(void* params) {
 	int startIndex = (int)params;
 	WSANETWORKEVENTS sockEvent;
 	DWORD index;
 	while (1) {
-			if (dataThread[startIndex].nEvents > 0) {
+		if (dataThread[startIndex].nEvents > 0) {
 			index = WSAWaitForMultipleEvents(dataThread[startIndex].nEvents, dataThread[startIndex].events, FALSE, 1, FALSE);
 			if (index == WSA_WAIT_FAILED) {
 				printf("Error %d: WSAWaitForMultipleEvents() failed\n", WSAGetLastError());
@@ -222,13 +229,79 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 		switch (action.find(command)->second) {
 		case 10: {
 			string responseData = getListUserInWaitingRoom(loginSession);
-			char* returnData = (char*)malloc(responseData.length()*sizeof(char));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
 			strcpy(returnData, responseData.c_str());
 			return returnData;
 		}
 		case 11: {
 			string responseData = acceptRequestJoinTeam(loginSession, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length()*sizeof(char));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 12: {
+			string responseData = declineRequestJoinTeam(loginSession, splitData(it, " ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 13: {
+			string responseData = inviteJoinTeam(loginSession, splitData(it, " ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 14: {
+			string responseData = acceptInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 15: {
+			string responseData = declineInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 16: {
+			string responseData = kickUserOutRoom(loginSession, splitData(it, " ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 17: {
+			string responseData = getAllTeams(loginSession);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 18: {
+			string responseData = challenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 19: {
+			string responseData = acceptChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 20: {
+			string responseData = declineChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 26: {
+			string responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 27: {
+			string responseData = surrender(loginSession);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
 			strcpy(returnData, responseData.c_str());
 			return returnData;
 		}
@@ -240,5 +313,4 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 		}
 	}
 }
-
 
