@@ -227,6 +227,54 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 	}
 	else {
 		switch (action.find(command)->second) {
+		case 2: {
+			string responseData = loginAccount(&loginSession.userInfo,splitData(it," ")[1],splitData(it," ")[2]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 3: {
+			string responseData = registerAccount(splitData(it," ")[1],splitData(it," ")[2]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 4: {
+			string responseData = getAllTeams(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 5: {
+			string responseData = joinTeam(&loginSession.userInfo,atoi(splitData(it," ")[1].c_str()));
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 6: {
+			string responseData = createTeam(&loginSession, splitData(it," ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 7: {
+			string responseData = accountSignOut(splitData(it," ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 8: {
+			string responseData = getOutTeam(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 9: {
+			string responseData = getTeamMembers(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
 		case 10: {
 			string responseData = getListUserInWaitingRoom(loginSession);
 			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
@@ -293,6 +341,30 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			strcpy(returnData, responseData.c_str());
 			return returnData;
 		}
+		case 21: {
+			string responseData = buyItem(&loginSession.userInfo, splitData(it, " ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 22: {
+			string responseData = getAllPlayers(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 23: {
+			string responseData = getMine(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
+		case 24: {
+			string responseData = attackEnemy(loginSession, splitData(it, " ")[1]);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
+		}
 		case 26: {
 			string responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
 			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
@@ -301,17 +373,6 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 		}
 		case 27: {
 			string responseData = surrender(loginSession);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
-		}
-		case 2: {
-			loginSession.userInfo.status = 3;
-			loginSession.userInfo.username = "hmm";
-			return RES_SIGNUP_SUCCESS;
-		}
-		case 4: {
-			string responseData = getAllTeams(&loginSession.userInfo);
 			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
 			strcpy(returnData, responseData.c_str());
 			return returnData;
