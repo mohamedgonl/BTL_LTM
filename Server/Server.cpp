@@ -65,6 +65,10 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	for (int i = 0; i < MAX_TEAM; i++) {
+		Team* team = new Team;
+		teams[i] = team;
+	}
 	InitializeCriticalSection(&critical);
 	while (1) {
 		connSock = accept(listenSock, (sockaddr*)&clientAddr, &clientAddrLen);
