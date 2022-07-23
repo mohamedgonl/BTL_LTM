@@ -189,6 +189,8 @@ unsigned __stdcall workingThread(void* params) {
 
 void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 	SOCKET connectedSocket = loginSession.socketInfo.connSocket;
+	int ret;
+	char rcvBuff[BUFF_SIZE];
 	char* sendData;
 	char* statement;
 	queue<char*> statements = recvStreamProcessing(loginSession, buff);
@@ -199,11 +201,27 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 		//cin >> sendData;
 		sendData = handleResponse(statement, loginSession);
 		printf("send to client %s\n", sendData);
-		sendData = "363|32";
+		sendData = "110|32"; 
 		Send(connectedSocket, sendData, strlen(sendData), 0);
-		Sleep(100);
-		sendData = "363|33";
+		ret = Receive(connectedSocket, rcvBuff, BUFF_SIZE, 0);
+		if (ret <= 0) {
+			
+		}
+		else {
+			rcvBuff[ret] = 0;
+			cout << rcvBuff;
+		}
+		Sleep(1000);
+		/*sendData = "340|12";
 		Send(connectedSocket, sendData, strlen(sendData), 0);
+		ret = Receive(connectedSocket, rcvBuff, BUFF_SIZE, 0);
+		if (ret <= 0) {
+
+		}
+		else {
+			rcvBuff[ret] = 0;
+			cout << rcvBuff;
+		}*/
 	}
 }
 

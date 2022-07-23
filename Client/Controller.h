@@ -41,7 +41,9 @@ int showMenu() {
 }
 
 int status = 0;
+int idTeam = 0;
 string listTeamInvite;
+SOCKET global;
 
 void handleResponse(char* res) {
 	char subbuff[4];
@@ -49,8 +51,10 @@ void handleResponse(char* res) {
 	subbuff[3] = '\0';
 	switch (atoi(subbuff)) {
 	case RES_LOGIN_SUCCESS: {
-		status = 1;
-		cout << "Login successful!" << endl;
+		if (status == 0) {
+			status = 1;
+			cout << "Login successful!" << endl;
+		}
 		return;
 	}
 	case RES_SIGNUP_SUCCESS: {
@@ -93,20 +97,57 @@ void handleResponse(char* res) {
 		cout << "Send request to join team successfully" << endl;
 		break;
 	}
-	case RECEIVE_INVITATION_SUCCESS: {
-		if (status == 0) {
-			cout << "Receive invitation form team id: " << (res + 4) << endl;
-			listTeamInvite = listTeamInvite + (res + 4) + " ";
-			cout << listTeamInvite;
-		}
-		else {
-			string decline ;
-			string pre = "261|";
-		    decline = pre + (res + 4);
-			
+	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
+		if (status == 3) {
+			cout << "List user in waitting room: " << res + 4 << endl;
 		}
 		break;
 	}
+	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
+		if (status == 1) {
+			cout << "Join team id: " << res + 4 << endl;
+			string pre = res + 4;
+			if (isNumber(pre)) {
+				status = 2;
+				idTeam = stoi(pre);
+			}
+		}
+	}
+	case ACCEPT_USER_JOIN_TEAM_FAIL: {
+		if (status == 1) {
+			cout << "Team id: " << res + 4 << " decline you join!" << endl;
+		}
+	}
+	
+	case RECEIVE_INVITATION_SUCCESS: {
+		if (status == 1) {
+			cout << "Receive invitation form team id: " << (res + 4) << endl;
+			//listTeamInvite = listTeamInvite + (res + 4) + " ";
+		}
+		else {
+			string pre = "261|";
+			pre = pre + (res + 4);
+			/*cout << pre;*/
+			char* returnData = (char*)malloc(pre.length() * sizeof(char));
+			strcpy(returnData, pre.c_str());
+
+			Send(global, returnData, strlen(returnData), 0);
+		}
+		break;
+	}
+	case USER_ACCEPT_JOINTEAM_SUCCESS: {
+		if (status == 3) {
+			cout << "Player " << res + 4 << " accept your invitation!";
+		}
+		break;
+	}
+	case USER_REFUSE_JOINTEAM_SUCCESS: {
+		if (status == 3) {
+			cout << "Player " << res + 4 << " decline your invitation!";
+		}
+		break;
+	}
+
 	}
 }
 

@@ -23,12 +23,10 @@ int showMenu(int *status) {
 		cout << "Please select your options [1,2]: ";
 		
 		cin >> userInput;
-			
 		string x;
 		getline(cin, x);
-		if (*status != 0) {
-			crash++;
-		}
+		if (*status != 0) crash = true;
+		cout << "Dang nhap trong status = 0";
 		break;
 	}
 // in waiting room
@@ -43,7 +41,6 @@ int showMenu(int *status) {
 		cin >> userInput;
 		string x;
 		getline(cin, x);
-		cout << "Status = 1" << endl;
 		break;
 	}
 // in a team
@@ -80,10 +77,11 @@ int showMenu(int *status) {
 	}
 	}
 	if (isNumber(userInput) && !crash) {
-		
+		cout << "Return dung giao tri" << endl;
 		return stoi(userInput);
 	}
 	else {
+		cout << "Return sai gia tri" << endl;
 		return 0;
 	}
 }
@@ -108,7 +106,6 @@ string handleUserInput(int option) {
 			userInput = "SIGNUP " + username + " " + password;
 			cout << userInput;
 		}
-		if (status != 0) break;
 		break;
 	}
 	case 1: {
@@ -134,16 +131,16 @@ string handleUserInput(int option) {
 
 		if (option == 5) {
 			string id;
-			cout << "Accept invitation to join team with id:" << endl;
+			cout << "Accept invitation to join team with id: " << endl;
 			cin >> id;
-			userInput = "Accept " + id;
+			userInput = "ACCEPT " + id;
 
 		}
 		if (option == 6) {
 			string id;
-			cout << "Decline invitation to join team with id:" << endl;
+			cout << "Decline invitation to join team with id: " << endl;
 			cin >> id;
-			userInput = "Decline " + id;
+			userInput = "DECLINE " + id;
 		}
 	}
 
@@ -163,17 +160,23 @@ string handleUserInput(int option) {
 			userInput = "GETUSERS";
 		}
 		if (option == 2) {
-			userInput = "M_ACCEPT username";
+			string username;
+			cout << "Username you want to accecpt :";
+			cin >> username;
+			userInput = "M_ACCEPT " + username;
 		}
 		break;
 		if (option == 3) {
-			userInput = "M_DECLINE username";
+			string username;
+			cout << "Username you want to decline :";
+			cin >> username;
+			userInput = "M_DECLINE " + username;
 		}
 		if (option == 4) {
 			string username;
 			cout << "Username you want to invite:";
 			cin >> username;
-			userInput = "INVITE "+username;
+			userInput = "INVITE " + username;
 		}
 		if (option == 5) {
 			string username;
@@ -329,6 +332,7 @@ int main(int argc, char* argv[]) {
 	param.connectedSocket = client;
 	param.serverAddr = serverAddr;
 	int ret, messageLen, num;
+	global = client;
 	_beginthreadex(0, 0, echoThread, (void *)&param, 0, 0);
 
 	while (1) {
@@ -349,8 +353,6 @@ int main(int argc, char* argv[]) {
 			
 			//cout << "Input your statement: " << endl;
 			//getline(cin, inputData);
-			cout << "option : " << option << endl;
-			cout << "Da den tan day" << endl;
 			string userInput = handleUserInput(option);
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";
@@ -359,7 +361,7 @@ int main(int argc, char* argv[]) {
 			userInput = userInput + ENDING_DELIMITER;
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
-			Sleep(100);
+			//Sleep(100);
 			cout << buff;
 			//ret = Receive(client, buff, BUFF_SIZE, 0);
 			/*if (ret > 0) {
