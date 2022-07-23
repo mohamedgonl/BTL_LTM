@@ -16,6 +16,9 @@
 #include <string>
 #include <list>
 #include "process.h"
+#include <vector>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 #define BUFF_SIZE 2048
 #define ENDING_DELIMITER "/"
@@ -91,6 +94,8 @@ using namespace std;
 #define USER_ACCEPT_JOINTEAM_SUCCESS 250
 #define TEAM_INVALID 251
 
+#define JOIN_TEAM_SUCCESS 344
+#define JOIN_TEAM_FAIL 353
 
 //15
 #define USER_REFUSE_JOINTEAM_SUCCESS 260

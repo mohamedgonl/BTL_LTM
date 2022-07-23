@@ -43,14 +43,42 @@ int showMenu() {
 int status = 0;
 int idTeam = 0;
 string listTeamInvite;
+class Team {
+public:
+	string team_name;
+	int id_team;
+	int number;
+};
+vector<Team> t;
+vector<string> splitTeam;
+void handleSplitStr(string s)
+{
+	stringstream stream(s);
+	string word;
+	while (getline(stream, word, '|')) {
+		stringstream ss(word);
+		string tmp;
+		while (getline(ss, tmp, ' ')) {
+			splitTeam.push_back(tmp);
+		}
+	}
+	for (int i = 0; i < splitTeam.size() - 2; i += 3) {
+		Team team;
+		team.id_team = stoi(splitTeam[i]);
+		team.team_name = splitTeam[i + 1];
+		team.number = stoi(splitTeam[i + 2]);
+		t.push_back(team);
+	}
+	cout << "team:" << t.size() << endl;
+}
+
+
 SOCKET global;
 
 void handleResponse(char* res) {
 	char subbuff[4];
 	memcpy(subbuff, &res[0], 3);
 	subbuff[3] = '\0';
-	string pre;
-	bool Res = false;
 	switch (atoi(subbuff)) {
 	case RES_LOGIN_SUCCESS: {
 		if (status == 0) {
@@ -89,11 +117,21 @@ void handleResponse(char* res) {
 		break;
 	}
 	case RES_GETTEAMS_SUCCESS: {
-		cout << "Get teams successfully" << endl;
-		break;
-	}
-	case CREATE_TEAM_SUCCESS: {
-		cout << "Create team successfully" << endl;
+		if (status == 0) {
+			cout << "Get teams successfully" << endl;
+			handleSplitStr(res + 4);
+			cout << setw(5) << left << "ID";
+			cout << setw(30) << left << "Team'name";
+			cout << setw(20) << right << "Team'members" << endl;
+			cout << setfill('-');
+			cout << setw(55) << "-" << endl;
+			cout << setfill(' ');
+			for (Team team : t) {
+				cout << setw(5) << left << team.id_team;
+				cout << setw(30) << left << team.team_name;
+				cout << setw(20) << right << team.number << endl;
+			}
+		}
 		break;
 	}
 	case RES_NOT_AUTHORIZE: {
@@ -107,6 +145,43 @@ void handleResponse(char* res) {
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Send request to join team successfully" << endl;
 		break;
+	}
+	case TEAM_IS_FULL: {
+		cout << "Team is full" << endl;
+		break;
+	}
+	case REQUEST_JOINTEAM_IS_DENIED: {
+		cout << "Request to server fail!" << endl;
+		break;
+	}
+	case CREATE_TEAM_SUCCESS: {
+		cout << "Create team success" << endl;
+		status = 1;
+		break;
+	}
+	case  NUMBER_OF_TEAM_LIMIT: {
+		cout << "Number of team exceeds limit" << endl;
+		break;
+	}
+	case USER_IN_GAME_7: {
+		cout << "User is in game!" << endl;
+		break;
+	}
+	case LEAVE_TEAM_SUCCESS: {
+		cout << "Leave team successfully" << endl;
+		status = 0;
+		break;
+	}
+
+	case USER_IN_GAME_8: {
+		cout << "User in game!" << endl;
+		break;
+	}
+	case GET_TEAMMBER_SUCCESS: {
+		cout << "Get members team successfully!" << endl;
+		if (status == 0) {
+			cout << "Team member is:" << res + 4 << endl;
+		}
 	}
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
 		if (status == 3) {
@@ -145,7 +220,7 @@ void handleResponse(char* res) {
 	case JOIN_TEAM_SUCCESS: {
 		if (status == 1) {
 			cout << "Join team id: " << res + 4 << endl;
-			pre = res + 4;
+			string pre = res + 4;
 			if (isNumber(pre)) {
 				status = 2;
 				idTeam = stoi(pre);
@@ -200,6 +275,7 @@ void handleResponse(char* res) {
 		}
 		break;
 	}
+
 	case RECEIVE_INVITATION_SUCCESS: {
 		if (status == 1) {
 			cout << "Receive invitation form team id: " << (res + 4) << endl;
@@ -207,6 +283,11 @@ void handleResponse(char* res) {
 		else {
 			string pre = "261|";
 			pre = pre + (res + 4);
+			/*cout << pre;*/
+			char* returnData = (char*)malloc(pre.length() * sizeof(char));
+			strcpy(returnData, pre.c_str());
+
+			Send(global, returnData, strlen(returnData), 0);
 		}
 		break;
 	}
@@ -232,39 +313,7 @@ void handleResponse(char* res) {
 		}
 		break;
 	}
-	case GET_ALL_TEAMS: {
-		if (status == 3) {
-			cout << "Player " << res + 4 << " decline your invitation!";
-		}
-		break;
-	}
-	case CHALLENGE_SUCCESS: {
-		if (status == 3) {
-			cout << "Your request chanllenge to team " << res + 4 << "is sent successfully!" << endl;
-		}
-		break;
-	}
-	case RECVEICE_REQUEST_CHALLENGE: {
-		if (status == 3) {
-			cout << "Team id: " << res + 4 << " sent request challenge!" << endl;
-			pre = "390";
-		}
-		if (status == 2) {
 
-		}
-		break;
-	}
-	case MATCHING_GAME_SUCCESS: {
-		if (status == 2 || status == 3) {
-
-		}
-	}
-	}
-
-	if (Res) {
-		char* returnData = (char*)malloc(pre.length() * sizeof(char));
-		strcpy(returnData, pre.c_str());
-		Send(global, returnData, strlen(returnData), 0);
 	}
 }
 
@@ -289,4 +338,3 @@ int Receive(SOCKET s, char *buff, int size, int flags) {
 
 	return n;
 }
-
