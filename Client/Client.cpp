@@ -41,6 +41,7 @@ int showMenu(int *status) {
 		cin >> userInput;
 		string x;
 		getline(cin, x);
+		if (*status != 1) crash = true;
 		break;
 	}
 // in a team
@@ -49,6 +50,10 @@ int showMenu(int *status) {
 		cout << "1. Get list member " << endl;
 		cout << "2. Leave team " << endl;
 		cout << "Please select your options [1,2]: ";
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 2) crash = true;
 		break;
 	}
 // host'room
@@ -64,13 +69,24 @@ int showMenu(int *status) {
 		cout << "8. Accept challenge" << endl;
 		cout << "9. Decline challenge" << endl;
 		cout << "10. Surrender" << endl;
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 3) crash = true;
+		break;
 	}
 	case 4: {
+		cout << "================ In game ================" << endl;
 		cout << "1. BUY item" << endl;
 		cout << "2. Get information in game" << endl;
 		cout << "3. Get own information" << endl;
 		cout << "4. Attack oponent" << endl;
 		cout << "5. Answer quiz" << endl;
+		cin >> userInput;
+		string x;
+		getline(cin, x);
+		if (*status != 4) crash = true;
+		break;
 	}
 	default: {
 
@@ -346,7 +362,22 @@ int main(int argc, char* argv[]) {
 				option = showMenu(&status);
 			}
 
-			while (status == 1 && option <= 0 || option >= 5) {
+			while (status == 1 && option <= 0 || option >= 6) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 2 && option <= 0 || option >= 3) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 3 && option <= 0 || option >= 11) {
+				cout << "Invalid options. Please try again!" << endl;
+				option = showMenu(&status);
+			}
+
+			while (status == 4 && option <= 0 || option >= 6) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
@@ -361,7 +392,7 @@ int main(int argc, char* argv[]) {
 			userInput = userInput + ENDING_DELIMITER;
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
-			//Sleep(100);
+			Sleep(100);
 			cout << buff;
 			//ret = Receive(client, buff, BUFF_SIZE, 0);
 			/*if (ret > 0) {
