@@ -36,8 +36,8 @@ struct DataThread {
 
 // define account info struct
 struct Account {
-	string username;
-	string password;
+	string username = "";
+	string password = "";
 };
 
 // item struct define
@@ -71,9 +71,9 @@ struct Question {
 
 // define team struct
 struct Team {
-	int id = -1;
+	int id = -1; // id >=0 if the team exited
 	string name = "";
-	LoginSession* members[3] = { {},{},{} };
+	LoginSession* members[3] = { NULL,NULL,NULL };
 	int status = 0; // 0 if not ingame, 1 if ingame
 	int roomId = -1;
 };

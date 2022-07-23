@@ -1,6 +1,8 @@
 #ifndef FunctionPrototypes
 #define FuntionPrototypes
 #ifndef HandleWSAEventPrototype
+int getAccountFromTxtFile(string pathname);
+int getQuestionFromTxtFile(string pathname);
 void freeSockInfo(LoginSession* siArray, int n);
 void closeEventInArray(WSAEVENT* eventArr, int n);
 vector<string> splitData(string inlineData, string del);
@@ -22,7 +24,7 @@ string registerAccount(string username, string password);
 string getAllTeams(UserInfo* userInfo);
 string joinTeam(UserInfo* userInfo, unsigned int teamId);
 string createTeam(LoginSession* userInfo, string teamName);
-string accountSignOut(string username);
+string accountSignOut(UserInfo* userInfo);
 string getOutTeam(UserInfo* userInfo);
 string getTeamMembers(UserInfo* userInfo);
 string getListUserInWaitingRoom(LoginSession &loginSession);
