@@ -25,7 +25,6 @@ int showMenu(int *status) {
 		string x;
 		getline(cin, x);
 		if (*status != 0) crash = true;
-		cout << "Dang nhap trong status = 0";
 		break;
 	}
 // in waiting room
@@ -277,7 +276,6 @@ unsigned __stdcall echoThread(void *paramUndefined) {
 			handleResponse(buff);
 		}
 	}
-	printf("Out ra roi \n");
 	closesocket(connectedSocket);
 	return 0;
 }
