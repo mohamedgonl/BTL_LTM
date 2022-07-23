@@ -107,23 +107,24 @@ void endGame(Team* team) {
 	team->members[1]->userInfo.status = 2;
 	team->members[2]->userInfo.status = 2;
 }
-void resetUserInfo(LoginSession* loginSession) {
-	loginSession->userInfo.coin = 0;
-	loginSession->userInfo.HP[0] = 1000;
-	loginSession->userInfo.HP[1] = 0;
-	loginSession->userInfo.HP[2] = 0;
-	loginSession->userInfo.laze[0] = -90;
-	loginSession->userInfo.laze[1] = -90;
-	loginSession->userInfo.laze[2] = -90;
-	loginSession->userInfo.laze[3] = -90;
-	loginSession->userInfo.rocket = 0;
-	loginSession->userInfo.status = 0;
-	loginSession->userInfo.sungtudong[0] = 50;
-	loginSession->userInfo.sungtudong[1] = -200;
-	loginSession->userInfo.sungtudong[2] = -200;
-	loginSession->userInfo.sungtudong[3] = -200;
-	loginSession->userInfo.teamId = -1;
-	loginSession->userInfo.username = "";
+void resetUserInfo(UserInfo* userInfo) {
+	userInfo->coin = 0;
+	userInfo->HP[0] = 1000;
+	userInfo->HP[1] = 0;
+	userInfo->HP[2] = 0;
+	userInfo->laze[0] = -90;
+	userInfo->laze[1] = -90;
+	userInfo->laze[2] = -90;
+	userInfo->laze[3] = -90;
+	userInfo->rocket = 0;
+	userInfo->status = 0;
+	userInfo->sungtudong[0] = 50;
+	userInfo->sungtudong[1] = -200;
+	userInfo->sungtudong[2] = -200;
+	userInfo->sungtudong[3] = -200;
+	userInfo->teamId = -1;
+	userInfo->username = "";
+	userInfo->lastTimeATK = 0;
 }
 
 /*
@@ -291,7 +292,6 @@ string createTeam(LoginSession* logginSession, string teamName) {
 		// create a new team
 		if (teams[i] == NULL) { 
 			Team* newTeam = new Team;
-		//	teams[i] =(Team*) malloc(sizeof (Team));
 			newTeam->id = i;
 			newTeam->members[0] = logginSession;
 			newTeam->name = teamName;
@@ -303,51 +303,17 @@ string createTeam(LoginSession* logginSession, string teamName) {
 }
 
 //7. Sign out
-string accountSignOut(string username) {
-	int i;
-	for (i = 0; i < MAX_CLIENT; i++) {
-		// find logginsession has same username
-		if (loginSessions[i] && !strcmp(loginSessions[i]->userInfo.username.c_str(), username.c_str())) {
-			// check status
-			switch (loginSessions[i]->userInfo.status) {
-			case 0: return "211";
-			case 1: {
-				resetUserInfo(loginSessions[i]);
-				return "240";
-			};
-			case 2: { // room member
-				// pop the user out of team 
-				for (int j = 1; j < 3; j++) {
-					LoginSession* member = teams[loginSessions[i]->userInfo.teamId]->members[j];
-					if (member != NULL && !strcmp(member->userInfo.username.c_str(), username.c_str())) {
-						teams[loginSessions[i]->userInfo.teamId]->members[j] = NULL;
-					}
-				}
-				resetUserInfo(loginSessions[i]);
-				return "240";
-			};
-			case 3: { // team leader
-				// reset team members
-				Team* team = teams[loginSessions[i]->userInfo.teamId];
-				team->members[1]->userInfo.teamId = -1;
-				team->members[2]->userInfo.teamId = -1;
-				team->members[1]->userInfo.status = 1;
-				team->members[2]->userInfo.status = 1;
-				// kick team member
-				team->members[1] = NULL;
-				team->members[2] = NULL;
-				// reset team leader info
-				LoginSession* teamLeader = team->members[0];
-				resetUserInfo(teamLeader);
-				return "240";
-			};
-			default:
-				return "241";
-			}
-		}
-	}
-	// if this account hasnt logged in
-	return "211";
+string accountSignOut(UserInfo* userInfo) {
+	//login check
+	if (userInfo->status == 0) return "Unloggin";
+	// in a team
+	if (userInfo->status == 2 || userInfo->status == 3) return "In a team";
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
+
+	// reset user info
+	resetUserInfo(userInfo);
+	return "Sign out OK";
 }
 
 // 8. Get out of team
