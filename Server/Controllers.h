@@ -1035,7 +1035,6 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		return RES_SURR_DEADTH;
 	}
 
-
 	int teamId = loginSession.userInfo.teamId;
 	int roomId = teams[teamId]->roomId;
 
@@ -1044,6 +1043,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	for (int i = 0; i < 3; i++) {
 		if (teams[enemyTeamId]->members[i]->userInfo.username == username) {
 			enemyIndex = i;
+			break;
 		}
 	}
 	if (enemyIndex == -1) {
@@ -1065,7 +1065,28 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	// Caculate damage of attack ??????
 	int damage = 0;
 
+	for (int i = 3; i >= 0; i--) {
+		if (loginSession.userInfo.sungtudong[i] > 0) {
+			damage += Attack[0].dameB;
+			loginSession.userInfo.sungtudong[i]--;
+			break;
+		}
+	}
 
+	for (int i = 3; i >= 0; i--) {
+		if (loginSession.userInfo.laze[i] > 0) {
+			damage += Attack[1].dameB;
+			loginSession.userInfo.laze[i]--;
+			break;
+		}
+	}
+	
+	if (loginSession.userInfo.rocket > 0) {
+		damage += Attack[2].dameB;
+		loginSession.userInfo.rocket--;
+	}
+
+	int tempDamage = damage;
 
 	// Caculate user info
 	LoginSession* enemy = teams[enemyTeamId]->members[enemyIndex];
@@ -1136,7 +1157,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 
 	}
 	string sendBackData = RES_ATK_SEND_TO_ALL_MEMBER;
-	sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(damage);
+	sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	for (int i = 0; i < 3; i++) {
@@ -1150,7 +1171,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 
 
 	sendBackData = RES_ATK_SUCCESS;
-	return sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(damage);
+	return sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
 }
 
 /*

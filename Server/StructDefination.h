@@ -1,12 +1,11 @@
-
 #include "stdafx.h"
 #ifndef StructDefination_h
 #define StructDefination_h
 
 struct UserInfo {
 	string username = "";
-	unsigned int status=0; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
-	unsigned int coin =0 ;
+	unsigned int status = 0; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
+	unsigned int coin = 0;
 	unsigned int HP[3] = { 1000, 0, 0 };
 	int sungtudong[4] = { 50, -200, -200, -200 };
 	int laze[4] = { -90, -90, -90, -90 };
@@ -24,7 +23,7 @@ struct SocketInfo {
 
 struct LoginSession {
 	SocketInfo socketInfo;
-	UserInfo userInfo ;
+	UserInfo userInfo;
 	char buff[2048];
 };
 
@@ -58,14 +57,14 @@ struct Item_Attack {
 
 struct QuestionDescription {
 	string question;
-	string answers[4] = {"","","",""};
+	string answers[4] = { "","","","" };
 	string key;
 	unsigned int coin;
 };
 
 // define question struct
 struct Question {
-	int id=-1;
+	int id = -1;
 	int status = 0; // 0 has answered, 1: answered
 	QuestionDescription* description;
 };
