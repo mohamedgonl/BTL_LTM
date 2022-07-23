@@ -4,8 +4,8 @@
 #define StructDefination_h
 
 struct UserInfo {
-	string username = "startname";
-	unsigned int status=1; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
+	string username = "";
+	unsigned int status=0; // unloggedin = 0  , 1 = waitingroom, 2 = room_member, 3 = room_master, 4 = ingame&live, 5 = ingame_dead
 	unsigned int coin =0 ;
 	unsigned int HP[3] = { 1000, 0, 0 };
 	int sungtudong[4] = { 50, -200, -200, -200 };
@@ -24,7 +24,7 @@ struct SocketInfo {
 
 struct LoginSession {
 	SocketInfo socketInfo;
-	UserInfo userInfo;
+	UserInfo userInfo ;
 	char buff[2048];
 };
 
@@ -51,7 +51,9 @@ struct Item_Armor {
 struct Item_Attack {
 	string name;
 	unsigned int price;
-	unsigned int dame;
+	unsigned int b_price; // price of bullets
+	unsigned int numBullets;
+	unsigned int dameB; // dame of a bullet
 };
 
 struct QuestionDescription {
@@ -86,6 +88,5 @@ struct Room {
 	Team* team2;
 	Question questions[MAX_QUESTION];
 };
-
 
 #endif 

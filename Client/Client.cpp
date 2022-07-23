@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 		while (true) {
 			string inputData;
 			cout << "Input your statement: " << endl;
-			getline(cin,inputData);
+			getline(cin, inputData);
 			string userInput = handleUserInput(inputData);
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";

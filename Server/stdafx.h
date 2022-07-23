@@ -23,6 +23,10 @@ using namespace std;
 #define SERVER_ADDR "127.0.0.1"
 #define ENDING_DELIMITER "/"
 #define MAX_THREAD 50
+#define MAX_HP 1000
+#define MAX_B_ARMOR 500
+#define MAX_A_AMOR 1500
+
 #pragma comment (lib, "Ws2_32.lib")
 
 #ifndef RESPONSE_CODE
@@ -83,3 +87,4 @@ using namespace std;
 #define RES_ATK_SUCCESS "440"
 
 #endif // !RESPONSE_CODE
+

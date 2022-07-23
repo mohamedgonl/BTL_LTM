@@ -74,8 +74,6 @@ int main(int argc, char* argv[]) {
 			dataThread[i].loginSession[j].socketInfo.connSocket = 0;
 		}
 	}
-
-
 	int clientAddrLen = sizeof(clientAddr);
 	_beginthreadex(0, 0, &sendQuestionThread, NULL, 0, 0);
 	InitializeCriticalSection(&critical);
@@ -115,7 +113,9 @@ int main(int argc, char* argv[]) {
 			if (i == MAX_THREAD) {
 				printf("Too client connect!\n");
 				closesocket(connSock);
+
 			}
+
 			EnterCriticalSection(&critical);
 			if (j == 0 && dataThread[i].hasThread == 0) {
 				_beginthreadex(0, 0, &workingThread, (void*)i, 0, 0);
@@ -309,6 +309,12 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			loginSession.userInfo.status = 3;
 			loginSession.userInfo.username = "hmm";
 			return RES_SIGNUP_SUCCESS;
+		}
+		case 4: {
+			string responseData = getAllTeams(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
 		}
 		}
 	}
