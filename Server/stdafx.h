@@ -4,6 +4,7 @@
 #include <WS2tcpip.h>
 #include <process.h>
 #include <list>
+#include <time.h>
 #include <string>
 #include <queue>
 #include <iostream>
@@ -22,26 +23,68 @@ using namespace std;
 #define SERVER_ADDR "127.0.0.1"
 #define ENDING_DELIMITER "/"
 #define MAX_THREAD 50
-<<<<<<< HEAD
-#include <fstream> 
-#pragma comment (lib, "Ws2_32.lib")
+#define MAX_HP 1000
+#define MAX_B_ARMOR 500
+#define MAX_A_AMOR 1500
 
-// Define global variables
-Account accounts[100];
-LoginSession* loginSessions[100];
-Team* teams[];
-Room* rooms[];
-Question* questions[];
-string fileDirectory;
-
-=======
 #pragma comment (lib, "Ws2_32.lib")
 
 #ifndef RESPONSE_CODE
 
-#define INVALID_COMMAND "99"
+#define INVALID_COMMAND "999"
 #define RES_LOGIN_SUCCESS "110"
 #define RES_SIGNUP_SUCCESS "120"
+#define RES_LOGIN_NOT_LOGIN "211"
+#define RES_GETUSERS_SUCCESS "330"
+#define RES_GETUSERS_NOT_TEAM_LEAD "331"
+#define RES_GETUSERS_NOT_IN_TEAM "311"
+#define RES_GETUSERS_IN_GAME "312"
+#define RES_M_ACCEPT_SUCCESS "340"
+#define RES_M_ACCEPT_USER_NOT_ONLINE "341"
+#define RES_M_ACCEPT_USER_IN_ANOTHER_ROOM "342"
+#define RES_M_ACCEPT_TEAM_FULL "343"
+#define RES_M_ACCEPT_SEND_BACK_TO_USER_REQUEST "344"
+#define RES_M_ACCEPT_SEND_FAIL "349"
+#define RES_M_DECLINE_SUCCESS "350"
+#define RES_M_DECLINE_SEND_BACK_TO_USER_REQUEST "353"
+#define RES_INVITE_SEND_TO_USER "363"
+#define RES_INVITE_SUCCESS "360"
+#define RES_ACCEPT_INVITE_SEND_TO_LEADER "252"
+#define RES_ACCEPT_SUCCESS "250"
+#define RES_TEAM_IN_GAME "253"
+#define RES_DECLINE_INVITE_SEND_TO_LEADER "261"
+#define RES_DECLINE_SUCCESS "260"
+#define RES_KICK_SUCCESS "370"
+#define RES_USER_NOT_IN_TEAM "371"
+#define RES_SEND_KICK_ANNOUNCE "372"
+#define RES_GETTEAMS_SUCCESS "380"
+#define RES_CHALLENGE_NOT_ENOUGH_MEMBER "394"
+#define RES_CHALLENGE_ENEMY_NOT_ENOUGH_MEMBER "391"
+#define RES_CHALLENGE_ENEMY_IN_GAME "392"
+#define RES_CHALLENGE_ENEMY_NOT_EXIST "393"
+#define RES_CHALLENGE_SEND_CHALLENGE_TO_ANOTHER_TEAM "395"
+#define RES_CHALLENGE_SUCCESS "390"
+#define RES_ACCEPTCHALLENGE_SEND_TO_ALL_USER "511"
+#define RES_ACCEPTCHALLENGE_SUCCESS "510"
+#define RES_DECLINECHALLENGE_SUCCESS "520"
+#define RES_DECLINECHALLENGE_SEND_TO_ANOTHER "521"
+#define RES_SURR_NOT_IN_GAME "413"
+#define RES_SURR_DEADTH "444"
+#define RES_SURR_ANNOUNCE "500"
+#define RES_SURR_SUCCESS "461"
+#define RES_ANS_HAS_ANSWER "451"
+#define RES_NEW_QUESTION "400"
+#define RES_ANS_CORRECT "450"
+#define RES_ANS_INCORRECT "452"
+#define RES_ANS_NOT_EXIST "453"
+#define RES_ATK_MEMBER_NOT_EXIST "442"
+#define RES_ATK_MEMBER_HAS_DEATH "441"
+#define RES_ATK_SEND_TO_DEATH_MEMBER "447"
+#define RES_ATK_SEND_TO_ALL_MEMBER "445"
+#define RES_ATK_IN_PENDING "443"
+#define RES_ATK_SEND_TO_ALL_MEMBER_ABOUT_DEATH_MEMBER "446"
+#define RES_ATK_WIN "447"
+#define RES_ATK_SUCCESS "440"
 
 #endif // !RESPONSE_CODE
->>>>>>> ae0cb19829a6d10e3c22c3777d210e1c6c6d7c2e
+

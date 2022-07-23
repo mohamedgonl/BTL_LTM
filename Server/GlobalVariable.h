@@ -1,22 +1,23 @@
 #include "stdafx.h"
 #include "StructDefination.h"
-#ifndef GlobalVariable_h
-#define GlobalVariable_h
 
+#ifndef GlobalVariable
+#define GlobalVariable
 Account accounts[MAX_NUM_ACCOUNT];
-LoginSession* loginSessions[MAX_CLIENT];
+LoginSession *loginSessions[MAX_CLIENT];
 Team* teams[MAX_TEAM];
 Room* rooms[MAX_ROOM];
-Question* questions[MAX_QUESTION];
+QuestionDescription questionDescriptions[MAX_QUESTION];
 LoginSession acc[MAX_NUM_ACCOUNT];
 CRITICAL_SECTION critical;
 list<char*> splitMsg(char* msg);
 DataThread dataThread[MAX_THREAD];
+int numOfRoom = 0;
 int numOfAccount = 0;
 int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
-string fileDirectory="C:\\Users\\long\\Desktop\\account.txt";
+string fileDirectory = "account.txt";
 map<string, int> action = {
 	{ "LOGIN", 2 },
 	{ "SIGNUP", 3 },
@@ -27,9 +28,9 @@ map<string, int> action = {
 	{ "OUTTEAM", 8 },
 	{ "GETMEMBERS", 9 },
 	{ "GETUSERS", 10 },
-	{ "MACCEPT", 11 },
+	{ "M_ACCEPT", 11 },
 	{ "M_DECLINE", 12 },
-	{ "INVITED", 13 },
+	{ "INVITE", 13 },
 	{ "ACCEPT", 14 },
 	{ "DECLINE", 15 },
 	{ "KICK", 16 },
@@ -43,9 +44,9 @@ map<string, int> action = {
 	{ "ATK", 24 },
 	{ "ANS", 26 },
 	{ "SURR", 27 },
-	{ "ENDGAME", 28 },
 };
+// item
+const Item_Armor Armor[3] = { {"HP",1,1}, {"bArmor", 1000, 500 },{"aArmor", 2000, 1500} };
+const Item_Attack Attack[3] = { {"sungtudong", 500,100, 50, 10},{"laze",1000,100,10, 100},{"rocket", 0, 2000, 1 ,800} };
 
-
-#endif 
-
+#endif // !GlobalVariable
