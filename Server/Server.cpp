@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
 			dataThread[i].loginSession[j].socketInfo.connSocket = 0;
 		}
 	}
+	numOfAccount = getAccountFromTxtFile(accountFileDirectory);
+	numOfQuestion = getQuestionFromTxtFile(questionFileDirectory);
 	int clientAddrLen = sizeof(clientAddr);
 	_beginthreadex(0, 0, &sendQuestionThread, NULL, 0, 0);
 	InitializeCriticalSection(&critical);
@@ -176,7 +178,7 @@ unsigned __stdcall workingThread(void* params) {
 					LeaveCriticalSection(&critical);
 				}
 				else {
-					
+
 					rcvBuff[ret] = 0;
 					cout << rcvBuff;
 					interactWithClient(dataThread[startIndex].loginSession[index], rcvBuff);
@@ -229,158 +231,112 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 		return INVALID_COMMAND;
 	}
 	else {
+		string responseData;
 		switch (action.find(command)->second) {
 		case 2: {
-			string responseData = loginAccount(&loginSession.userInfo,splitData(it," ")[1],splitData(it," ")[2]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = loginAccount(&loginSession.userInfo, splitData(it, " ")[1], splitData(it, " ")[2]);
+			break;
 		}
 		case 3: {
-			string responseData = registerAccount(splitData(it," ")[1],splitData(it," ")[2]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = registerAccount(splitData(it, " ")[1], splitData(it, " ")[2]);
+			break;
 		}
 		case 4: {
-			string responseData = getAllTeams(&loginSession.userInfo);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getAllTeams(&loginSession.userInfo);
+			break;
 		}
 		case 5: {
-			string responseData = joinTeam(&loginSession.userInfo,atoi(splitData(it," ")[1].c_str()));
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = joinTeam(&loginSession.userInfo, atoi(splitData(it, " ")[1].c_str()));
+			break;
 		}
 		case 6: {
-			string responseData = createTeam(&loginSession, splitData(it," ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = createTeam(&loginSession, splitData(it, " ")[1]);
+			break;
 		}
 		case 7: {
-			string responseData = accountSignOut(splitData(it," ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = accountSignOut(splitData(it, " ")[1]);
+			break;
 		}
 		case 8: {
-			string responseData = getOutTeam(&loginSession.userInfo);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getOutTeam(&loginSession.userInfo);
+			break;
 		}
 		case 9: {
-			string responseData = getTeamMembers(&loginSession.userInfo);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getTeamMembers(&loginSession.userInfo);
+			break;
 		}
 		case 10: {
-			string responseData = getListUserInWaitingRoom(loginSession);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getListUserInWaitingRoom(loginSession);
+			break;
 		}
 		case 11: {
-			string responseData = acceptRequestJoinTeam(loginSession, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = acceptRequestJoinTeam(loginSession, splitData(it, " ")[1]);
+			break;
 		}
 		case 12: {
-			string responseData = declineRequestJoinTeam(loginSession, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = declineRequestJoinTeam(loginSession, splitData(it, " ")[1]);
+			break;
 		}
 		case 13: {
-			string responseData = inviteJoinTeam(loginSession, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = inviteJoinTeam(loginSession, splitData(it, " ")[1]);
+			break;
 		}
 		case 14: {
-			string responseData = acceptInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = acceptInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			break;
 		}
 		case 15: {
-			string responseData = declineInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = declineInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			break;
 		}
 		case 16: {
-			string responseData = kickUserOutRoom(loginSession, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = kickUserOutRoom(loginSession, splitData(it, " ")[1]);
+			break;
 		}
 		case 17: {
-			string responseData = getAllTeams(loginSession);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getAllTeams(loginSession);
+			break;
 		}
 		case 18: {
-			string responseData = challenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = challenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			break;
 		}
 		case 19: {
-			string responseData = acceptChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = acceptChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			break;
 		}
 		case 20: {
-			string responseData = declineChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = declineChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+			break;
 		}
 		case 21: {
-			string responseData = buyItem(&loginSession.userInfo, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = buyItem(&loginSession.userInfo, splitData(it, " ")[1]);
+			break;
 		}
 		case 22: {
-			string responseData = getAllPlayers(&loginSession.userInfo);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getAllPlayers(&loginSession.userInfo);
+			break;
 		}
 		case 23: {
-			string responseData = getMine(&loginSession.userInfo);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = getMine(&loginSession.userInfo);
+			break;
 		}
 		case 24: {
-			string responseData = attackEnemy(loginSession, splitData(it, " ")[1]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = attackEnemy(loginSession, splitData(it, " ")[1]);
+			break;
 		}
 		case 26: {
-			string responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
+			break;
 		}
 		case 27: {
-			string responseData = surrender(loginSession);
-			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
-			strcpy(returnData, responseData.c_str());
-			return returnData;
+			responseData = surrender(loginSession);
+			break;
 		}
 		}
+		char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+		strcpy(returnData, responseData.c_str());
+		return returnData;
 	}
 }
 

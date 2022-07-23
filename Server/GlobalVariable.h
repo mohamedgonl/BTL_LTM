@@ -8,16 +8,17 @@ LoginSession *loginSessions[MAX_CLIENT];
 Team* teams[MAX_TEAM];
 Room* rooms[MAX_ROOM];
 QuestionDescription questionDescriptions[MAX_QUESTION];
-LoginSession acc[MAX_NUM_ACCOUNT];
 CRITICAL_SECTION critical;
 list<char*> splitMsg(char* msg);
 DataThread dataThread[MAX_THREAD];
 int numOfRoom = 0;
 int numOfAccount = 0;
+int numOfQuestion = 0;
 int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
-string fileDirectory = "account.txt";
+string accountFileDirectory = "C:\\LTM\\BTL_LTM\\Server\\account.txt";
+string questionFileDirectory = "C:\\LTM\\BTL_LTM\\Server\\question.txt";
 map<string, int> action = {
 	{ "LOGIN", 2 },
 	{ "SIGNUP", 3 },

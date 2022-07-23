@@ -1,6 +1,8 @@
 #ifndef FunctionPrototypes
 #define FuntionPrototypes
 #ifndef HandleWSAEventPrototype
+int getAccountFromTxtFile(string pathname);
+int getQuestionFromTxtFile(string pathname);
 void freeSockInfo(LoginSession* siArray, int n);
 void closeEventInArray(WSAEVENT* eventArr, int n);
 vector<string> splitData(string inlineData, string del);

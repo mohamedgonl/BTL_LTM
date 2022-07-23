@@ -81,27 +81,62 @@ int isNumber(char* text) {
 	return 1;
 }
 
-//int readfile(string pathname) {
-//	// read account
-//	string line;
-//	ifstream myfile(pathname);
-//	int count = 0;
-//	if (myfile.is_open())
-//	{
-//		while (getline(myfile, line))
-//		{
-//			acc[count] = splitData(line, " ");
-//			count++;
-//		}
-//		myfile.close();
-//		return count;
-//	}
-//	else {
-//		cout << "Unable to open file. Please confirm your path to account.txt file./n";
-//		return 0;
-//	}
-//}
+vector<string> readFile(string pathname) {
+	// read account
+	vector<string> inlineData;
+	string line;
+	ifstream myfile(pathname);
+	int count = 0;
+	if (myfile.is_open())
+	{
+		while (getline(myfile, line))
+		{
+			inlineData.push_back(line);
+		}
+		myfile.close();
+	}
+	else {
+		cout << "Unable to open file. Please confirm your path to account.txt file./n";
+	}
+	return inlineData;
+}
 
+
+int getAccountFromTxtFile(string pathname) {
+	int count = 0;
+	vector<string> inlineData;
+	inlineData = readFile(pathname);
+	for (int i = 0; i < inlineData.size(); i++) {
+		vector<string> accountData = splitData(inlineData[i]," ");
+		Account account;
+		account.username = accountData[0];
+		account.password = accountData[1];
+		accounts[count] = account;
+		count++;
+	}
+	return count;
+}
+
+int getQuestionFromTxtFile(string pathname) {
+	int count = 0;
+	vector<string> inlineData;
+	inlineData = readFile(pathname);
+	for (int i = 0; i < inlineData.size(); i++) {
+		vector<string> questionData = splitData(inlineData[i],"|");
+		QuestionDescription questionDescription;
+		questionDescription.question = questionData[0];
+		questionDescription.key = questionData[1];
+		questionDescription.coin =  atoi(questionData[2].c_str());
+		int numOfAnswer = 0;
+		for (int i = 3; i < questionData.size(); i++) {
+			questionDescription.answers[numOfAnswer] = questionData[i];
+			numOfAnswer++;
+		}
+		questionDescriptions[count] = questionDescription;
+		count++;
+	}
+	return count;
+}
 
 #endif // !Handle WSA Event
 
@@ -221,7 +256,7 @@ string registerAccount(string username, string password) {
 	{
 		fstream file;
 		string account = username + " " + password;
-		file.open(fileDirectory, ios::app);
+		file.open(accountFileDirectory, ios::app);
 		if (file) {
 			file << account << endl;
 			file.close();
@@ -1208,7 +1243,7 @@ void createQuestion() {
 		else {
 			if (rooms[i] != NULL) {
 				roomHasTravel++;
-				int descriptionQuesionID = (std::rand() % (MAX_QUESTION));
+				int descriptionQuesionID = (std::rand() % (numOfQuestion));
 				Question question;
 				question.description = &questionDescriptions[descriptionQuesionID];
 				for (int j = 0; j < MAX_QUESTION; j++) {
