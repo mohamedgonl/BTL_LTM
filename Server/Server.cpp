@@ -91,6 +91,12 @@ int main(int argc, char* argv[]) {
 						EnterCriticalSection(&critical);
 						numOfConn++;
 						LeaveCriticalSection(&critical);
+						for (int k = 0; k < MAX_CLIENT; k++) {
+							if (loginSessions[k] == NULL) {
+								loginSessions[k] = &dataThread[i].loginSession[j];
+								break;
+							}
+						}
 						isFinded = true;
 						break;
 					}
@@ -100,7 +106,9 @@ int main(int argc, char* argv[]) {
 			if (i == MAX_THREAD) {
 				printf("Too client connect!\n");
 				closesocket(connSock);
+
 			}
+
 			EnterCriticalSection(&critical);
 			if (j == 0 && dataThread[i].hasThread == 0) {
 				_beginthreadex(0, 0, &workingThread, (void*)i, 0, 0);
@@ -205,10 +213,17 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 	else {
 		switch (action.find(command)->second) {
 		case 2: {
+
 			return RES_LOGIN_SUCCESS;
 		}
 		case 3: {
 			return RES_SIGNUP_SUCCESS;
+		}
+		case 4: {
+			string responseData = getAllTeams(&loginSession.userInfo);
+			char* returnData = (char*)malloc(responseData.length() * sizeof(char));
+			strcpy(returnData, responseData.c_str());
+			return returnData;
 		}
 		}
 	}

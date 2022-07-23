@@ -49,7 +49,9 @@ struct Item_Armor {
 struct Item_Attack {
 	string name;
 	unsigned int price;
-	unsigned int dame;
+	unsigned int b_price; // price of bullets
+	unsigned int numBullets;
+	unsigned int dameB; // dame of a bullet
 };
 
 // define question struct

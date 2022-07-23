@@ -47,5 +47,9 @@ map<string, int> action = {
 };
 
 
+// item
+const Item_Armor Armor[3] = { {"HP",1,1}, {"bArmor", 1000, 500 },{"aArmor", 2000, 1500} };
+const Item_Attack Attack[3] = { {"sungtudong", 500,100, 50, 10},{"laze",1000,100,10, 100},{"rocket", 0, 2000, 1 ,800} };
+
 #endif 
 
