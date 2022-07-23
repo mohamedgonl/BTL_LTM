@@ -193,9 +193,18 @@ string registerAccount(string username, string password) {
 			if (!(accounts[i].username.compare(username))) // if username is existed
 				return "121";
 	}
-	// save account to data file
+	// save new account 
 	try
 	{
+		// push new account to accounts
+		for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
+			if (!accounts[i].username.compare("")) {
+				accounts[i].username = username;
+				accounts[i].password = password;
+				break;
+			}
+	}
+		// save to data file
 		fstream file;
 		string account = username + " " + password;
 		file.open(fileDirectory, ios::app);
@@ -219,20 +228,20 @@ string registerAccount(string username, string password) {
 
 // 4. Get list all teams
 string getAllTeams(UserInfo* userInfo) {
-
 	// login check
 	if (userInfo->status == 0) return "211";
-
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 	string response = "210|";
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[i] != NULL && teams[i]->members[0] != NULL) { // if team has linked to team leader
+		if (teams[i] != NULL) { 
 			response += std::to_string(teams[i]->id);
 			response += " " + teams[i]->name;
-			int numOfMems = 0;
+			int numofMems = 0;
 			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j] != NULL) numOfMems++;
+				if (teams[i]->members[j]) numofMems++;
 			}
-			response += " " + std::to_string(numOfMems) + "|";
+			response += " " + std::to_string(numofMems) + "|";
 		}
 	}
 	return response;
@@ -240,14 +249,20 @@ string getAllTeams(UserInfo* userInfo) {
 
 // 5. Join team
 string joinTeam(UserInfo* userInfo, unsigned int teamId) {
+	//login check
+	if (userInfo->status == 0) return "Unloggin";
+	// in a team
+	if (userInfo->status == 2 || userInfo->status == 3) return "In a team";
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
+
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[i] != NULL && teams[i]->id == teamId) {
-			// find numbers of member in team
-			int numOfMems = 0;
+			int numofMems = 0;
 			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j] != NULL) numOfMems++;
+				if (teams[i]->members[j]) numofMems++;
 			}
-			if (numOfMems < 3) {
+			if (numofMems< 3) { // team member max 
 				string s = "230|" + userInfo->username;
 				// send join request to team leader
 				char* _s = (char*)malloc(s.length() * sizeof(char));
@@ -263,20 +278,28 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 }
 
 //6. create team
-string createTeam(LoginSession* userInfo, string teamName) {
-	Team newTeam;
-	int i;
-	for (i = 0; i < MAX_TEAM; i++) {
-		// find the team hasnt link to any team leader
-		if (teams[i]->members[0] == NULL) {
-			newTeam.id = i;
-			newTeam.members[0] = userInfo;
-			newTeam.name = teamName;
-			break;
+string createTeam(LoginSession* logginSession, string teamName) {
+	//login check
+	if (logginSession->userInfo.status == 0) return "Unloggin";
+	// in a team
+	if (logginSession->userInfo.status == 2 || logginSession->userInfo.status == 3) return "In a team";
+	// in a game
+	if (logginSession->userInfo.status == 4 || logginSession->userInfo.status == 5) return "In a game";
+
+	
+	for (int i = 0; i < MAX_TEAM; i++) {
+		// create a new team
+		if (teams[i] == NULL) { 
+			Team* newTeam = new Team;
+		//	teams[i] =(Team*) malloc(sizeof (Team));
+			newTeam->id = i;
+			newTeam->members[0] = logginSession;
+			newTeam->name = teamName;
+			teams[i] = newTeam;
+			return "230";
 		}
 	}
-	if (i >= MAX_TEAM) return "231";
-	else return "230";
+	 return "231";
 }
 
 //7. Sign out

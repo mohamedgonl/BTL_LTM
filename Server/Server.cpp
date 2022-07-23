@@ -4,7 +4,7 @@
 #include "FunctionPrototypes.h"
 #include "GlobalVariable.h"
 #pragma once
-int main(int argc, char* argv[]) {
+int main1(int argc, char* argv[]) {
 	if (argc == 2) {
 		if (isNumber(argv[1])) {
 			if (atoi(argv[1]) >= 0 && atoi(argv[1]) <= 65535) {
@@ -130,7 +130,53 @@ int main(int argc, char* argv[]) {
 	WSACleanup();
 	return 0;
 }
+int main() {
+	LoginSession lgs[9];
+	SocketInfo sk[9];
+	UserInfo us[9];
+	for (int i = 0; i < 9; i++) {
+		us[i].username = "long" + to_string(i);
+		us[i].status = 1;
+		lgs[i].socketInfo = sk[i];
+		lgs[i].userInfo = us[i];
+		loginSessions[i] = &lgs[i];
+	}
+	// team0 user 0 1 2
+	us[0].status = 2;
+	us[1].status = 3;
+	us[2].status = 3;
+	Team team0;
+	team0.id = 0;
+	team0.name = "team0";
+	for (int i = 0; i < 3; i++) {
+		us[i].teamId = 0;
+		team0.members[i] = &lgs[i];
+	}
 
+	teams[0] = &team0;
+	// team1   user 3 4
+	us[3].status = 2;
+	us[4].status = 3;
+	Team team1;
+	team1.id = 1;
+	team1.name = "team1";
+	for (int i = 3; i < 5; i++) {
+		us[i].teamId = 1;
+	}
+	for (int i = 0; i < 2; i++) {
+		team1.members[i] = &lgs[i + 3];
+	}
+
+	teams[1] = &team1;
+
+	// test 
+
+	cout << getAllTeams(&us[0]) << endl;
+	cout << createTeam(&lgs[0], "team56")<<endl;
+	cout << createTeam(&lgs[1], "team5") << endl;
+	cout << getAllTeams(&us[0]) << endl;
+	
+}
 
 unsigned __stdcall sendQuestionThread(void* params) {
 	while (true) {
