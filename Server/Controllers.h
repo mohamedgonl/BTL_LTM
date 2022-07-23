@@ -81,27 +81,62 @@ int isNumber(char* text) {
 	return 1;
 }
 
-//int readfile(string pathname) {
-//	// read account
-//	string line;
-//	ifstream myfile(pathname);
-//	int count = 0;
-//	if (myfile.is_open())
-//	{
-//		while (getline(myfile, line))
-//		{
-//			acc[count] = splitData(line, " ");
-//			count++;
-//		}
-//		myfile.close();
-//		return count;
-//	}
-//	else {
-//		cout << "Unable to open file. Please confirm your path to account.txt file./n";
-//		return 0;
-//	}
-//}
+vector<string> readFile(string pathname) {
+	// read account
+	vector<string> inlineData;
+	string line;
+	ifstream myfile(pathname);
+	int count = 0;
+	if (myfile.is_open())
+	{
+		while (getline(myfile, line))
+		{
+			inlineData.push_back(line);
+		}
+		myfile.close();
+	}
+	else {
+		cout << "Unable to open file. Please confirm your path to account.txt file./n";
+	}
+	return inlineData;
+}
 
+
+int getAccountFromTxtFile(string pathname) {
+	int count = 0;
+	vector<string> inlineData;
+	inlineData = readFile(pathname);
+	for (int i = 0; i < inlineData.size(); i++) {
+		vector<string> accountData = splitData(inlineData[i], " ");
+		Account account;
+		account.username = accountData[0];
+		account.password = accountData[1];
+		accounts[count] = account;
+		count++;
+	}
+	return count;
+}
+
+int getQuestionFromTxtFile(string pathname) {
+	int count = 0;
+	vector<string> inlineData;
+	inlineData = readFile(pathname);
+	for (int i = 0; i < inlineData.size(); i++) {
+		vector<string> questionData = splitData(inlineData[i], "|");
+		QuestionDescription questionDescription;
+		questionDescription.question = questionData[0];
+		questionDescription.key = questionData[1];
+		questionDescription.coin = atoi(questionData[2].c_str());
+		int numOfAnswer = 0;
+		for (int i = 3; i < questionData.size(); i++) {
+			questionDescription.answers[numOfAnswer] = questionData[i];
+			numOfAnswer++;
+		}
+		questionDescriptions[count] = questionDescription;
+		count++;
+	}
+	return count;
+}
 
 #endif // !Handle WSA Event
 
@@ -129,24 +164,24 @@ void endGame(Team* team) {
 	team->members[1]->userInfo.status = 2;
 	team->members[2]->userInfo.status = 2;
 }
-
-void resetUserInfo(LoginSession* loginSession) {
-	loginSession->userInfo.coin = 0;
-	loginSession->userInfo.HP[0] = 1000;
-	loginSession->userInfo.HP[1] = 0;
-	loginSession->userInfo.HP[2] = 0;
-	loginSession->userInfo.laze[0] = -90;
-	loginSession->userInfo.laze[1] = -90;
-	loginSession->userInfo.laze[2] = -90;
-	loginSession->userInfo.laze[3] = -90;
-	loginSession->userInfo.rocket = 0;
-	loginSession->userInfo.status = 0;
-	loginSession->userInfo.sungtudong[0] = 50;
-	loginSession->userInfo.sungtudong[1] = -200;
-	loginSession->userInfo.sungtudong[2] = -200;
-	loginSession->userInfo.sungtudong[3] = -200;
-	loginSession->userInfo.teamId = -1;
-	loginSession->userInfo.username = "";
+void resetUserInfo(UserInfo* userInfo) {
+	userInfo->coin = 0;
+	userInfo->HP[0] = 1000;
+	userInfo->HP[1] = 0;
+	userInfo->HP[2] = 0;
+	userInfo->laze[0] = -90;
+	userInfo->laze[1] = -90;
+	userInfo->laze[2] = -90;
+	userInfo->laze[3] = -90;
+	userInfo->rocket = 0;
+	userInfo->status = 0;
+	userInfo->sungtudong[0] = 50;
+	userInfo->sungtudong[1] = -200;
+	userInfo->sungtudong[2] = -200;
+	userInfo->sungtudong[3] = -200;
+	userInfo->teamId = -1;
+	userInfo->username = "";
+	userInfo->lastTimeATK = 0;
 }
 
 /*
@@ -185,7 +220,7 @@ queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZ
 }
 
 // 2. Login
-string loginAccount( UserInfo* userInfo,string username, string password) {
+string loginAccount(UserInfo* userInfo, string username, string password) {
 	// check if account is logged in
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		if (loginSessions[i]) {
@@ -216,12 +251,21 @@ string registerAccount(string username, string password) {
 			if (!(accounts[i].username.compare(username))) // if username is existed
 				return "121";
 	}
-	// save account to data file
+	// save new account 
 	try
 	{
+		// push new account to accounts
+		for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
+			if (!accounts[i].username.compare("")) {
+				accounts[i].username = username;
+				accounts[i].password = password;
+				break;
+			}
+		}
+		// save to data file
 		fstream file;
 		string account = username + " " + password;
-		file.open(fileDirectory, ios::app);
+		file.open(accountFileDirectory, ios::app);
 		if (file) {
 			file << account << endl;
 			file.close();
@@ -242,20 +286,20 @@ string registerAccount(string username, string password) {
 
 // 4. Get list all teams
 string getAllTeams(UserInfo* userInfo) {
-
 	// login check
 	if (userInfo->status == 0) return "211";
-
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 	string response = "210|";
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[i] != NULL && teams[i]->members[0] != NULL) { // if team has linked to team leader
+		if (teams[i] != NULL) {
 			response += std::to_string(teams[i]->id);
 			response += " " + teams[i]->name;
-			int numOfMems = 0;
+			int numofMems = 0;
 			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j] != NULL) numOfMems++;
+				if (teams[i]->members[j]) numofMems++;
 			}
-			response += " " + std::to_string(numOfMems) + "|";
+			response += " " + std::to_string(numofMems) + "|";
 		}
 	}
 	return response;
@@ -263,14 +307,20 @@ string getAllTeams(UserInfo* userInfo) {
 
 // 5. Join team
 string joinTeam(UserInfo* userInfo, unsigned int teamId) {
+	//login check
+	if (userInfo->status == 0) return "Unloggin";
+	// in a team
+	if (userInfo->status == 2 || userInfo->status == 3) return "In a team";
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
+
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[i] != NULL && teams[i]->id == teamId) {
-			// find numbers of member in team
-			int numOfMems = 0;
+			int numofMems = 0;
 			for (int j = 0; j < 3; j++) {
-				if (teams[i]->members[j] != NULL) numOfMems++;
+				if (teams[i]->members[j]) numofMems++;
 			}
-			if (numOfMems < 3) {
+			if (numofMems < 3) { // team member max 
 				string s = "230|" + userInfo->username;
 				// send join request to team leader
 				char* _s = (char*)malloc(s.length() * sizeof(char));
@@ -286,68 +336,41 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 }
 
 //6. create team
-string createTeam(LoginSession* userInfo, string teamName) {
-	Team newTeam;
-	int i;
-	for (i = 0; i < MAX_TEAM; i++) {
-		// find the team hasnt link to any team leader
-		if (teams[i]->members[0] == NULL) {
-			newTeam.id = i;
-			newTeam.members[0] = userInfo;
-			newTeam.name = teamName;
-			break;
+string createTeam(LoginSession* logginSession, string teamName) {
+	//login check
+	if (logginSession->userInfo.status == 0) return "Unloggin";
+	// in a team
+	if (logginSession->userInfo.status == 2 || logginSession->userInfo.status == 3) return "In a team";
+	// in a game
+	if (logginSession->userInfo.status == 4 || logginSession->userInfo.status == 5) return "In a game";
+
+
+	for (int i = 0; i < MAX_TEAM; i++) {
+		// create a new team
+		if (teams[i] == NULL) {
+			Team* newTeam = new Team;
+			newTeam->id = i;
+			newTeam->members[0] = logginSession;
+			newTeam->name = teamName;
+			teams[i] = newTeam;
+			return "230";
 		}
 	}
-	if (i >= MAX_TEAM) return "231";
-	else return "230";
+	return "231";
 }
 
 //7. Sign out
-string accountSignOut(string username) {
-	int i;
-	for (i = 0; i < MAX_CLIENT; i++) {
-		// find logginsession has same username
-		if (loginSessions[i] && !strcmp(loginSessions[i]->userInfo.username.c_str(), username.c_str())) {
-			// check status
-			switch (loginSessions[i]->userInfo.status) {
-			case 0: return "211";
-			case 1: {
-				resetUserInfo(loginSessions[i]);
-				return "240";
-			};
-			case 2: { // room member
-					  // pop the user out of team 
-				for (int j = 1; j < 3; j++) {
-					LoginSession* member = teams[loginSessions[i]->userInfo.teamId]->members[j];
-					if (member != NULL && !strcmp(member->userInfo.username.c_str(), username.c_str())) {
-						teams[loginSessions[i]->userInfo.teamId]->members[j] = NULL;
-					}
-				}
-				resetUserInfo(loginSessions[i]);
-				return "240";
-			};
-			case 3: { // team leader
-					  // reset team members
-				Team* team = teams[loginSessions[i]->userInfo.teamId];
-				team->members[1]->userInfo.teamId = -1;
-				team->members[2]->userInfo.teamId = -1;
-				team->members[1]->userInfo.status = 1;
-				team->members[2]->userInfo.status = 1;
-				// kick team member
-				team->members[1] = NULL;
-				team->members[2] = NULL;
-				// reset team leader info
-				LoginSession* teamLeader = team->members[0];
-				resetUserInfo(teamLeader);
-				return "240";
-			};
-			default:
-				return "241";
-			}
-		}
-	}
-	// if this account hasnt logged in
-	return "211";
+string accountSignOut(UserInfo* userInfo) {
+	//login check
+	if (userInfo->status == 0) return "Unloggin";
+	// in a team
+	if (userInfo->status == 2 || userInfo->status == 3) return "In a team";
+	// in a game
+	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
+
+	// reset user info
+	resetUserInfo(userInfo);
+	return "Sign out OK";
 }
 
 // 8. Get out of team
@@ -965,7 +988,7 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 }
 
 // 21. Buy item
-string buyItem(UserInfo* userInfo, string item ) {
+string buyItem(UserInfo* userInfo, string item) {
 	switch (userInfo->status) {
 	case 0: return "221";
 	case 1: return "311";
@@ -1102,7 +1125,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 			break;
 		}
 	}
-	
+
 	if (loginSession.userInfo.rocket > 0) {
 		damage += Attack[2].dameB;
 		loginSession.userInfo.rocket--;
@@ -1208,7 +1231,7 @@ void createQuestion() {
 		else {
 			if (rooms[i] != NULL) {
 				roomHasTravel++;
-				int descriptionQuesionID = (std::rand() % (MAX_QUESTION));
+				int descriptionQuesionID = (std::rand() % (numOfQuestion));
 				Question question;
 				question.description = &questionDescriptions[descriptionQuesionID];
 				for (int j = 0; j < MAX_QUESTION; j++) {
