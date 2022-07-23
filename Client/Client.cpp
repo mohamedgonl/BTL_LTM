@@ -20,7 +20,6 @@ int showMenu(int *status) {
 		cout << "1. Login " << endl;
 		cout << "2. Sign up " << endl;
 		cout << "Please select your options [1,2]: ";
-		
 		cin >> userInput;
 		string x;
 		getline(cin, x);
@@ -128,23 +127,28 @@ string handleUserInput(int option) {
 			string id;
 			cout << "Please input ID team: ";
 			cin >> id;
+			string x;
+			getline(cin, x);
 			userInput = "JOIN " + id;
 		}
 		if (option == 3) {
 			string teamName;
 			cout << "Please input your name team: ";
 			cin >> teamName;
+			string x;
+			getline(cin, x);
 			userInput = "CREATE " + teamName;
 		}
 		if (option == 4) {
 			userInput = "SIGNOUT";
 		}
-		break;
 
 		if (option == 5) {
 			string id;
 			cout << "Accept invitation to join team with id: " << endl;
 			cin >> id;
+			string x;
+			getline(cin, x);
 			userInput = "ACCEPT " + id;
 
 		}
@@ -152,8 +156,11 @@ string handleUserInput(int option) {
 			string id;
 			cout << "Decline invitation to join team with id: " << endl;
 			cin >> id;
+			string x;
+			getline(cin, x);
 			userInput = "DECLINE " + id;
 		}
+		break;
 	}
 
 	case 2: {
@@ -175,6 +182,8 @@ string handleUserInput(int option) {
 			string username;
 			cout << "Username you want to accecpt :";
 			cin >> username;
+			string x;
+			getline(cin, x);
 			userInput = "M_ACCEPT " + username;
 		}
 		break;
@@ -182,18 +191,24 @@ string handleUserInput(int option) {
 			string username;
 			cout << "Username you want to decline :";
 			cin >> username;
+			string x;
+			getline(cin, x);
 			userInput = "M_DECLINE " + username;
 		}
 		if (option == 4) {
 			string username;
 			cout << "Username you want to invite:";
 			cin >> username;
+			string x;
+			getline(cin, x);
 			userInput = "INVITE " + username;
 		}
 		if (option == 5) {
 			string username;
 			cout << "Username you want to kick:";
 			cin >> username;
+			string x;
+			getline(cin, x);
 			userInput = "KICK " + username;
 		}
 		if (option == 6) {
@@ -203,6 +218,8 @@ string handleUserInput(int option) {
 			string teamId;
 			cout << "Teamid you want to challenge:";
 			cin >> teamId;
+			string x;
+			getline(cin, x);
 			userInput = "CHALLENGE " + teamId;
 		}
 		if (option == 8) {
@@ -220,6 +237,8 @@ string handleUserInput(int option) {
 			string item_name;
 			cout << "Item name you want to buy:";
 			cin >> item_name;
+			string x;
+			getline(cin, x);
 			userInput = "BUY " + item_name;
 		}
 		if (option == 2) {
@@ -232,12 +251,16 @@ string handleUserInput(int option) {
 			string oponent_name;
 			cout << "Oponent name you want to attack:";
 			cin >> oponent_name;
+			string x;
+			getline(cin, x);
 			userInput = "ATK " + oponent_name;
 		}
 		if (option == 5) {
 			string key;
 			cout << "Input your key" << endl;
 			cin >> key;
+			string x;
+			getline(cin, x);
 			userInput = "ANS " + key;
 		}
 	}
