@@ -16,6 +16,9 @@
 #include <string>
 #include <list>
 #include "process.h"
+#include <vector>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 #define BUFF_SIZE 2048
 #define ENDING_DELIMITER "/"
