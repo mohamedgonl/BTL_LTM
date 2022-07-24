@@ -20,7 +20,7 @@ unsigned __stdcall sendQuestionThread(void* params);
 #ifndef HandleUserInput
 queue<char*> recvStreamProcessing(LoginSession &loginSession, char buff[BUFF_SIZE]);
 string loginAccount(UserInfo* userInfo, string username, string password);
-string registerAccount(string username, string password);
+string registerAccount(UserInfo* userInfo, string username, string password);
 string getAllTeams(UserInfo* userInfo);
 string joinTeam(UserInfo* userInfo, unsigned int teamId);
 string createTeam(LoginSession* userInfo, string teamName);

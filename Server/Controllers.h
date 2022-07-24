@@ -244,7 +244,7 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 }
 
 // 3. Register
-string registerAccount(string username, string password, UserInfo* userInfo) {
+string registerAccount(UserInfo* userInfo, string username, string password) {
 
 	//! đã đăng nhập 
 	if (userInfo->status != 0) return USER_LOGINNED;
@@ -331,7 +331,7 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 					if (teams[i]->members[j]) numofMems++;
 				}
 				if (numofMems< 3) { // team member max 
-					string s = SEND_TO_JOIN_TEAM_SUCCESS;
+					string s = SEND_TO_INVITATION_JOIN_TEAM;
 					s += "|" + userInfo->username;
 					// send join request to team leader
 					char* _s = (char*)malloc(s.length() * sizeof(char));
