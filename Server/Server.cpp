@@ -266,8 +266,7 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 	while (!statements.empty()) {
 		statement = statements.front();
 		statements.pop();
-		sendData = "430|500 300 200 50 50 50 50 -90 -90 -90 -90 0 200";
-		//sendData = handleResponse(statement, loginSession);
+		sendData = handleResponse(statement, loginSession);
 		Send(connectedSocket, sendData, strlen(sendData), 0);
 	}
 }
