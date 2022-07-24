@@ -223,7 +223,7 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 	// check if account is logged in
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		if (loginSessions[i]) {
-			if (!((loginSessions[i]->userInfo.username).compare(username))) return RES_LOGIN_ACCOUNT_LOGGED_IN;
+			if (!((loginSessions[i]->userInfo.username).compare(username))) return ACC_IN_ANOTHER_SESSION;
 		}
 	}
 	// if this account has not logged in
@@ -234,25 +234,25 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 															   // update user info
 					userInfo->username = username;
 					userInfo->status = 1;
-					return RES_LOGIN_SUCCESS;
+					return LOGIN_SUCCESS;
 				}
-				else return RES_LOGIN_WRONG_PASSWORD;
+				else return WRONG_PASSWORD;
 			}
 		}
 	}
-	return "111";
+	return ACC_INVALID;
 }
 
 // 3. Register
 string registerAccount(string username, string password, UserInfo* userInfo) {
 
 	//! đã đăng nhập 
-	if (userInfo->status != 0) return "Đã đăng nhập";
+	if (userInfo->status != 0) return USER_LOGINNED;
 	else {
 		for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
 		if (&accounts[i])
 			if (!(accounts[i].username.compare(username))) // if username is existed
-				return RES_SIGNUP_ACCOUNT_EXISTED;
+				return USERNAME_EXISTED;
 	}
 	// save new account 
 	try
@@ -272,18 +272,18 @@ string registerAccount(string username, string password, UserInfo* userInfo) {
 		if (file) {
 			file << account << endl;
 			file.close();
-			return RES_SIGNUP_SUCCESS;
+			return SIGNUP_SUCCESS;
 		}
 		else {
 			cout << "File not existed";
 			file.close();
-			return RES_SIGNUP_SERVER_ERROR;
+			return SERVER_ERROR;
 		}
 	}
 	catch (const std::exception&)
 	{
 		cout << "Error at function 3.Register: Save data error\n";
-		return RES_SIGNUP_SERVER_ERROR;
+		return SERVER_ERROR;
 	}
 	}
 
@@ -293,10 +293,10 @@ string registerAccount(string username, string password, UserInfo* userInfo) {
 // 4. Get list all teams
 string getAllTeams(UserInfo* userInfo) {
 	// login check
-	if (userInfo->status == 0) return RES_LOGIN_NOT_LOGIN;
+	if (userInfo->status == 0) return RES_NOT_AUTHORIZE;
 	// in a game
-	if (userInfo->status == 4 || userInfo->status == 5) return RES_GETUSERS_IN_GAME;
-	string response = RES_GET_LIST_TEAMS_SUCCESS;
+	if (userInfo->status == 4 || userInfo->status == 5) return USER_IN_GAME;
+	string response = RES_GETTEAMS_SUCCESS;
 	response += "|";
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[i] != NULL) {
@@ -317,11 +317,11 @@ string getAllTeams(UserInfo* userInfo) {
 // 5. Join team
 string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 	//login check
-	if (userInfo->status == 0) return RES_LOGIN_NOT_LOGIN;
+	if (userInfo->status == 0) return RES_NOT_AUTHORIZE;
 	// in a team
-	if (userInfo->status == 2 || userInfo->status == 3) return RES_IN_A_TEAM;
+	if (userInfo->status == 2 || userInfo->status == 3) return USER_ALREADY_INTEAM;
 	// in a game
-	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
+	if (userInfo->status == 4 || userInfo->status == 5) return USER_IN_GAME;
 
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[i] != NULL) {
@@ -331,30 +331,31 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 					if (teams[i]->members[j]) numofMems++;
 				}
 				if (numofMems< 3) { // team member max 
-					string s = "230|" + userInfo->username;
+					string s = SEND_TO_JOIN_TEAM_SUCCESS;
+					s += "|" + userInfo->username;
 					// send join request to team leader
 					char* _s = (char*)malloc(s.length() * sizeof(char));
 					strcpy(_s, s.c_str());
 					int ret = Send((teams[i]->members)[0]->socketInfo.connSocket, _s, sizeof(_s), 0);
-					if (ret == SOCKET_ERROR) return "send error";
-					return "220";
+					if (ret == SOCKET_ERROR) return REQUEST_FAIL;
+					return SEND_REQUEST_JOINTEAM_SUCCESS;
 				}
-				else return "221";
+				else return TEAM_IS_FULL;
 			}
 		}
 	}
-	// teamId not existed
-	return "222";
+	// team not existed
+	return TEAM_INVALID;
 }
 
 //6. create team
 string createTeam(LoginSession* logginSession, string teamName) {
 	//login check
-	if (logginSession->userInfo.status == 0) return "Unloggin";
+	if (logginSession->userInfo.status == 0) return RES_NOT_AUTHORIZE;
 	// in a team
-	if (logginSession->userInfo.status == 2 || logginSession->userInfo.status == 3) return "In a team";
+	if (logginSession->userInfo.status == 2 || logginSession->userInfo.status == 3) return USER_IN_ANOTHER_TEAM;
 	// in a game
-	if (logginSession->userInfo.status == 4 || logginSession->userInfo.status == 5) return "In a game";
+	if (logginSession->userInfo.status == 4 || logginSession->userInfo.status == 5) return USER_IN_GAME;
 
 
 	for (int i = 0; i < MAX_TEAM; i++) {
@@ -365,36 +366,38 @@ string createTeam(LoginSession* logginSession, string teamName) {
 			newTeam->members[0] = logginSession;
 			newTeam->name = teamName;
 			teams[i] = newTeam;
-			return "230|"+to_string(i);
+			string res = CREATE_TEAM_SUCCESS;
+			res += "|" + to_string(i);
+			return res;
 		}
 	}
-	return "231";
+	return	NUMBER_OF_TEAM_LIMIT;
 }
 
 //7. Sign out
 string accountSignOut(UserInfo* userInfo) {
 	//login check
-	if (userInfo->status == 0) return "Unloggin";
+	if (userInfo->status == 0) return RES_NOT_AUTHORIZE;
 	// in a team
-	if (userInfo->status == 2 || userInfo->status == 3) return "In a team";
+	if (userInfo->status == 2 || userInfo->status == 3) return USER_IN_ANOTHER_TEAM;
 	// in a game
-	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
+	if (userInfo->status == 4 || userInfo->status == 5) return USER_IN_GAME;
 
 	// reset user info
 	resetUserInfo(userInfo);
-	return "Sign out OK";
+	return LOGOUT_SUCCESS;
 }
 
 // 8. Get out of team
 string getOutTeam(UserInfo* userInfo) {
 
-	if (userInfo->teamId == -1) return "311";
+	if (userInfo->teamId == -1) return NOT_IN_A_TEAM;
 	switch (userInfo->status) {
 	case 0: {
-		return "211";
+		return RES_NOT_AUTHORIZE;
 	}
 	case 1: {
-		return "311";
+		return NOT_IN_A_TEAM;
 	}
 	case 2: {// team member
 			 // kick member out of team
@@ -405,7 +408,7 @@ string getOutTeam(UserInfo* userInfo) {
 		// reset member status and roomId
 		userInfo->status = 1;
 		userInfo->teamId = -1;
-		return "310";
+		return LEAVE_TEAM_SUCCESS;
 	}
 	case 3: {// team leader
 			 // find team  and reset members
@@ -420,12 +423,12 @@ string getOutTeam(UserInfo* userInfo) {
 		}
 		//reset team
 		teams[id] = NULL;
-		return "310";
+		return LEAVE_TEAM_SUCCESS;
 	}
 	case 4:
-		return "Ingame";
+		return USER_IN_GAME;
 	case 5: {
-		return "312";
+		return USER_IN_GAME;
 	};
 	default:
 		cout << "Error at func 8.Get out of team: Status undefined\n";
@@ -436,16 +439,17 @@ string getOutTeam(UserInfo* userInfo) {
 // 9. Get team members
 string getTeamMembers(UserInfo* userInfo) {
 	//login check
-	if (userInfo->status == 0) return "Unloggin";
+	if (userInfo->status == 0) return RES_NOT_AUTHORIZE;
 	// in a team
-	if (userInfo->status == 1) return "Not in a team";
+	if (userInfo->status == 1) return NOT_IN_A_TEAM;
 	// in a game
 	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 
 	Team* team = teams[userInfo->teamId];
-	if (!team) return "TEAM_NOT_EXISTED"; 
+	if (!team) return TEAM_INVALID; 
 	else {
-		string response = "320|";
+		string response = GET_TEAMMBER_SUCCESS;
+		response+=	"|";
 		for (int i = 0; i < 3; i++) {
 			if (team->members[i]) {
 				LoginSession* mem = team->members[i];
@@ -1013,21 +1017,21 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 // 21. Buy item
 string buyItem(UserInfo* userInfo, string item) {
 	switch (userInfo->status) {
-	case 0: return "221";
-	case 1: return "311";
+	case 0: return RES_NOT_AUTHORIZE;
+	case 1: return NOT_IN_A_TEAM;
 	case 2: 
-	case 3: return "413";
+	case 3: return MEMBER_NOT_INGAME;
 	case 5: return "414";
 	case 4: {
 		unsigned int* coin = &(userInfo->coin);
-		if (*coin == 0) return "Het tien roi";
+		if (*coin == 0) return LACK_MONEY;
 		else
 		switch (itemsMap.find(item)->second) {
 		case 1:// HP 
 		{
 			int hp = userInfo->HP[0];
 			
-			if (hp == MAX_HP) return "MAX_HP";
+			if (hp == MAX_HP) return EXCEED_MAX_ITEM;
 			else
 			{
 				int hp_need = MAX_HP - hp;
@@ -1045,31 +1049,31 @@ string buyItem(UserInfo* userInfo, string item) {
 		case 2://bArmor
 		{
 			int bArmor = userInfo->HP[1];
-			if (bArmor == MAX_B_ARMOR) return "MAX_B_ARMOR";
+			if (bArmor == MAX_B_ARMOR) return EXCEED_MAX_ITEM;
 			else if(*coin>=Armor[1].price){
 				userInfo->HP[1] = MAX_B_ARMOR;
 				userInfo->coin-=Armor[1].price;
 			}
-			else return "Ko du tien roi";
+			else return LACK_MONEY;
 			break;
 		}
 		case 3://aAmor 
 		{
 			int aArmor = userInfo->HP[2];
-			if (aArmor == MAX_A_ARMOR) return "MAX_A_ARMOR";
+			if (aArmor == MAX_A_ARMOR) return EXCEED_MAX_ITEM;
 			else if(*coin>=Armor[2].price) {
 				userInfo->HP[2] = MAX_A_ARMOR;
 				userInfo->coin -= Armor[2].price;
 			}
-			else return "Ko du tien roi";
+			else return LACK_MONEY;
 			break;
 		}
 		case 4://autogun
 		{
 			// full all 4 autoguns
-			if (userInfo->autogun[0] == MAX_AUTO_GUN && userInfo->autogun[1] == MAX_AUTO_GUN && userInfo->autogun[2] == MAX_AUTO_GUN&& userInfo->autogun[3] == MAX_AUTO_GUN) return "MAX_AUTO_GUN";
+			if (userInfo->autogun[0] == MAX_AUTO_GUN && userInfo->autogun[1] == MAX_AUTO_GUN && userInfo->autogun[2] == MAX_AUTO_GUN&& userInfo->autogun[3] == MAX_AUTO_GUN) return EXCEED_MAX_ITEM;
 			// not enough money to buy bullet
-			else if (*coin < Attack[0].b_price) return "Ko du tien";
+			else if (*coin < Attack[0].b_price) return LACK_MONEY;
 			
 			else 
 				// find a new autogun or bullets can buy
@@ -1097,9 +1101,9 @@ string buyItem(UserInfo* userInfo, string item) {
 		case 5://laze
 		{
 			// 4 lazes full
-			if (userInfo->laze[0] == MAX_LAZE && userInfo->laze[1] == MAX_LAZE &&userInfo->laze[2] == MAX_LAZE &&userInfo->laze[3] == MAX_LAZE) return "MAX_LAZE";
+			if (userInfo->laze[0] == MAX_LAZE && userInfo->laze[1] == MAX_LAZE &&userInfo->laze[2] == MAX_LAZE &&userInfo->laze[3] == MAX_LAZE) return EXCEED_MAX_ITEM;
 			// not enough money to buy bullets
-			else if (*coin < Attack[1].b_price) return "NOT_ENOUGH_MONEY";
+			else if (*coin < Attack[1].b_price) return LACK_MONEY;
 
 			else {
 				for (int i = 0; i < 4; i++) {
@@ -1127,8 +1131,8 @@ string buyItem(UserInfo* userInfo, string item) {
 		case 6:// rocket
 		{
 			// full 2 rockets
-			if (userInfo->rocket == MAX_ROCKET) return "MAX_ROCKET";
-			else if (*coin < Attack[2].b_price) return "NOT_ENOUGH_MONEY";
+			if (userInfo->rocket == MAX_ROCKET) return EXCEED_MAX_ITEM;
+			else if (*coin < Attack[2].b_price) return LACK_MONEY;
 			else {
 				unsigned int numCanBuy = *coin >= 2 * Attack[2].b_price ? 2 : 1;
 				userInfo->rocket = numCanBuy;
@@ -1138,9 +1142,10 @@ string buyItem(UserInfo* userInfo, string item) {
 		}
 		default:
 			cout << "ERROR at buy item\n";
+			return INVALID_ITEM;
 			break;
 		}
-		return "BUY_OK";
+		return BUY_ITEM_SUCCESS;
 	// switch case 4 end
 	}
 	default:
@@ -1151,15 +1156,16 @@ string buyItem(UserInfo* userInfo, string item) {
 
 // 22. Get info of all players in the game
 string getAllPlayers(UserInfo* userInfo) {
-	if (userInfo->status == 0) return "221";
-	if (userInfo->status == 1) return "311";
-	if (userInfo->status == 2 || userInfo->status == 3) return "413";
+	if (userInfo->status == 0) return RES_NOT_AUTHORIZE;
+	if (userInfo->status == 1) return NOT_IN_A_TEAM;
+	if (userInfo->status == 2 || userInfo->status == 3) return MEMBER_NOT_INGAME;
 
 	// get two team info
 	Room* room = rooms[teams[userInfo->teamId]->roomId];
 	Team* team1 = room->team1;
 	Team* team2 = room->team2;
-	string response = "420|Team 1:\n";
+	string response = GET_INFO_USERS_INGAME;
+	response+="|Team 1:\n";
 	// get member username and hp 
 	//team1
 	for (int i = 0; i < 3; i++) {
@@ -1182,11 +1188,12 @@ string getAllPlayers(UserInfo* userInfo) {
 
 // 23. Get my ingame-info
 string getMine(UserInfo* userInfo) {
-	if (userInfo->status == 0) return "221";
-	if (userInfo->status == 1) return "311";
-	if (userInfo->status == 2 || userInfo->status == 3) return "413";
+	if (userInfo->status == 0) return RES_NOT_AUTHORIZE;
+	if (userInfo->status == 1) return NOT_IN_A_TEAM;
+	if (userInfo->status == 2 || userInfo->status == 3) return MEMBER_NOT_INGAME;
 
-	string response = "430|";
+	string response = GET_PERSIONAL_INFO;
+		response+="|";
 	// get hp and armor
 	for (int i = 0; i < 3; i++) {
 		response += to_string(userInfo->HP[i]) + " ";
