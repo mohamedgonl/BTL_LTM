@@ -154,7 +154,7 @@ using namespace std;
 #define ANSWER_TRUE_AND_FASTEST 450
 #define NOT_FASTEST_ANSWER 451
 #define QUIZ_INVALID 452
-
+#define WRONG_ANSWER 453
 
 //27
 #define SURRENDER_SUCCESS 460
