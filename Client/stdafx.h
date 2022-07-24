@@ -27,6 +27,7 @@ using namespace std;
 
 #ifndef RESPONSE_CODE
 
+//2
 #define INVALID_COMMAND 999
 #define LOGIN_SUCCESS 110
 #define ACC_INVALID 111
@@ -47,9 +48,9 @@ using namespace std;
 #define SEND_REQUEST_JOINTEAM_SUCCESS 220
 #define TEAM_IS_FULL 221
 #define TEAM_INVALID 222
-#define REQUEST_FAIL 229
 #define USER_ALREADY_INTEAM 223
 #define SEND_TO_INVITATION_JOIN_TEAM 224
+#define REQUEST_FAIL 229
 
 
 //6
@@ -84,15 +85,12 @@ using namespace std;
 
 //13
 #define INVITE_USER_JOINTEAM_SUCCESS 360
-#define SEND_TO_RECEIVE_INVITATION_SUCCESS 363 
-
+#define SEND_TO_RECEIVE_INVITATION_SUCCESS 361 
 
 //14
 #define USER_ACCEPT_JOINTEAM_SUCCESS 250
 #define TEAM_IN_GAME 251
 #define SEND_TO_ACCEPT_INVITATION 252 
-
-
 
 //15
 #define USER_REFUSE_JOINTEAM_SUCCESS 260
@@ -105,7 +103,6 @@ using namespace std;
 
 //17
 #define GET_ALL_TEAMS 380
-
 
 //18
 #define CHALLENGE_SUCCESS 390
@@ -150,7 +147,6 @@ using namespace std;
 #define SEND_TO_DEAD_USER_WHO_SHOT 447
 #define SEND_TO_ALL_USER_WINTEAMS 448
 
-
 //25
 #define SEND_TO_ALL_USERS_QUIZ 400
 
@@ -158,7 +154,7 @@ using namespace std;
 #define ANSWER_TRUE_AND_FASTEST 450
 #define NOT_FASTEST_ANSWER 451
 #define QUIZ_INVALID 452
-
+#define WRONG_ANSWER 453
 
 //27
 #define SURRENDER_SUCCESS 460
