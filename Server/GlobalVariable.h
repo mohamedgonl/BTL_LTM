@@ -35,7 +35,7 @@ map<string, int> action = {
 	{ "ACCEPT", 14 },
 	{ "DECLINE", 15 },
 	{ "KICK", 16 },
-	{ "GETTEAM", 17 },
+	{ "GETALLTEAM", 17 },
 	{ "CHALLENGE", 18 },
 	{ "ACCEPTCHALLENGE", 19 },
 	{ "DECLINECHALLENGE", 20 },

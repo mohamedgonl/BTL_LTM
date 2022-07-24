@@ -464,16 +464,16 @@ string getTeamMembers(UserInfo* userInfo) {
 */
 string getListUserInWaitingRoom(LoginSession &loginSession) {
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 	string list_team = "|";
 	for (int i = 0; i < MAX_CLIENT; i++) {
@@ -483,7 +483,7 @@ string getListUserInWaitingRoom(LoginSession &loginSession) {
 			}
 		}
 	}
-	return RES_GETUSERS_SUCCESS + list_team;
+	return GETUSERS_IN_WAITINGROOM_SUCCESS + list_team;
 }
 
 /*
@@ -492,16 +492,16 @@ string getListUserInWaitingRoom(LoginSession &loginSession) {
 string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUser) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	// Handle user not available
@@ -516,12 +516,12 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 		}
 	}
 	if (userIndex == -1) {
-		return RES_M_ACCEPT_USER_NOT_ONLINE;
+		return USER_NOT_ONLINE;
 	}
 
 	// Handle user in another room
 	if (loginSessions[userIndex]->userInfo.status >= 2) {
-		return RES_M_ACCEPT_USER_IN_ANOTHER_ROOM;
+		return USER_IN_ANOTHER_TEAM;
 	}
 
 	// Handle team is full
@@ -534,24 +534,24 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 		}
 	}
 	if (availableSlotIndex == -1) {
-		return RES_M_ACCEPT_TEAM_FULL;
+		return TEAM_IS_FULL;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_M_ACCEPT_SEND_BACK_TO_USER_REQUEST;
+	string sendBackData = SEND_TO_JOIN_TEAM_SUCCESS;
 	sendBackData = sendBackData + "|" + to_string(teamID);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 
 	// Handle success accept user
 	teams[teamID]->members[availableSlotIndex] = loginSessions[userIndex];
 	loginSessions[userIndex]->userInfo.status = 2;
 	loginSessions[userIndex]->userInfo.teamId = teamID;
-	return RES_M_ACCEPT_SUCCESS;
+	return ACCEPT_USER_JOIN_TEAM_SUCCESS;
 }
 
 /*
@@ -560,16 +560,16 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUser) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	// Handle user not available
@@ -584,26 +584,26 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 		}
 	}
 	if (userIndex == -1) {
-		return RES_M_ACCEPT_USER_NOT_ONLINE;
+		return USER_NOT_ONLINE;
 	}
 
 	// Handle user in another room
 	if (loginSessions[userIndex]->userInfo.status >= 2) {
-		return RES_M_ACCEPT_USER_IN_ANOTHER_ROOM;
+		return USER_IN_ANOTHER_TEAM;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_M_DECLINE_SEND_BACK_TO_USER_REQUEST;
+	string sendBackData = SEND_TO_JOIN_TEAM_FAIL;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 
 	// Handle success accept user
-	return RES_M_DECLINE_SUCCESS;
+	return DENY_JOIN_TEAM_SUCCESS;
 }
 
 /*
@@ -612,16 +612,16 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 string inviteJoinTeam(LoginSession &loginSession, string usernameUser) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	// Handle user not available
@@ -635,26 +635,26 @@ string inviteJoinTeam(LoginSession &loginSession, string usernameUser) {
 		}
 	}
 	if (userIndex == -1) {
-		return RES_M_ACCEPT_USER_NOT_ONLINE;
+		return USER_NOT_ONLINE;
 	}
 
 	// Handle user in another room
 	if (loginSessions[userIndex]->userInfo.status >= 2) {
-		return RES_M_ACCEPT_USER_IN_ANOTHER_ROOM;
+		return USER_IN_ANOTHER_TEAM;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_INVITE_SEND_TO_USER;
+	string sendBackData = SEND_TO_RECEIVE_INVITATION_SUCCESS;
 	sendBackData = sendBackData + "|" + to_string(loginSession.userInfo.teamId);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 
 	// Handle success accept user
-	return RES_INVITE_SUCCESS;
+	return INVITE_USER_JOINTEAM_SUCCESS;
 }
 
 /*
@@ -663,10 +663,10 @@ string inviteJoinTeam(LoginSession &loginSession, string usernameUser) {
 string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status > 2) {
-		return RES_M_ACCEPT_USER_IN_ANOTHER_ROOM;
+		return USER_ALREADY_INTEAM;
 	}
 
 
@@ -680,21 +680,21 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	}
 
 	if (availableSlotIndex == -1) {
-		return RES_M_ACCEPT_TEAM_FULL;
+		return TEAM_IS_FULL;
 	}
 
 	if (teams[teamID]->status == 1) {
-		return RES_TEAM_IN_GAME;
+		return TEAM_IN_GAME;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_ACCEPT_INVITE_SEND_TO_LEADER;
+	string sendBackData = SEND_TO_ACCEPT_INVITATION;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 
 	teams[teamID]->members[availableSlotIndex] = &loginSession;
@@ -702,7 +702,7 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	loginSession.userInfo.teamId = teamID;
 
 	// Handle success accept user
-	return RES_ACCEPT_SUCCESS;
+	return USER_ACCEPT_JOINTEAM_SUCCESS;
 }
 
 /*
@@ -711,27 +711,27 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 string declineInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status > 2) {
-		return RES_M_ACCEPT_USER_IN_ANOTHER_ROOM;
+		return USER_ALREADY_INTEAM;
 	}
 
 	if (teams[teamID]->status == 1) {
-		return RES_TEAM_IN_GAME;
+		return TEAM_IN_GAME;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_DECLINE_INVITE_SEND_TO_LEADER;
+	string sendBackData = SEND_TO_HOST_USER_REFUSE_INVITATION;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 	// Handle success accept user
-	return RES_DECLINE_SUCCESS;
+	return USER_REFUSE_JOINTEAM_SUCCESS;
 }
 
 /*
@@ -740,16 +740,16 @@ string declineInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 string kickUserOutRoom(LoginSession &loginSession, string username) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 	int userIndex = -1;
 	for (int i = 0; i < 3; i++) {
@@ -762,24 +762,24 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 	}
 
 	if (userIndex == -1) {
-		return RES_USER_NOT_IN_TEAM;
+		return USER_WANT_TOKICK_NOT_INTEAM;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_SEND_KICK_ANNOUNCE;
+	string sendBackData = SEND_TO_USER_KICKED;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[loginSession.userInfo.teamId]->members[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 	teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.status = 1;
 	teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.teamId = -1;
 	teams[loginSession.userInfo.teamId]->members[userIndex] = NULL;
 
 	// Handle success accept user
-	return RES_USER_NOT_IN_TEAM;
+	return KICK_USER_SUCCESS;
 }
 
 /*
@@ -788,16 +788,16 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 string getAllTeams(LoginSession &loginSession) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	int teamIndex = loginSession.userInfo.teamId;
@@ -817,7 +817,7 @@ string getAllTeams(LoginSession &loginSession) {
 			list_team = list_team + to_string(i) + " " + teams[i]->name + " " + to_string(numOfUser) + "|";
 		}
 	}
-	return 	RES_GETTEAMS_SUCCESS + list_team;
+	return 	GET_ALL_TEAMS + list_team;
 }
 
 /*
@@ -826,16 +826,16 @@ string getAllTeams(LoginSession &loginSession) {
 string challenge(LoginSession &loginSession, int enemyTeamId) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	int teamIndex = loginSession.userInfo.teamId;
@@ -847,15 +847,15 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	}
 
 	if (numOfMember < 3) {
-		return RES_CHALLENGE_NOT_ENOUGH_MEMBER;
+		return TEAM_LACK_MEMBER;
 	}
 
 	if (teams[enemyTeamId]->name == "") {
-		return RES_CHALLENGE_ENEMY_NOT_EXIST;
+		return OPONENT_INVALID;
 	}
 
 	if (teams[enemyTeamId]->status == 1) {
-		return RES_CHALLENGE_ENEMY_IN_GAME;
+		return OPONENT_IN_GAME;
 	}
 
 	int numOfEnemyMember = 0;
@@ -866,19 +866,19 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	}
 
 	if (numOfEnemyMember < 3) {
-		return RES_CHALLENGE_ENEMY_NOT_ENOUGH_MEMBER;
+		return OPONPENT_LACK_MEMBER;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_CHALLENGE_SEND_CHALLENGE_TO_ANOTHER_TEAM;
+	string sendBackData = SEND_TO_OPONENT_CHALLENGE;
 	sendBackData = sendBackData + "|" + to_string(loginSession.userInfo.teamId);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
-	return RES_CHALLENGE_SUCCESS;
+	return CHALLENGE_SUCCESS;
 }
 
 /*
@@ -887,24 +887,24 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	if (teams[enemyTeamId]->name == "") {
-		return RES_CHALLENGE_ENEMY_NOT_EXIST;
+		return OPONENT_INVALID;
 	}
 
 	if (teams[enemyTeamId]->status == 1) {
-		return RES_CHALLENGE_ENEMY_IN_GAME;
+		return OPONENT_IN_GAME;
 	}
 
 
@@ -917,7 +917,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 	}
 
 	if (numOfMember < 3) {
-		return RES_CHALLENGE_NOT_ENOUGH_MEMBER;
+		return TEAM_LACK_MEMBER;
 	}
 
 	int numOfEnemyMember = 0;
@@ -928,11 +928,11 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 	}
 
 	if (numOfEnemyMember < 3) {
-		return RES_CHALLENGE_ENEMY_NOT_ENOUGH_MEMBER;
+		return OPONPENT_LACK_MEMBER;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_ACCEPTCHALLENGE_SEND_TO_ALL_USER;
+	string sendBackData = SEND_TO_ALL_USERS_MATCHGAME;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	for (int i = 0; i < 3; i++) {
@@ -968,7 +968,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		teams[teamIndex]->status = 1;
 	}
 
-	return RES_ACCEPTCHALLENGE_SUCCESS;
+	return MATCHING_GAME_SUCCESS;
 }
 
 /*
@@ -977,37 +977,37 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status == 2) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 	else if (loginSession.userInfo.status > 3) {
-		return RES_GETUSERS_IN_GAME;
+		return USER_IN_GAME;
 	}
 
 	if (teams[enemyTeamId] == NULL) {
-		return RES_CHALLENGE_ENEMY_NOT_EXIST;
+		return OPONENT_INVALID;
 	}
 
 	if (teams[enemyTeamId]->status == 1) {
-		return RES_CHALLENGE_ENEMY_IN_GAME;
+		return OPONENT_IN_GAME;
 	}
 
 	// Handle send response to user request
-	string sendBackData = RES_DECLINECHALLENGE_SEND_TO_ANOTHER;
+	string sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
-		return RES_M_ACCEPT_SEND_FAIL;
+		return REQUEST_FAIL;
 	}
 
-	return RES_DECLINECHALLENGE_SUCCESS;
+	return REFUSE_CHALLENGE_SUCCESS;
 }
 
 // 21. Buy item
@@ -1212,17 +1212,17 @@ string getMine(UserInfo* userInfo) {
 string attackEnemy(LoginSession &loginSession, string username) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status <= 3) {
-		return RES_SURR_NOT_IN_GAME;
+		return MEMBER_NOT_INGAME;
 	}
 
 	if (loginSession.userInfo.status == 5) {
-		return RES_SURR_DEADTH;
+		return USER_IS_DEAD;
 	}
 
 	int teamId = loginSession.userInfo.teamId;
@@ -1237,18 +1237,18 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		}
 	}
 	if (enemyIndex == -1) {
-		return RES_ATK_MEMBER_NOT_EXIST;
+		return INVALID_OPONENT;
 	}
 
 	if (teams[enemyTeamId]->members[enemyIndex]->userInfo.status == 5) {
-		return RES_ATK_MEMBER_HAS_DEATH;
+		return OPONENT_IS_DEAD;
 	}
 
 	// get current time and check if last attack < 5s
 	clock_t atkTime;
 	atkTime = clock();
 	if ((float)(atkTime - loginSession.userInfo.lastTimeATK) / CLOCKS_PER_SEC < 5) {
-		return RES_ATK_IN_PENDING;
+		return LOADING_BULLET;
 	}
 	loginSession.userInfo.lastTimeATK = atkTime;
 
@@ -1294,15 +1294,15 @@ string attackEnemy(LoginSession &loginSession, string username) {
 
 	if (enemy->userInfo.HP[0] == 0) {
 		enemy->userInfo.status == 5;
-		string sendBackData = RES_ATK_SEND_TO_DEATH_MEMBER;
+		string sendBackData = SEND_TO_DEAD_USER_WHO_SHOT;
 		sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 		char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 		strcpy(dataSend, sendBackData.c_str());
 		int ret = Send(enemy->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 		if (ret == SOCKET_ERROR) {
-			return RES_M_ACCEPT_SEND_FAIL;
+			return REQUEST_FAIL;
 		}
-		sendBackData = RES_ATK_SEND_TO_ALL_MEMBER_ABOUT_DEATH_MEMBER;
+		sendBackData = SEND_TO_ALL_USERS_WHO_DEADS;
 		sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + enemy->userInfo.username;
 		dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 		strcpy(dataSend, sendBackData.c_str());
@@ -1324,7 +1324,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		}
 
 		if (numOfDeathPerson == 3) {
-			string sendBackData = RES_ATK_WIN;
+			string sendBackData = SEND_TO_ALL_USER_WINTEAMS;
 			sendBackData = sendBackData + "|" + to_string(teamId);
 			dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 			strcpy(dataSend, sendBackData.c_str());
@@ -1346,7 +1346,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		}
 
 	}
-	string sendBackData = RES_ATK_SEND_TO_ALL_MEMBER;
+	string sendBackData = SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
@@ -1360,7 +1360,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	}
 
 
-	sendBackData = RES_ATK_SUCCESS;
+	sendBackData = ATTACK_SUCCESS;
 	return sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
 }
 
@@ -1384,7 +1384,7 @@ void createQuestion() {
 						question.id = j;
 						rooms[i]->questions[j] = question;
 						// Handle send response to user request
-						string sendBackData = RES_NEW_QUESTION;
+						string sendBackData = SEND_TO_ALL_USERS_QUIZ;
 						sendBackData += "|" + question.description->question + "|";
 						for (int k = 0; k < 4; k++) {
 							if (question.description->answers[k] != "") {
@@ -1413,37 +1413,37 @@ void createQuestion() {
 string answerQuiz(LoginSession &loginSession, int quizId, string key) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status <= 3) {
-		return RES_SURR_NOT_IN_GAME;
+		return MEMBER_NOT_INGAME;
 	}
 
 	if (loginSession.userInfo.status == 5) {
-		return RES_SURR_DEADTH;
+		return USER_IS_DEAD;
 	}
 
 	int teamID = loginSession.userInfo.teamId;
 	int roomID = teams[teamID]->roomId;
 
 	if (rooms[roomID]->questions[quizId].id == -1) {
-		return RES_ANS_NOT_EXIST;
+		return QUIZ_INVALID;
 	}
 
 	if (rooms[roomID]->questions[quizId].status == 1) {
-		return RES_ANS_HAS_ANSWER;
+		return NOT_FASTEST_ANSWER;
 	}
 
 	if (rooms[roomID]->questions[quizId].description->key == key) {
 		loginSession.userInfo.coin += rooms[roomID]->questions[quizId].description->coin;
 		rooms[roomID]->questions[quizId].status = 1;
-		return RES_ANS_CORRECT;
+		return ANSWER_TRUE_AND_FASTEST;
 	}
 	else {
-		return RES_ANS_INCORRECT;
+		return WRONG_ANSWER;
 	}
 }
 
@@ -1453,27 +1453,27 @@ string answerQuiz(LoginSession &loginSession, int quizId, string key) {
 string surrender(LoginSession &loginSession) {
 	// Pre handle
 	if (loginSession.userInfo.status == 0) {
-		return RES_LOGIN_NOT_LOGIN;
+		return RES_NOT_AUTHORIZE;
 	}
 	else if (loginSession.userInfo.status == 1) {
-		return RES_GETUSERS_NOT_IN_TEAM;
+		return NOT_IN_A_TEAM;
 	}
 	else if (loginSession.userInfo.status <= 3) {
-		return RES_SURR_NOT_IN_GAME;
+		return MEMBER_NOT_INGAME;
 	}
 
 	if (loginSession.userInfo.username != teams[loginSession.userInfo.teamId]->members[0]->userInfo.username) {
-		return RES_GETUSERS_NOT_TEAM_LEAD;
+		return USER_IS_NOT_HOST;
 	}
 
 	if (loginSession.userInfo.status == 5) {
-		return RES_SURR_DEADTH;
+		return USER_IS_DEAD;
 	}
 
 	int teamIndexUserSurr = loginSession.userInfo.teamId;
 
 	// Handle send response to user request
-	string sendBackData = RES_SURR_ANNOUNCE;
+	string sendBackData = SEND_TO_ALL_USERS_WINNER_TEAM_ID;
 	int roomID = teams[teamIndexUserSurr]->roomId;
 	int idTeamWin = rooms[teams[teamIndexUserSurr]->roomId]->team1->id == teamIndexUserSurr ? rooms[teams[teamIndexUserSurr]->roomId]->team2->id : rooms[teams[teamIndexUserSurr]->roomId]->team1->id;
 	sendBackData = sendBackData + "|" + to_string(idTeamWin);
@@ -1495,7 +1495,7 @@ string surrender(LoginSession &loginSession) {
 	EnterCriticalSection(&critical);
 	numOfRoom--;
 	LeaveCriticalSection(&critical);
-	return RES_SURR_SUCCESS;
+	return SURRENDER_SUCCESS;
 }
 
 

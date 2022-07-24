@@ -91,7 +91,7 @@ using namespace std;
 
 //13
 #define INVITE_USER_JOINTEAM_SUCCESS "360"
-#define SEND_TO_RECEIVE_INVITATION_SUCCESS "363" 
+#define SEND_TO_RECEIVE_INVITATION_SUCCESS "361" 
 
 
 //14
@@ -165,7 +165,7 @@ using namespace std;
 #define ANSWER_TRUE_AND_FASTEST "450"
 #define NOT_FASTEST_ANSWER "451"
 #define QUIZ_INVALID "452"
-
+#define WRONG_ANSWER "453"
 
 //27
 #define SURRENDER_SUCCESS "460"
