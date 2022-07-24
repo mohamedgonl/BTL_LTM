@@ -18,7 +18,7 @@ int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
 string accountFileDirectory = "C:\\Users\\long\\Desktop\\account.txt";
-string questionFileDirectory = "C:\\LTM\\BTL_LTM\\Server\\question.txt";
+string questionFileDirectory = "C:\\Users\\long\\Desktop\\question.txt";
 map<string, int> action = {
 	{ "LOGIN", 2 },
 	{ "SIGNUP", 3 },
@@ -48,6 +48,14 @@ map<string, int> action = {
 };
 // item
 const Item_Armor Armor[3] = { {"HP",1,1}, {"bArmor", 1000, 500 },{"aArmor", 2000, 1500} };
-const Item_Attack Attack[3] = { {"sungtudong", 500,100, 50, 10},{"laze",1000,100,10, 100},{"rocket", 0, 2000, 1 ,800} };
+const Item_Attack Attack[3] = { {"autogun", 500,100, 50, 10},{"laze",1000,100,10, 100},{"rocket", 0, 2000, 1 ,800} };
 
+map<string, int> itemsMap = {
+	{ "HP", 1 },
+	{ "bArmor", 2 },
+	{ "aArmor", 3 },
+	{ "autogun", 4 },
+	{ "laze", 5 },
+	{ "rocket", 6 }
+};
 #endif // !GlobalVariable

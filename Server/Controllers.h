@@ -153,10 +153,10 @@ void endGame(Team* team) {
 		team->members[i]->userInfo.HP[0] = 1000;
 		team->members[i]->userInfo.HP[1] = 0;
 		team->members[i]->userInfo.HP[2] = 0;
-		team->members[i]->userInfo.sungtudong[0] = 50;
-		team->members[i]->userInfo.sungtudong[1] = -200;
-		team->members[i]->userInfo.sungtudong[2] = -200;
-		team->members[i]->userInfo.sungtudong[3] = -200;
+		team->members[i]->userInfo.autogun[0] = 50;
+		team->members[i]->userInfo.autogun[1] = -200;
+		team->members[i]->userInfo.autogun[2] = -200;
+		team->members[i]->userInfo.autogun[3] = -200;
 		team->members[i]->userInfo.lastTimeATK = 0;
 	}
 	team->members[0]->userInfo.status = 3;
@@ -174,10 +174,10 @@ void resetUserInfo(UserInfo* userInfo) {
 	userInfo->laze[3] = -90;
 	userInfo->rocket = 0;
 	userInfo->status = 0;
-	userInfo->sungtudong[0] = 50;
-	userInfo->sungtudong[1] = -200;
-	userInfo->sungtudong[2] = -200;
-	userInfo->sungtudong[3] = -200;
+	userInfo->autogun[0] = 50;
+	userInfo->autogun[1] = -200;
+	userInfo->autogun[2] = -200;
+	userInfo->autogun[3] = -200;
 	userInfo->teamId = -1;
 	userInfo->username = "";
 	userInfo->lastTimeATK = 0;
@@ -400,8 +400,9 @@ string getOutTeam(UserInfo* userInfo) {
 	}
 	case 3: {// team leader
 			 // find team  and reset members
-		Team* team = teams[userInfo->teamId];
-		for (int i = 0; i < 3; i++) {
+		int id = userInfo->teamId;
+		Team* team = teams[id];
+		for (int i = 2; i >=0; i--) {
 			if (team->members[i]) {
 				team->members[i]->userInfo.status = 1;
 				team->members[i]->userInfo.teamId = -1;
@@ -409,8 +410,7 @@ string getOutTeam(UserInfo* userInfo) {
 			}
 		}
 		//reset team
-		team->id = -1;
-		team->name = "";
+		teams[id] = NULL;
 		return "310";
 	}
 	case 4:
@@ -1003,11 +1003,133 @@ string buyItem(UserInfo* userInfo, string item) {
 	switch (userInfo->status) {
 	case 0: return "221";
 	case 1: return "311";
-	case 2:
+	case 2: 
 	case 3: return "413";
 	case 5: return "414";
 	case 4: {
+		unsigned int* coin = &(userInfo->coin);
+		if (*coin == 0) return "Het tien roi";
+		else
+		switch (itemsMap.find(item)->second) {
+		case 1:// HP 
+		{
+			int hp = userInfo->HP[0];
+			
+			if (hp == MAX_HP) return "MAX_HP";
+			else
+			{
+				int hp_need = MAX_HP - hp;
+				if (hp_need <= *coin) {
+				userInfo->HP[0] = MAX_HP;
+				userInfo->coin -= MAX_HP - hp;
+			}
+			else {
+				userInfo->HP[0] += *coin;
+				userInfo->coin = 0;
+			}
+			}
+			break;
+		}
+		case 2://bArmor
+		{
+			int bArmor = userInfo->HP[1];
+			if (bArmor == MAX_B_ARMOR) return "MAX_B_ARMOR";
+			else if(*coin>=Armor[1].price){
+				userInfo->HP[1] = MAX_B_ARMOR;
+				userInfo->coin-=Armor[1].price;
+			}
+			else return "Ko du tien roi";
+			break;
+		}
+		case 3://aAmor 
+		{
+			int aArmor = userInfo->HP[2];
+			if (aArmor == MAX_A_ARMOR) return "MAX_A_ARMOR";
+			else if(*coin>=Armor[2].price) {
+				userInfo->HP[2] = MAX_A_ARMOR;
+				userInfo->coin -= Armor[2].price;
+			}
+			else return "Ko du tien roi";
+			break;
+		}
+		case 4://autogun
+		{
+			// full all 4 autoguns
+			if (userInfo->autogun[0] == MAX_AUTO_GUN && userInfo->autogun[1] == MAX_AUTO_GUN && userInfo->autogun[2] == MAX_AUTO_GUN&& userInfo->autogun[3] == MAX_AUTO_GUN) return "MAX_AUTO_GUN";
+			// not enough money to buy bullet
+			else if (*coin < Attack[0].b_price) return "Ko du tien";
+			
+			else 
+				// find a new autogun or bullets can buy
+				for (int i = 0; i < 4; i++) {
+				int a_gun = userInfo->autogun[i];
+			
+				if (a_gun >= MAX_AUTO_GUN ) continue; // already buy autogun and bullets is full
+				else if (a_gun < 0) {	 // not buy autogun
+						if (*coin >= Attack[0].price) { // enough money 
+								userInfo->autogun[i] = MAX_AUTO_GUN;
+								userInfo->coin -= Attack[0].price;
+							}
+					}
+				else if (a_gun < MAX_AUTO_GUN && a_gun >= 0) { // already buy autogun but bulles not full
+						if (*coin >= Attack[0].b_price) { // enough money
+							userInfo->autogun[i] = MAX_AUTO_GUN;
+							userInfo->coin -= Attack[0].b_price;
+						}
+						else	// when not even enough money to buy bullets -> cant buy anything -> break
+							break;	
+				}
+			}
+			break;
+		}
+		case 5://laze
+		{
+			// 4 lazes full
+			if (userInfo->laze[0] == MAX_LAZE && userInfo->laze[1] == MAX_LAZE &&userInfo->laze[2] == MAX_LAZE &&userInfo->laze[3] == MAX_LAZE) return "MAX_LAZE";
+			// not enough money to buy bullets
+			else if (*coin < Attack[1].b_price) return "NOT_ENOUGH_MONEY";
 
+			else {
+				for (int i = 0; i < 4; i++) {
+					int laze = userInfo->laze[i];
+					if (laze >= MAX_LAZE) continue; // already buy laze and bullets is full
+					else if (laze < 0) {	 // not buy laze
+						if (*coin >= Attack[1].price) { // enough money 
+							userInfo->laze[i] = MAX_LAZE;
+							userInfo->coin -= Attack[1].price;
+						}
+					}
+					else if (laze < MAX_LAZE && laze >= 0) { // already buy laze but bulles not full
+						if (*coin >= Attack[1].b_price) { // enough money
+							userInfo->laze[i] = MAX_LAZE;
+							userInfo->coin -= Attack[1].b_price;
+						}
+						else	// when not even enough money to buy bullets -> cant buy anything -> break
+							break;
+					}
+				}
+			}
+
+			break;
+		}
+		case 6:// rocket
+		{
+			// full 2 rockets
+			if (userInfo->rocket == MAX_ROCKET) return "MAX_ROCKET";
+			else if (*coin < Attack[2].b_price) return "NOT_ENOUGH_MONEY";
+			else {
+				unsigned int numCanBuy = *coin >= 2 * Attack[2].b_price ? 2 : 1;
+				userInfo->rocket = numCanBuy;
+				userInfo->coin -= numCanBuy* Attack[2].b_price;
+			}
+			break;
+		}
+		default:
+			cout << "ERROR at buy item\n";
+			break;
+		}
+		return "BUY_OK";
+	// switch case 4 end
 	}
 	default:
 		cout << "Error at 21. Buy item function\n";
@@ -1059,7 +1181,7 @@ string getMine(UserInfo* userInfo) {
 	}
 	// get sungtudong
 	for (int i = 0; i < 4; i++) {
-		response += to_string(userInfo->sungtudong[i]) + " ";
+		response += to_string(userInfo->autogun[i]) + " ";
 	}
 	// get laze 
 	for (int i = 0; i < 4; i++) {
@@ -1122,9 +1244,9 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	int damage = 0;
 
 	for (int i = 3; i >= 0; i--) {
-		if (loginSession.userInfo.sungtudong[i] > 0) {
+		if (loginSession.userInfo.autogun[i] > 0) {
 			damage += Attack[0].dameB;
-			loginSession.userInfo.sungtudong[i]--;
+			loginSession.userInfo.autogun[i]--;
 			break;
 		}
 	}
