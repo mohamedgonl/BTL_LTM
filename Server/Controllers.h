@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "GlobalVariable.h"
 
 #ifndef Controllers_h
@@ -244,8 +244,12 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 }
 
 // 3. Register
-string registerAccount(string username, string password) {
-	for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
+string registerAccount(string username, string password, UserInfo* userInfo) {
+
+	//! đã đăng nhập 
+	if (userInfo->status != 0) return "Đã đăng nhập";
+	else {
+		for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
 		if (&accounts[i])
 			if (!(accounts[i].username.compare(username))) // if username is existed
 				return RES_SIGNUP_ACCOUNT_EXISTED;
@@ -281,6 +285,9 @@ string registerAccount(string username, string password) {
 		cout << "Error at function 3.Register: Save data error\n";
 		return RES_SIGNUP_SERVER_ERROR;
 	}
+	}
+
+	
 }
 
 // 4. Get list all teams
@@ -328,7 +335,8 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 					// send join request to team leader
 					char* _s = (char*)malloc(s.length() * sizeof(char));
 					strcpy(_s, s.c_str());
-					Send((teams[i]->members)[0]->socketInfo.connSocket, _s, sizeof(_s), 0);
+					int ret = Send((teams[i]->members)[0]->socketInfo.connSocket, _s, sizeof(_s), 0);
+					if (ret == SOCKET_ERROR) return "send error";
 					return "220";
 				}
 				else return "221";
@@ -357,7 +365,7 @@ string createTeam(LoginSession* logginSession, string teamName) {
 			newTeam->members[0] = logginSession;
 			newTeam->name = teamName;
 			teams[i] = newTeam;
-			return "230";
+			return "230|"+to_string(i);
 		}
 	}
 	return "231";
