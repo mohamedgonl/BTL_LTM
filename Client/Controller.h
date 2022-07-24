@@ -117,7 +117,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case RES_GETTEAMS_SUCCESS: {
-		if (status == 0) {
+		if (status == 1) {
 			cout << "Get teams successfully" << endl;
 			handleSplitStr(res + 4);
 			cout << setw(5) << left << "ID";
@@ -156,7 +156,7 @@ void handleResponse(char* res) {
 	}
 	case CREATE_TEAM_SUCCESS: {
 		cout << "Create team success" << endl;
-		status = 1;
+		status = 3;
 		break;
 	}
 	case  NUMBER_OF_TEAM_LIMIT: {

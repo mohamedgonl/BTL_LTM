@@ -17,8 +17,8 @@ int numOfQuestion = 0;
 int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
-string accountFileDirectory = "C:\\Users\\long\\Desktop\\account.txt";
-string questionFileDirectory = "C:\\Users\\long\\Desktop\\question.txt";
+string accountFileDirectory = "F:\\BTL\\BTL_LTM\\Server\\account.txt";
+string questionFileDirectory = "F:\\BTL\\BTL_LTM\\Server\\question.txt";
 map<string, int> action = {
 	{ "LOGIN", 2 },
 	{ "SIGNUP", 3 },
