@@ -84,7 +84,6 @@ using namespace std;
 #define JOIN_TEAM_FAIL 353
 #define DENY_JOIN_TEAM_FAIL 359
 
-
 //13
 #define INVITE_USER_JOINTEAM_SUCCESS 360
 #define RECEIVE_INVITATION_SUCCESS 363
@@ -93,9 +92,6 @@ using namespace std;
 //14
 #define USER_ACCEPT_JOINTEAM_SUCCESS 250
 #define TEAM_INVALID 251
-
-#define JOIN_TEAM_SUCCESS 344
-#define JOIN_TEAM_FAIL 353
 
 //15
 #define USER_REFUSE_JOINTEAM_SUCCESS 260
@@ -118,12 +114,12 @@ using namespace std;
 #define RECVEICE_REQUEST_CHALLENGE 395
 
 //19
-#define MATCHING_GAME_SUCCESS 590
-
+#define MATCHING_GAME_SUCCESS 510
+#define START_GAME 511
 
 //20
 #define REFUSE_CHALLENGE_SUCCESS 520
-
+#define REFUSE_CHALLENGE 521
 
 //21
 #define BUY_ITEM_SUCCESS 410
@@ -147,6 +143,8 @@ using namespace std;
 #define INTIME_DO_NONG 443
 #define USER_IS_DEAD 444
 
+//25
+#define HAVE_QUIZ 400
 
 //26
 #define ANSWER_TRUE_AND_FASTEST 450
@@ -155,6 +153,7 @@ using namespace std;
 
 //27
 #define SURRENDER_SUCCESS 461
+#define TEAM_WON 500
 
 
 #endif // !RESPONSE_CODE

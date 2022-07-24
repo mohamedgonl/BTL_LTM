@@ -79,6 +79,7 @@ int showMenu(int *status) {
 		cout << "3. Get own information" << endl;
 		cout << "4. Attack oponent" << endl;
 		cout << "5. Answer quiz" << endl;
+		cout << "6. Surrender" << endl;
 		cin >> userInput;
 		string x;
 		getline(cin, x);
@@ -195,7 +196,7 @@ string handleUserInput(int option) {
 		}
 		if (option == 4) {
 			string username;
-			cout << "Username you want to invite:";
+			cout << "Username you want to invite: ";
 			cin >> username;
 			string x;
 			getline(cin, x);
@@ -203,7 +204,7 @@ string handleUserInput(int option) {
 		}
 		if (option == 5) {
 			string username;
-			cout << "Username you want to kick:";
+			cout << "Username you want to kick: ";
 			cin >> username;
 			string x;
 			getline(cin, x);
@@ -214,17 +215,23 @@ string handleUserInput(int option) {
 		}
 		if (option == 7) {
 			string teamId;
-			cout << "Teamid you want to challenge:";
+			cout << "Team id you want to challenge: ";
 			cin >> teamId;
 			string x;
 			getline(cin, x);
 			userInput = "CHALLENGE " + teamId;
 		}
 		if (option == 8) {
-			userInput = "ACCEPTCHALLENGE";
+			string teamId;
+			cout << "Team id you want to accept challenge: ";
+			cin >> teamId;
+			string x;
+			getline(cin, x);
+			userInput = "ACCEPTCHALLENGE " + teamId;
 		}
 		if (option == 9) {
 			userInput = "DECLINECHALLENGE";
+
 		}
 		if (option == 10) {
 			userInput = "SURR";
@@ -261,6 +268,10 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "ANS " + key;
 		}
+		if (option == 6) {
+			userInput = "SURR";
+		}
+
 	}
 	}
 	
@@ -366,7 +377,6 @@ int main(int argc, char* argv[]) {
 	int ret, messageLen, num;
 	global = client;
 	_beginthreadex(0, 0, echoThread, (void *)&param, 0, 0);
-
 	while (1) {
 
 		int option;
@@ -393,7 +403,7 @@ int main(int argc, char* argv[]) {
 				option = showMenu(&status);
 			}
 
-			while (status == 4 && (option <= 0 || option >= 6)) {
+			while (status == 4 && (option <= 0 || option >= 7)) {
 				cout << "Invalid options. Please try again!" << endl;
 				option = showMenu(&status);
 			}
