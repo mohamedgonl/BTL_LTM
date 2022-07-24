@@ -434,16 +434,19 @@ string getTeamMembers(UserInfo* userInfo) {
 	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 
 	Team* team = teams[userInfo->teamId];
-	string response = "320|";
-	for (int i = 0; i < 3; i++) {
-		if (team->members[i]) {
-			LoginSession* mem = team->members[i];
-			if (mem != NULL) {
-				response += mem->userInfo.username + " ";
+	if (!team) return "TEAM_NOT_EXISTED"; 
+	else {
+		string response = "320|";
+		for (int i = 0; i < 3; i++) {
+			if (team->members[i]) {
+				LoginSession* mem = team->members[i];
+				if (mem != NULL) {
+					response += mem->userInfo.username + " ";
 			}
 		}
 	}
 	return response;
+	}
 }
 
 
