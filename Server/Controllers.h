@@ -223,7 +223,7 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 	// check if account is logged in
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		if (loginSessions[i]) {
-			if (!((loginSessions[i]->userInfo.username).compare(username))) return "113";
+			if (!((loginSessions[i]->userInfo.username).compare(username))) return RES_LOGIN_ACCOUNT_LOGGED_IN;
 		}
 	}
 	// if this account has not logged in
@@ -234,9 +234,9 @@ string loginAccount(UserInfo* userInfo, string username, string password) {
 															   // update user info
 					userInfo->username = username;
 					userInfo->status = 1;
-					return "110";
+					return RES_LOGIN_SUCCESS;
 				}
-				else return "112";
+				else return RES_LOGIN_WRONG_PASSWORD;
 			}
 		}
 	}
@@ -248,7 +248,7 @@ string registerAccount(string username, string password) {
 	for (int i = 0; i < MAX_NUM_ACCOUNT; i++) {
 		if (&accounts[i])
 			if (!(accounts[i].username.compare(username))) // if username is existed
-				return "121";
+				return RES_SIGNUP_ACCOUNT_EXISTED;
 	}
 	// save new account 
 	try
@@ -268,28 +268,29 @@ string registerAccount(string username, string password) {
 		if (file) {
 			file << account << endl;
 			file.close();
-			return "120";
+			return RES_SIGNUP_SUCCESS;
 		}
 		else {
 			cout << "File not existed";
 			file.close();
-			return "122";
+			return RES_SIGNUP_SERVER_ERROR;
 		}
 	}
 	catch (const std::exception&)
 	{
 		cout << "Error at function 3.Register: Save data error\n";
-		return "122";
+		return RES_SIGNUP_SERVER_ERROR;
 	}
 }
 
 // 4. Get list all teams
 string getAllTeams(UserInfo* userInfo) {
 	// login check
-	if (userInfo->status == 0) return "211";
+	if (userInfo->status == 0) return RES_LOGIN_NOT_LOGIN;
 	// in a game
-	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
-	string response = "210|";
+	if (userInfo->status == 4 || userInfo->status == 5) return RES_GETUSERS_IN_GAME;
+	string response = RES_GET_LIST_TEAMS_SUCCESS;
+	response += "|";
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[i] != NULL) {
 			if (teams[i]->id != -1) {
@@ -309,9 +310,9 @@ string getAllTeams(UserInfo* userInfo) {
 // 5. Join team
 string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 	//login check
-	if (userInfo->status == 0) return "Unloggin";
+	if (userInfo->status == 0) return RES_LOGIN_NOT_LOGIN;
 	// in a team
-	if (userInfo->status == 2 || userInfo->status == 3) return "In a team";
+	if (userInfo->status == 2 || userInfo->status == 3) return RES_IN_A_TEAM;
 	// in a game
 	if (userInfo->status == 4 || userInfo->status == 5) return "In a game";
 
