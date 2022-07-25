@@ -271,7 +271,6 @@ string handleUserInput(int option) {
 		break;
 	}
 	}
-	
 	// Handle user input here
 	return userInput;
 }
@@ -433,6 +432,7 @@ int main(int argc, char* argv[]) {
 					if (status == 4) prepareToSendRequest = false;
 					break;
 				}
+
 				}
 			}
 
