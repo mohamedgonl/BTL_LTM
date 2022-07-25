@@ -367,7 +367,9 @@ int main(int argc, char* argv[]) {
 	}
 	
 	printf("Connected server!\n");
-
+	char *mau = "446";
+	int mauvat = atoi(mau);
+	cout << mauvat - 100 << endl;
 
 	// Communicate with server
 	
