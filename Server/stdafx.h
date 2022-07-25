@@ -87,6 +87,7 @@ using namespace std;
 #define USER_NOT_ONLINE "341"
 #define USER_IN_ANOTHER_TEAM "342"
 #define SEND_TO_JOIN_TEAM_SUCCESS "343"
+#define USER_NEVER_REQUEST_JOIN_TEAM "344"
 
 //12
 #define DENY_JOIN_TEAM_SUCCESS "350"
@@ -101,6 +102,8 @@ using namespace std;
 #define USER_ACCEPT_JOINTEAM_SUCCESS "250"
 #define TEAM_IN_GAME "251"
 #define SEND_TO_ACCEPT_INVITATION "252" 
+#define USER_NEVER_HAS_INVITATION "253" 
+
 
 
 

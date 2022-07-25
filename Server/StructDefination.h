@@ -76,6 +76,8 @@ struct Team {
 	LoginSession* members[3] = { NULL,NULL,NULL };
 	int status = 0; // 0 if not ingame, 1 if ingame
 	int roomId = -1;
+	string userRequestJoinTeam[MAX_CLIENT] = { "" };
+	string userInviteJoinTeam[MAX_CLIENT] = { "" };
 };
 
 // define room struct

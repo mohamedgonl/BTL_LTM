@@ -227,7 +227,7 @@ unsigned __stdcall workingThread(void* params) {
 				else {
 
 					rcvBuff[ret] = 0;
-					cout << rcvBuff;
+					cout << "(Debug) Receive:  " << rcvBuff << endl;;
 					interactWithClient(dataThread[startIndex].loginSession[index], rcvBuff);
 					WSAResetEvent(dataThread[startIndex].events[index]);
 				}
@@ -249,7 +249,7 @@ unsigned __stdcall workingThread(void* params) {
 							sendBackData = sendBackData + "|" + to_string(idTeamWin);
 							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 							strcpy(dataSend, sendBackData.c_str());
-
+							cout << "(Debug) Send to all member in team about winner team when lead disconnect: " << dataSend << endl;
 							endGame(teams[teamId]);
 							endGame(teams[idTeamWin]);
 
@@ -275,7 +275,7 @@ unsigned __stdcall workingThread(void* params) {
 						string sendBackData = SEND_TO_TEAM_DISSOLVE;
 						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 						strcpy(dataSend, sendBackData.c_str());
-
+						cout << "(Debug) Send to all member in team about dissolve: " << dataSend << endl;
 						for (int i = 2; i >= 1; i--) {
 							Send(loginSessions[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 							if (teams[teamId]->members[i]) {
@@ -293,6 +293,7 @@ unsigned __stdcall workingThread(void* params) {
 							sendBackData = sendBackData + "|" + loginSession->userInfo.username;
 							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 							strcpy(dataSend, sendBackData.c_str());
+							cout << "(Debug) Send to all member in room about member disconnect: " << dataSend << endl;
 							int indexOfLeaveUser = -1;
 							for (int i = 0; i < 3; i++) {
 								if (teams[teamId]->members[i] == loginSession) {
@@ -315,6 +316,7 @@ unsigned __stdcall workingThread(void* params) {
 						sendBackData = sendBackData + "|" + loginSession->userInfo.username;
 						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 						strcpy(dataSend, sendBackData.c_str());
+						cout << "(Debug) Send to all member in team about member disconnect: " << dataSend << endl;
 						int indexOfLeaveUser = -1;
 						for (int i = 0; i < 3; i++) {
 							if (teams[teamId]->members[i] == loginSession) {
@@ -474,6 +476,7 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 		}
 		char* returnData = (char*)malloc(responseData.length() * sizeof(char));
 		strcpy(returnData, responseData.c_str());
+		cout << "(Debug) Response: " << returnData << endl;
 		return returnData;
 	}
 }
