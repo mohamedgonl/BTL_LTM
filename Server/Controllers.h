@@ -340,8 +340,16 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 					// send join request to team leader
 					char* _s = (char*)malloc(s.length() * sizeof(char));
 					strcpy(_s, s.c_str());
+					cout << "(Debug) Size of: " << strlen(_s) << endl;
+					cout << "(Debug) Send to lead: " << _s << endl;
 					int ret = Send((teams[i]->members)[0]->socketInfo.connSocket, _s, sizeof(_s), 0);
 					if (ret == SOCKET_ERROR) return REQUEST_FAIL;
+					for (int i = 0; i < MAX_CLIENT; i++) {
+						if (teams[teamId]->userRequestJoinTeam[i] == "") {
+							teams[teamId]->userRequestJoinTeam[i] = userInfo->username;
+							break;
+						}
+					}
 					return SEND_REQUEST_JOINTEAM_SUCCESS;
 				}
 				else return TEAM_IS_FULL;
@@ -430,6 +438,7 @@ string getOutTeam(UserInfo* userInfo) {
 		char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 		strcpy(dataSend, sendBackData.c_str());
 
+		cout << "(Debug) Send to member in team: " << dataSend << endl;
 		for (int i = 0; i < 3; i++) {
 			if (teams[userInfo->teamId]->members[i] != NULL) {
 				if (teams[userInfo->teamId]->members[i]->userInfo.username != userInfo->username) {
@@ -450,6 +459,7 @@ string getOutTeam(UserInfo* userInfo) {
 		char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 		strcpy(dataSend, sendBackData.c_str());
 
+		cout << "(Debug) Send to member in team: " << dataSend << endl;
 		for (int i = 2; i >= 0; i--) {
 			if (i != 0) {
 				Send(loginSessions[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
@@ -548,6 +558,7 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 	else if (loginSession.userInfo.status > 3) {
 		return USER_IN_GAME;
 	}
+	
 
 	// Handle user not available
 	int userIndex = -1;
@@ -571,6 +582,18 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 
 	// Handle team is full
 	int teamID = loginSession.userInfo.teamId;
+	int indexOfArray = -1;
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (teams[teamID]->userRequestJoinTeam[i] == nameOfRequestUser) {
+			indexOfArray = i;
+			break;
+		}
+	}
+
+	if (indexOfArray == -1) {
+		return USER_NEVER_REQUEST_JOIN_TEAM;
+	}
+
 	int availableSlotIndex = -1;
 	for (int i = 0; i < 3; i++) {
 		if (teams[teamID]->members[i] == NULL) {
@@ -586,6 +609,7 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 	string sendBackData = SEND_TO_JOIN_TEAM_SUCCESS;
 	sendBackData = sendBackData + "|" + to_string(teamID);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+	cout << "(Debug) Send to user want to join team: " << dataSend << endl;
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
@@ -596,6 +620,7 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 	teams[teamID]->members[availableSlotIndex] = loginSessions[userIndex];
 	loginSessions[userIndex]->userInfo.status = 2;
 	loginSessions[userIndex]->userInfo.teamId = teamID;
+	teams[teamID]->userRequestJoinTeam[indexOfArray] = "";
 	return ACCEPT_USER_JOIN_TEAM_SUCCESS;
 }
 
@@ -637,10 +662,22 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 		return USER_IN_ANOTHER_TEAM;
 	}
 
+	int indexOfArray = -1;
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (teams[loginSession.userInfo.teamId]->userRequestJoinTeam[i] == nameOfRequestUser) {
+			indexOfArray = i;
+			break;
+		}
+	}
+
+	if (indexOfArray == -1) {
+		return USER_NEVER_REQUEST_JOIN_TEAM;
+	}
 	// Handle send response to user request
 	string sendBackData = SEND_TO_JOIN_TEAM_FAIL;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+	cout << "(Debug) Send to user want to join team: " << dataSend << endl;
 	strcpy(dataSend, sendBackData.c_str());
 	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
@@ -648,6 +685,7 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 	}
 
 	// Handle success accept user
+	teams[loginSession.userInfo.teamId]->userRequestJoinTeam[indexOfArray] = "";
 	return DENY_JOIN_TEAM_SUCCESS;
 }
 
@@ -693,9 +731,18 @@ string inviteJoinTeam(LoginSession &loginSession, string usernameUser) {
 	sendBackData = sendBackData + "|" + to_string(loginSession.userInfo.teamId);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to user invitation: " << dataSend << endl;
 	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
 		return REQUEST_FAIL;
+	}
+
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (teams[loginSession.userInfo.teamId]->userInviteJoinTeam[i] == "") {
+			teams[loginSession.userInfo.teamId]->userInviteJoinTeam[i] = usernameUser;
+			break;
+		}
+
 	}
 
 	// Handle success accept user
@@ -714,6 +761,20 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 		return USER_ALREADY_INTEAM;
 	}
 
+	if (teams[teamID] == NULL) {
+		return TEAM_INVALID;
+	}
+
+	int indexInArray = -1;
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (teams[teamID]->userInviteJoinTeam[i] == loginSession.userInfo.username) {
+			indexInArray = i;
+		}
+	}
+
+	if (indexInArray == -1) {
+		return USER_NEVER_HAS_INVITATION;
+	}
 
 	// Handle team is full
 	int availableSlotIndex = -1;
@@ -737,12 +798,14 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to lead of team: " << dataSend << endl;
 	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
 		return REQUEST_FAIL;
 	}
 
 	teams[teamID]->members[availableSlotIndex] = &loginSession;
+	teams[teamID]->userInviteJoinTeam[indexInArray] = "";
 	loginSession.userInfo.status = 2;
 	loginSession.userInfo.teamId = teamID;
 
@@ -766,15 +829,28 @@ string declineInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 		return TEAM_IN_GAME;
 	}
 
+	int indexInArray = -1;
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (teams[teamID]->userInviteJoinTeam[i] == loginSession.userInfo.username) {
+			indexInArray = i;
+		}
+	}
+
+	if (indexInArray == -1) {
+		return USER_NEVER_HAS_INVITATION;
+	}
+
 	// Handle send response to user request
 	string sendBackData = SEND_TO_HOST_USER_REFUSE_INVITATION;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to lead of team: " << dataSend << endl;
 	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
 		return REQUEST_FAIL;
 	}
+	teams[teamID]->userInviteJoinTeam[indexInArray] = "";
 	// Handle success accept user
 	return USER_REFUSE_JOINTEAM_SUCCESS;
 }
@@ -815,6 +891,7 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to user has been kicked: " << dataSend << endl;
 	int ret = Send(teams[loginSession.userInfo.teamId]->members[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
 		return REQUEST_FAIL;
@@ -919,6 +996,7 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	sendBackData = sendBackData + "|" + to_string(loginSession.userInfo.teamId);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to opponent team invitation to challenge: " << dataSend << endl;
 	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
 		return REQUEST_FAIL;
@@ -980,6 +1058,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 	string sendBackData = SEND_TO_ALL_USERS_MATCHGAME;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to all member: " << dataSend << endl;
 	for (int i = 0; i < 3; i++) {
 		teams[enemyTeamId]->members[i]->userInfo.status = 4;
 		Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
@@ -1047,6 +1126,7 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to lead of opponent team: " << dataSend << endl;
 	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	if (ret == SOCKET_ERROR) {
 		return REQUEST_FAIL;
@@ -1346,6 +1426,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		sendBackData = sendBackData + "|" + loginSession.userInfo.username;
 		char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 		strcpy(dataSend, sendBackData.c_str());
+		cout << "(Debug) Send to member die: " << dataSend << endl;
 		int ret = Send(enemy->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 		if (ret == SOCKET_ERROR) {
 			return REQUEST_FAIL;
@@ -1354,6 +1435,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 		sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + enemy->userInfo.username;
 		dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 		strcpy(dataSend, sendBackData.c_str());
+		cout << "(Debug) Send to all member about member die: " << dataSend << endl;
 		for (int i = 0; i < 3; i++) {
 			if (i != enemyIndex) {
 				Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
@@ -1376,6 +1458,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 			sendBackData = sendBackData + "|" + to_string(teamId);
 			dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 			strcpy(dataSend, sendBackData.c_str());
+			cout << "(Debug) Send to all member in room about win: " << dataSend << endl;
 			for (int i = 0; i < 3; i++) {
 				Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 			}
@@ -1398,6 +1481,7 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
+	cout << "(Debug) Send to all member in room about attack: " << dataSend << endl;
 	for (int i = 0; i < 3; i++) {
 		Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
@@ -1441,6 +1525,7 @@ void createQuestion() {
 						}
 						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 						strcpy(dataSend, sendBackData.c_str());
+						cout << "(Debug) Send to all member in room about quiz: " << dataSend << endl;
 						for (int k = 0; k < 3; k++) {
 							Send(rooms[i]->team1->members[k]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 						}
@@ -1527,7 +1612,7 @@ string surrender(LoginSession &loginSession) {
 	sendBackData = sendBackData + "|" + to_string(idTeamWin);
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
-
+	cout << "(Debug) Send to all member in room about surrered: " << dataSend << endl;
 	endGame(teams[teamIndexUserSurr]);
 	endGame(teams[idTeamWin]);
 
