@@ -430,7 +430,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-									//19
+//19
 	case MATCHING_GAME_SUCCESS: {
 		cout << "Matching game success!" << endl;
 		status = 4;
@@ -448,7 +448,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-					   //20
+//20
 	case REFUSE_CHALLENGE_SUCCESS: {
 		cout << "Refuse challenge success!" << endl;
 		break;
