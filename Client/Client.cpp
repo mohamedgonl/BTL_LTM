@@ -64,8 +64,7 @@ int showMenu(int *status) {
 		cout << "6. Get all teams" << endl;
 		cout << "7. Challenge team" << endl; 
 		cout << "8. Accept challenge" << endl;
-		cout << "9. Decline challenge" << endl;
-		cout << "10. Out team" << endl;
+		cout << "9. Out team" << endl;
 		cout << "Please select your options [1,2,3,4,5,6,7,8,9]: ";
 		cin >> userInput;
 		string x;
@@ -221,9 +220,6 @@ string handleUserInput(int option) {
 			userInput = "ACCEPTCHALLENGE " + teamId;
 		}
 		if (option == 9) {
-			userInput = "DECLINECHALLENGE";
-		}
-		if (option == 10) {
 			userInput = "OUTTEAM";
 		}
 		break;
@@ -269,16 +265,11 @@ string handleUserInput(int option) {
 	return userInput;
 }
 
-unsigned __stdcall echoThread(void *paramUndefined) {
-	paramThread param = *((paramThread*)paramUndefined);
-	SOCKET connectedSocket = param.connectedSocket;
-	sockaddr_in serverAddr = param.serverAddr;
-	int serverAddrLen = sizeof(serverAddr);
-	char buff[BUFF_SIZE], buffer[BUFF_SIZE] = "", temp[BUFF_SIZE] = "";
+unsigned __stdcall echoThread(void *param) {
+	SOCKET connectedSocket = (SOCKET) param;
+	char buff[BUFF_SIZE];
 	int ret;
 	char *p;
-	// 1024
-	bool logging = false;
 	while (1) {
 		ret = recv(connectedSocket, buff, BUFF_SIZE, 0);
 		if (ret == SOCKET_ERROR) {
@@ -358,13 +349,9 @@ int main(int argc, char* argv[]) {
 	// Communicate with server
 	
 	char buff[BUFF_SIZE], temp[BUFF_SIZE];
-	string userInput;
-	paramThread param;
-	param.connectedSocket = client;
-	param.serverAddr = serverAddr;
 	int ret, messageLen, num;
 	global = client;
-	_beginthreadex(0, 0, echoThread, (void *)&param, 0, 0);
+	_beginthreadex(0, 0, echoThread, (void *)&client, 0, 0);
 	while (1) {
 
 		int option;
@@ -378,7 +365,6 @@ int main(int argc, char* argv[]) {
 				case 0: {
 					option = showMenu(&status);
 					if (status != 0) break;
-					cout << option << endl;
 					if (option <= 0 || option >= 3) {
 						cout << "Invalid options. Please try again!" << endl;
 						break;
@@ -411,7 +397,6 @@ int main(int argc, char* argv[]) {
 				}
 				case 3: {
 					option = showMenu(&status);
-					cout << option << endl;
 					if (status != 3) break;
 					if (option <= 0 || option >= 11) {
 						cout << "Invalid options. Please try again!" << endl;
@@ -436,9 +421,6 @@ int main(int argc, char* argv[]) {
 				}
 			}
 
-			
-
-
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";
 				getline(cin, userInput);
@@ -446,14 +428,8 @@ int main(int argc, char* argv[]) {
 			userInput = userInput + ENDING_DELIMITER;
 			strcpy(buff, userInput.c_str());
 			Send(client, buff, strlen(buff), 0);
-			Sleep(100);
-			//cout << buff;
-			//ret = Receive(client, buff, BUFF_SIZE, 0);
-			/*if (ret > 0) {
-				buff[ret] = 0;
-				cout << "Receive from server: " << buff << endl;
-				handleResponse(buff);
-			}*/
+			Sleep(200);
+
 		}
 	}
 	// Close socket
@@ -465,7 +441,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-string handleUserInput(string userInput) {
-	// Handle user input here
-	return userInput;
-}
+//string handleUserInput(string userInput) {
+//	// Handle user input here
+//	return userInput;
+//}
