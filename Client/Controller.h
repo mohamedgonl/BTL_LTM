@@ -218,6 +218,10 @@ void handleResponse(char* res) {
 		cout << "Number of team exceeds limit" << endl;
 		break;
 	}
+	case TEAM_NAME_ALREADY_EXISTS: {
+		cout << "The team name already exists!" << endl;
+		break;
+	}
 
 //7
 	case LOGOUT_SUCCESS: {
@@ -234,6 +238,10 @@ void handleResponse(char* res) {
 	}
 	case NOT_IN_A_TEAM: {
 		cout << "You are not in any team!" << endl;
+		break;
+	}
+	case TEAM_WAS_DISSOLVED: {
+		cout << "Your team was dissolved!" << endl;
 		break;
 	}
 
@@ -421,7 +429,7 @@ void handleResponse(char* res) {
 		int sung[4] = { 0, 0, 0, 0 };
 		int dan[4] = { -1, -1, -1, -1 };
 		int count = 0;
-		char string[200];
+		char string[BUFF_SIZE];
 		strcpy(string, res);
 		char * token = strtok(string + 4, " ");
 		while (token != NULL) {
@@ -504,7 +512,62 @@ void handleResponse(char* res) {
 		cout << "You are dead! :(" << endl;
 		break;
 	}
+	case SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK: {
+		int count = 0;
+		char string[BUFF_SIZE];
+		strcpy(string, res);
+		char * token = strtok(string + 4, " ");
+		while (token != NULL) {
+			count++;
+			cout << token;
+			switch (count) {
+			case 1: {
+				cout << " da tan cong ";
+				break;
+			}
+			case 2: {
+				cout << " voi luong dame ";
+				break;
+			}
+			case 3: {
+				cout << endl;
+				break;
+			}
+			}
+			token = strtok(NULL, " ");
+		}
+		break;
+	}
+	case SEND_TO_ALL_USERS_WHO_DEADS: {
+		int count = 0;
+		char string[BUFF_SIZE];
+		strcpy(string, res);
+		char * token = strtok(string + 4, " ");
+		while (token != NULL) {
+			count++;
+			cout << token;
+			switch (count) {
+			case 1: {
+				cout << " da ha guc ";
+				break;
+			}
+			case 2: {
+				cout << endl;
+				break;
+			}
+			}
 
+			token = strtok(NULL, " ");
+		}
+		break;
+	}
+	case SEND_TO_DEAD_USER_WHO_SHOT: {
+		cout << "Ban da bi ban chet boi " << res + 4 << endl;
+		break;
+	}
+	case SEND_TO_ALL_USER_WINTEAMS: {
+		break;
+	}
 // 25 
 	case SEND_TO_ALL_USERS_QUIZ: {
 		cout << "You have quiz!" << endl;
@@ -544,6 +607,13 @@ void handleResponse(char* res) {
 	case SEND_TO_ALL_USERS_WINNER_TEAM_ID: {
 		cout << "Team id " << res + 4 << " won!" << endl;
 		
+		break;
+	}
+
+
+// 28 
+	case OUT_GAME: {
+		cout << res + 4 << " just exited the game" << endl;
 		break;
 	}
 

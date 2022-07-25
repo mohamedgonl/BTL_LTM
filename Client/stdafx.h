@@ -56,6 +56,7 @@ using namespace std;
 //6
 #define CREATE_TEAM_SUCCESS 230
 #define NUMBER_OF_TEAM_LIMIT 231
+#define TEAM_NAME_ALREADY_EXISTS 232
 
 //7
 #define LOGOUT_SUCCESS 240
@@ -64,6 +65,7 @@ using namespace std;
 //8
 #define LEAVE_TEAM_SUCCESS 310
 #define NOT_IN_A_TEAM 311
+#define TEAM_WAS_DISSOLVED 312
 
 
 //9
@@ -160,6 +162,8 @@ using namespace std;
 #define SURRENDER_SUCCESS 460
 #define SEND_TO_ALL_USERS_WINNER_TEAM_ID 461 
 
+//28
+#define OUT_GAME 470
 
 #endif // !RESPONSE_CODE
 

@@ -29,9 +29,9 @@ int showMenu(int *status) {
 // in waiting room
 	case 1: {
 		cout << "================ Waitting ================" << endl;
-		cout << "1. Get list room " << endl;
-		cout << "2. Join room " << endl;
-		cout << "3. Create room " << endl;
+		cout << "1. Get list team " << endl;
+		cout << "2. Join team " << endl;
+		cout << "3. Create team " << endl;
 		cout << "4. Sign out " << endl;
 		cout << "5. Accept invitation to join team" << endl;
 		cout << "Please select your options [1,2,3,4,5]: ";
@@ -66,6 +66,7 @@ int showMenu(int *status) {
 		cout << "8. Accept challenge" << endl;
 		cout << "9. Decline challenge" << endl;
 		cout << "10. Surrender" << endl;
+		cout << "Please select your options [1,2,3,4,5,6,7,8,9,10]: ";
 		cin >> userInput;
 		string x;
 		getline(cin, x);
@@ -80,6 +81,7 @@ int showMenu(int *status) {
 		cout << "4. Attack oponent" << endl;
 		cout << "5. Answer quiz" << endl;
 		cout << "6. Surrender" << endl;
+		cout << "Please select your options [1,2,3,4,5,6]: ";
 		cin >> userInput;
 		string x;
 		getline(cin, x);
