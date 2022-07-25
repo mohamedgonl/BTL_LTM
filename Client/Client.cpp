@@ -88,9 +88,7 @@ int showMenu(int *status) {
 		if (*status != 4) crash = true;
 		break;
 	}
-	default: {
 
-	}
 	}
 	if (isNumber(userInput) && !crash) {
 		return stoi(userInput);
@@ -163,7 +161,6 @@ string handleUserInput(int option) {
 		}
 		break;
 	}
-
 	case 2: {
 		if (option == 1) {
 			userInput = "GETMEMBERS";
@@ -172,8 +169,6 @@ string handleUserInput(int option) {
 			userInput = "OUTTEAM";
 		}
 		break;
-
-
 	}
 	case 3: {
 		if (option == 1) {
@@ -187,7 +182,6 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "M_ACCEPT " + username;
 		}
-		break;
 		if (option == 3) {
 			string username;
 			cout << "Username you want to decline :";
@@ -238,6 +232,7 @@ string handleUserInput(int option) {
 		if (option == 10) {
 			userInput = "SURR";
 		}
+		break;
 	}
 	case 4: {
 		if (option == 1) {
@@ -273,7 +268,7 @@ string handleUserInput(int option) {
 		if (option == 6) {
 			userInput = "SURR";
 		}
-
+		break;
 	}
 	}
 	
@@ -291,7 +286,6 @@ unsigned __stdcall echoThread(void *paramUndefined) {
 	char *p;
 	// 1024
 	bool logging = false;
-	char userLogged[50];
 	while (1) {
 		ret = recv(connectedSocket, buff, BUFF_SIZE, 0);
 		if (ret == SOCKET_ERROR) {
@@ -310,6 +304,7 @@ unsigned __stdcall echoThread(void *paramUndefined) {
 			handleResponse(buff);
 		}
 	}
+	cout << "Receive thread off" << endl;
 	closesocket(connectedSocket);
 	return 0;
 }
@@ -351,8 +346,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Set time-out for receiving
-	int tv = 100000; //Time-out interval: 10000ms
-	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
+	//int tv = 100000; //Time-out interval: 10000ms
+	//setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
 
 	// Specify server address
 	sockaddr_in serverAddr;
@@ -367,9 +362,6 @@ int main(int argc, char* argv[]) {
 	}
 	
 	printf("Connected server!\n");
-	char *mau = "446";
-	int mauvat = atoi(mau);
-	cout << mauvat - 100 << endl;
 
 	// Communicate with server
 	
@@ -385,36 +377,69 @@ int main(int argc, char* argv[]) {
 
 		int option;
 		while (true) {
-			option = showMenu(&status);
+			string userInput;
+			bool prepareToSendRequest = true;
+			while (prepareToSendRequest) {
+				cout << "status = " << status << endl;
+				switch (status)
+				{
+				case 0: {
+					option = showMenu(&status);
+					if (status != 0) break;
+					if (option <= 0 || option >= 3) {
+						cout << "Invalid options. Please try again!" << endl;
+					}
+					userInput = handleUserInput(option);
+					if (status == 0) prepareToSendRequest = false;
+					break;
+				}
+				case 1: {
+					option = showMenu(&status);
+					if (status != 1) break;
+					if (option <= 0 || option >= 6) {
+						cout << "Invalid options. Please try again!" << endl;
+					}
+					userInput = handleUserInput(option);
+					if (status == 1) prepareToSendRequest = false;
+					break;
+				}
+				case 2: {
+					option = showMenu(&status);
+					if (status != 2) break;
+					if (option <= 0 || option >= 3) {
+						cout << "Invalid options. Please try again!" << endl;
+					}
+					userInput = handleUserInput(option);
+					if (status == 2) prepareToSendRequest = false;
+					break;
+				}
+				case 3: {
+					option = showMenu(&status);
+					cout << option << endl;
+					if (status != 3) break;
+					if (option <= 0 || option >= 11) {
+						cout << "Invalid options. Please try again!" << endl;
+					}
+					userInput = handleUserInput(option);
+					if (status == 3) prepareToSendRequest = false;
+					break;
+				}
+				case 4: {
+					option = showMenu(&status);
+					if (status != 4) break;
+					if (option <= 0 || option >= 7) {
+						cout << "Invalid options. Please try again!" << endl;
+					}
+					userInput = handleUserInput(option);
+					if (status == 4) prepareToSendRequest = false;
+					break;
+				}
+				}
+			}
+
 			
-			while (status == 0 && (option <= 0 || option >= 3)) {
-				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(&status);
-			}
 
-			while (status == 1 && (option <= 0 || option >= 6)) {
-				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(&status);
-			}
 
-			while (status == 2 && (option <= 0 || option >= 3)) {
-				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(&status);
-			}
-
-			while (status == 3 && (option <= 0 || option >= 11)) {
-				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(&status);
-			}
-
-			while (status == 4 && (option <= 0 || option >= 7)) {
-				cout << "Invalid options. Please try again!" << endl;
-				option = showMenu(&status);
-			}
-			
-			//cout << "Input your statement: " << endl;
-			//getline(cin, inputData);
-			string userInput = handleUserInput(option);
 			while (userInput.length() >= BUFF_SIZE - strlen(ENDING_DELIMITER)) {
 				cout << "Message too long (more than 2044 character). Try again: ";
 				getline(cin, userInput);

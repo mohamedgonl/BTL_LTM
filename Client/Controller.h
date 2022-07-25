@@ -89,6 +89,63 @@ void declineJoinTeam(char *res) {
 	NumberOfTeamInvite = 0;
 }
 
+//void coutByStatus(int *status) {
+//	switch (*status) {
+//
+//	case 0: {
+//		cout << "================ Menu ================" << endl;
+//		cout << "1. Login " << endl;
+//		cout << "2. Sign up " << endl;
+//		cout << "Please select your options [1,2]: ";
+//		break;
+//	}
+//	case 1: {
+//		cout << "================ Waitting ================" << endl;
+//		cout << "1. Get list team " << endl;
+//		cout << "2. Join team " << endl;
+//		cout << "3. Create team " << endl;
+//		cout << "4. Sign out " << endl;
+//		cout << "5. Accept invitation to join team" << endl;
+//		cout << "Please select your options [1,2,3,4,5]: ";
+//		break;
+//	}
+//	case 2: {
+//		cout << "================ In team ================" << endl;
+//		cout << "1. Get list member " << endl;
+//		cout << "2. Leave team " << endl;
+//		cout << "Please select your options [1,2]: ";
+//		break;
+//	}
+//	case 3: {
+//		cout << "================ Host ================" << endl;
+//		cout << "1. Get users in waiting room" << endl;
+//		cout << "2. Verify user want to join team" << endl;
+//		cout << "3. Refuse user to join team" << endl;
+//		cout << "4. Invite user to join team" << endl;
+//		cout << "5. Kick user" << endl;
+//		cout << "6. Get all teams" << endl;
+//		cout << "7. Challenge team" << endl;
+//		cout << "8. Accept challenge" << endl;
+//		cout << "9. Decline challenge" << endl;
+//		cout << "10. Surrender" << endl;
+//		cout << "Please select your options [1,2,3,4,5,6,7,8,9,10]: ";
+//		break;
+//	}
+//	case 4: {
+//		cout << "================ In game ================" << endl;
+//		cout << "1. BUY item" << endl;
+//		cout << "2. Get information in game" << endl;
+//		cout << "3. Get own information" << endl;
+//		cout << "4. Attack oponent" << endl;
+//		cout << "5. Answer quiz" << endl;
+//		cout << "6. Surrender" << endl;
+//		cout << "Please select your options [1,2,3,4,5,6]: ";
+//		break;
+//	}
+//
+//	}
+//}
+
 void declineChallenge(char *res) {
 	string idTeam;
 	idTeam = res + 4;
@@ -199,6 +256,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_INVITATION_JOIN_TEAM: {
+		cout << res << endl;
 		cout << "User " << res + 4 << " wants to join your team!" << endl;
 		break;
 	}
@@ -233,7 +291,7 @@ void handleResponse(char* res) {
 //8
 	case LEAVE_TEAM_SUCCESS: {
 		cout << "Leave team successfully" << endl;
-		status = 0;
+		status = 1;
 		break;
 	}
 	case NOT_IN_A_TEAM: {
@@ -279,6 +337,7 @@ void handleResponse(char* res) {
 		// Phải từ chối tất cả những team đã mời mình
 		declineJoinTeam(res);
 		status = 2;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
 	}
 
@@ -312,9 +371,10 @@ void handleResponse(char* res) {
 //14
 	case USER_ACCEPT_JOINTEAM_SUCCESS: {
 		cout << "Join team success!" << endl;
-		idTeam = atoi(res + 4);
+		idYourTeam = atoi(res + 4);
 		declineJoinTeam(res);
 		status = 2;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
 	}
 	case TEAM_IN_GAME: {
@@ -348,6 +408,7 @@ void handleResponse(char* res) {
 	case SEND_TO_USER_KICKED: {
 		cout << "You kicked" << endl;
 		status = 1;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
 	}
 
@@ -410,6 +471,7 @@ void handleResponse(char* res) {
 		cout << "Start game!" << endl;
 		declineChallenge(res + 4);
 		status = 4;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
 	}
 
