@@ -367,27 +367,14 @@ void interactWithClient(LoginSession &loginSession, char buff[BUFF_SIZE]) {
 char* handleResponse(char* it, LoginSession &loginSession) {
 	string command = splitData(it, " ")[0];
 	if (action.find(command) == action.end()) {
-		cout << "Invalid command" << endl;
 		return INVALID_COMMAND;
 	}
 	else {
 		string responseData;
 		switch (action.find(command)->second) {
 		case 2: {
-			responseData = loginAccount(&loginSession.userInfo, splitData(it, " ")[1], splitData(it, " ")[2]);
-			break;
-		}
-		case 3: {
-			responseData = registerAccount(&loginSession.userInfo, splitData(it, " ")[1], splitData(it, " ")[2]);
-			break;
-		}
-		case 4: {
-			responseData = getAllTeams(&loginSession.userInfo);
-			break;
-		}
-		case 5: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = joinTeam(&loginSession.userInfo, atoi(splitData(it, " ")[1].c_str()));
+			if (splitData(it, " ").size() == 3) {
+				responseData = loginAccount(&loginSession.userInfo, splitData(it, " ")[1], splitData(it, " ")[2]);
 				break;
 			}
 			else {
@@ -395,9 +382,43 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 				break;
 			}
 		}
-		case 6: {
-			responseData = createTeam(&loginSession, splitData(it, " ")[1]);
+		case 3: {
+			if (splitData(it, " ").size() == 3) {
+				responseData = registerAccount(&loginSession.userInfo, splitData(it, " ")[1], splitData(it, " ")[2]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+			}
+		}
+		case 4: {
+			responseData = getAllTeams(&loginSession.userInfo);
 			break;
+		}
+		case 5: {
+			if (splitData(it, " ").size() == 2) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = joinTeam(&loginSession.userInfo, atoi(splitData(it, " ")[1].c_str()));
+					break;
+				}
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+			}
+		}
+		case 6: {
+
+			if (splitData(it, " ").size() == 2) {
+				responseData = createTeam(&loginSession, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 7: {
 			responseData = accountSignOut(&loginSession.userInfo);
@@ -416,21 +437,44 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			break;
 		}
 		case 11: {
-			responseData = acceptRequestJoinTeam(loginSession, splitData(it, " ")[1]);
-			break;
+			if (splitData(it, " ").size() == 2) {
+				responseData = acceptRequestJoinTeam(loginSession, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 12: {
-			responseData = declineRequestJoinTeam(loginSession, splitData(it, " ")[1]);
-			break;
+			if (splitData(it, " ").size() == 2) {
+				responseData = declineRequestJoinTeam(loginSession, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 13: {
-			responseData = inviteJoinTeam(loginSession, splitData(it, " ")[1]);
-			break;
+			if (splitData(it, " ").size() == 2) {
+				responseData = inviteJoinTeam(loginSession, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 14: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = acceptInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
-				break;
+			if (splitData(it, " ").size() == 2) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = acceptInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
+					break;
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -438,9 +482,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			}
 		}
 		case 15: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = declineInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
-				break;
+			if (splitData(it, " ").size() == 2) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = declineInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
+					break;
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -448,17 +494,26 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			}
 		}
 		case 16: {
-			responseData = kickUserOutRoom(loginSession, splitData(it, " ")[1]);
-			break;
+			if (splitData(it, " ").size() == 2) {
+				responseData = kickUserOutRoom(loginSession, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 17: {
 			responseData = getAllTeams(loginSession);
 			break;
 		}
 		case 18: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = challenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
-				break;
+			if (splitData(it, " ").size() == 2) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = challenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+					break;
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -466,9 +521,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			}
 		}
 		case 19: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = acceptChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
-				break;
+			if (splitData(it, " ").size() == 2) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = acceptChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+					break;
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -476,9 +533,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			}
 		}
 		case 20: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = declineChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
-				break;
+			if (splitData(it, " ").size() == 2) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = declineChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
+					break;
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -486,8 +545,15 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			}
 		}
 		case 21: {
-			responseData = buyItem(&loginSession.userInfo, splitData(it, " ")[1]);
-			break;
+			if (splitData(it, " ").size() == 2) {
+				responseData = buyItem(&loginSession.userInfo, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 22: {
 			responseData = getAllPlayers(&loginSession.userInfo);
@@ -498,13 +564,22 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 			break;
 		}
 		case 24: {
-			responseData = attackEnemy(loginSession, splitData(it, " ")[1]);
-			break;
+			if (splitData(it, " ").size() == 2) {
+				responseData = attackEnemy(loginSession, splitData(it, " ")[1]);
+				break;
+			}
+			else {
+				responseData = INVALID_COMMAND;
+				break;
+
+			}
 		}
 		case 26: {
-			if (isNumber((char*)splitData(it, " ")[1].c_str())) {
-				responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
-				break;
+			if (splitData(it, " ").size() == 3) {
+				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
+					responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
+					break;
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;

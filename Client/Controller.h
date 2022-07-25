@@ -83,7 +83,7 @@ void declineJoinTeam(char *res) {
 			stringstream ss;
 			ss << listTeamInvite[i];
 			ss >> str;
-			string sendData = pre + str;
+			string sendData = pre + str+ ENDING_DELIMITER;
 			char* returnData = (char*)malloc(sendData.length() * sizeof(char));
 			strcpy(returnData, sendData.c_str());
 			Send(global, returnData, strlen(returnData), 0);

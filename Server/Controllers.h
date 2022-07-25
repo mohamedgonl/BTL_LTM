@@ -875,6 +875,10 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 	else if (loginSession.userInfo.status > 3) {
 		return USER_IN_GAME;
 	}
+	if (loginSession.userInfo.username == username) {
+		return YOU_CAN_NOT_KICK_YOU;
+	}
+
 	int userIndex = -1;
 	for (int i = 0; i < 3; i++) {
 		if (teams[loginSession.userInfo.teamId]->members[i] != NULL) {
@@ -1025,7 +1029,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		return USER_IN_GAME;
 	}
 
-	if (teams[enemyTeamId]->name == "") {
+	if (teams[enemyTeamId] == NULL) {
 		return OPONENT_INVALID;
 	}
 
