@@ -14,7 +14,7 @@ int showMenu(int *status) {
 	string userInput;
 	switch (*status)
 	{
-// not login
+		// not login
 	case 0: {
 		cout << "================ Menu ================" << endl;
 		cout << "1. Login " << endl;
@@ -26,7 +26,7 @@ int showMenu(int *status) {
 		if (*status != 0) crash = true;
 		break;
 	}
-// in waiting room
+			// in waiting room
 	case 1: {
 		cout << "================ Waitting ================" << endl;
 		cout << "1. Get list team " << endl;
@@ -41,7 +41,7 @@ int showMenu(int *status) {
 		if (*status != 1) crash = true;
 		break;
 	}
-// in a team
+			// in a team
 	case 2: {
 		cout << "================ In team ================" << endl;
 		cout << "1. Get list member " << endl;
@@ -53,7 +53,7 @@ int showMenu(int *status) {
 		if (*status != 2) crash = true;
 		break;
 	}
-// host'room
+			// host'room
 	case 3: {
 		cout << "================ Host ================" << endl;
 		cout << "1. Get users in waiting room" << endl;
@@ -62,7 +62,7 @@ int showMenu(int *status) {
 		cout << "4. Invite user to join team" << endl;
 		cout << "5. Kick user" << endl;
 		cout << "6. Get all teams" << endl;
-		cout << "7. Challenge team" << endl; 
+		cout << "7. Challenge team" << endl;
 		cout << "8. Accept challenge" << endl;
 		cout << "9. Out team" << endl;
 		cout << "Please select your options [1,2,3,4,5,6,7,8,9]: ";
@@ -143,7 +143,7 @@ string handleUserInput(int option) {
 
 		if (option == 5) {
 			string id;
-			cout << "Accept invitation to join team with id: " << endl;
+			cout << "Accept invitation to join team with id: " ;
 			cin >> id;
 			string x;
 			getline(cin, x);
@@ -152,7 +152,7 @@ string handleUserInput(int option) {
 		}
 		if (option == 6) {
 			string id;
-			cout << "Decline invitation to join team with id: " << endl;
+			cout << "Decline invitation to join team with id: " ;
 			cin >> id;
 			string x;
 			getline(cin, x);
@@ -266,7 +266,7 @@ string handleUserInput(int option) {
 }
 
 unsigned __stdcall echoThread(void *param) {
-	SOCKET connectedSocket = (SOCKET) param;
+	SOCKET connectedSocket = *((SOCKET*)param);
 	char buff[BUFF_SIZE];
 	int ret;
 	char *p;
@@ -343,11 +343,11 @@ int main(int argc, char* argv[]) {
 		printf("Error %d: Cannot connect server.\n", WSAGetLastError());
 		return 0;
 	}
-	
+
 	printf("Connected server!\n");
 
 	// Communicate with server
-	
+
 	char buff[BUFF_SIZE], temp[BUFF_SIZE];
 	int ret, messageLen, num;
 	global = client;
@@ -359,7 +359,6 @@ int main(int argc, char* argv[]) {
 			string userInput;
 			bool prepareToSendRequest = true;
 			while (prepareToSendRequest) {
-				cout << "status = " << status << endl;
 				switch (status)
 				{
 				case 0: {

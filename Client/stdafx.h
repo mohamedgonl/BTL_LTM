@@ -66,7 +66,7 @@ using namespace std;
 #define LEAVE_TEAM_SUCCESS 310
 #define NOT_IN_A_TEAM 311
 #define TEAM_WAS_DISSOLVED 312
-
+#define MEMBER_LEAVE 313
 
 //9
 #define GET_TEAMMBER_SUCCESS 320
@@ -104,6 +104,7 @@ using namespace std;
 #define KICK_USER_SUCCESS 370
 #define USER_WANT_TOKICK_NOT_INTEAM 371
 #define SEND_TO_USER_KICKED 372
+#define KICK_LEADER 373
 
 //17
 #define GET_ALL_TEAMS 380
@@ -115,6 +116,7 @@ using namespace std;
 #define OPONENT_INVALID 393
 #define TEAM_LACK_MEMBER 394
 #define SEND_TO_OPONENT_CHALLENGE 395
+#define CHALLENGE_YOURSELF 396
 
 //19
 #define MATCHING_GAME_SUCCESS 510

@@ -93,26 +93,26 @@ void declineJoinTeam(char *res) {
 }
 
 
-void declineChallenge(char *res) {
-	string idTeam;
-	idTeam = res + 4;
-	string pre = "DECLINECHALLENGE ";
-	int idTeamInInt = stoi(idTeam);
-	for (int i = 0; i < NumberOfTeamInvite; i++) {
-		if (listTeamChallenge[i] != idTeamInInt) {
-			string str;
-			stringstream ss;
-			ss << listTeamChallenge[i];
-			ss >> str;
-			string sendData = pre + str + ENDING_DELIMITER;
-			char* returnData = (char*)malloc(sendData.length() * sizeof(char));
-			strcpy(returnData, sendData.c_str());
-			Send(global, returnData, strlen(returnData), 0);
-		}
-	}
-	NumberOfTeamChallenge = 0;
-}
-
+//void declineChallenge(char *res) {
+//	string idTeam;
+//	idTeam = res + 4;
+//	string pre = "DECLINECHALLENGE ";
+//	int idTeamInInt = stoi(idTeam);
+//	for (int i = 0; i < NumberOfTeamInvite; i++) {
+//		if (listTeamChallenge[i] != idTeamInInt) {
+//			string str;
+//			stringstream ss;
+//			ss << listTeamChallenge[i];
+//			ss >> str;
+//			string sendData = pre + str + ENDING_DELIMITER;
+//			char* returnData = (char*)malloc(sendData.length() * sizeof(char));
+//			strcpy(returnData, sendData.c_str());
+//			Send(global, returnData, strlen(returnData), 0);
+//		}
+//	}
+//	NumberOfTeamChallenge = 0;
+//}
+//
 
 void handleResponse(char* res) {
 	char subbuff[4];
@@ -146,7 +146,7 @@ void handleResponse(char* res) {
 		cout << "You logged!" << endl;
 		break;
 	}
-//3
+						//3
 	case SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
 		break;
@@ -160,7 +160,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//4
+					   //4
 	case RES_GETTEAMS_SUCCESS: {
 		cout << "Get teams successfully" << endl;
 		vector<Team>  teams = handleSplitStr(res + 4);
@@ -187,7 +187,7 @@ void handleResponse(char* res) {
 		cout << "User in game!" << endl;
 		break;
 	}
-//5
+					   //5
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Send request to join team successfully" << endl;
 		break;
@@ -205,7 +205,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_INVITATION_JOIN_TEAM: {
-		cout << "User " << res + 4 << " wants to join your team!" << endl;
+		cout << endl << "User " << res + 4 << " wants to join your team!" << endl;
 		break;
 	}
 	case REQUEST_FAIL: {
@@ -213,7 +213,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//6
+					   //6
 	case CREATE_TEAM_SUCCESS: {
 		cout << "Create team success" << endl;
 		declineJoinTeam(res);
@@ -229,14 +229,14 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//7
+								   //7
 	case LOGOUT_SUCCESS: {
 		cout << "Sign out success!" << endl;
 		status = 0;
 		break;
 	}
 
-//8
+						 //8
 	case LEAVE_TEAM_SUCCESS: {
 		cout << "Leave team successfully" << endl;
 		status = 1;
@@ -248,17 +248,21 @@ void handleResponse(char* res) {
 	}
 	case TEAM_WAS_DISSOLVED: {
 		cout << endl <<  "Your team was dissolved!" << endl;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
+		status = 1;
+		break;
+	}	case MEMBER_LEAVE: {
+		cout << endl << res + 4 << " leave your team!" << endl;
 		break;
 	}
-
-//9
+							 //9
 	case GET_TEAMMBER_SUCCESS: {
 		cout << "Get members team successfully!" << endl;
-		cout << "Team member:" << res + 4 << endl;
+		cout << "Team member: " << res + 4 << endl;
 		break;
 	}
 
-//10
+							   //10
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
 		cout << "List user in waitting room: " << res + 4 << endl;
 		break;
@@ -268,7 +272,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//11
+						   //11
 	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
 		cout << "Send accept request success!" << endl;
 		break;
@@ -282,7 +286,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_JOIN_TEAM_SUCCESS: {
-		cout << endl << "Join team id: " << res + 4 << " success" << endl;
+		cout << endl << "Join team #" << res + 4 << " success" << endl;
 		// Phải từ chối tất cả những team đã mời mình
 		declineJoinTeam(res);
 		status = 2;
@@ -294,7 +298,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//12
+									  //12
 	case DENY_JOIN_TEAM_SUCCESS: {
 		cout << "Deny join team success!" << endl;
 		break;
@@ -304,7 +308,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//13
+								 //13
 	case INVITE_USER_JOINTEAM_SUCCESS: {
 		cout << "Send invitation success!" << endl;
 		break;
@@ -321,7 +325,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//14
+											 //14
 	case USER_ACCEPT_JOINTEAM_SUCCESS: {
 		cout << "Join team success!" << endl;
 		idYourTeam = atoi(res + 4);
@@ -334,15 +338,15 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_ACCEPT_INVITATION: {
-		cout << res + 4 << " accepts your invitation!" << endl;
+		cout << endl << res + 4 << " accepts your invitation!" << endl;
 		break;
 	}
 	case UNINVITED: {
-		cout << "You were uninvited" << endl;
+		cout << "You were uninvited!" << endl;
 		break;
 	}
 
-//15
+					//15
 	case USER_REFUSE_JOINTEAM_SUCCESS: {
 		cout << "Refuse success!" << endl;
 		break;
@@ -367,8 +371,11 @@ void handleResponse(char* res) {
 		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
 	}
-
-//17
+	case KICK_LEADER: {
+		cout << "You cannot kick yourself!" << endl;
+		break;
+	}
+					  //17
 	case GET_ALL_TEAMS: {
 		cout << "Get all team successfully" << endl;
 		vector<Team> teams = handleSplitStr(res + 4);
@@ -387,9 +394,13 @@ void handleResponse(char* res) {
 		}
 		break;
 	}
-//18
+						//18
 	case CHALLENGE_SUCCESS: {
 		cout << "Send challenge success!" << endl;
+		break;
+	}
+	case CHALLENGE_YOURSELF: {
+		cout << "You cannot challenge yourself!" << endl;
 		break;
 	}
 	case OPONPENT_LACK_MEMBER: {
@@ -419,14 +430,15 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//19
+									//19
 	case MATCHING_GAME_SUCCESS: {
 		cout << "Matching game success!" << endl;
+		status = 4;
 		break;
 	}
 	case SEND_TO_ALL_USERS_MATCHGAME: {
 		cout << "Start game!" << endl;
-		declineChallenge(res + 4);
+//		declineChallenge(res + 4);
 		status = 4;
 		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
@@ -436,7 +448,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//20
+					   //20
 	case REFUSE_CHALLENGE_SUCCESS: {
 		cout << "Refuse challenge success!" << endl;
 		break;
