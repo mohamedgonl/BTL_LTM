@@ -256,7 +256,6 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_INVITATION_JOIN_TEAM: {
-		cout << res << endl;
 		cout << "User " << res + 4 << " wants to join your team!" << endl;
 		break;
 	}
