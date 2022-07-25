@@ -298,9 +298,8 @@ unsigned __stdcall echoThread(void *paramUndefined) {
 			// Disconnect client
 			break;
 		}
-		else if (strlen(buff) > 0) {
+		else if (ret > 0) {
 			buff[ret] = 0;
-			cout << buff << endl;
 			handleResponse(buff);
 		}
 	}

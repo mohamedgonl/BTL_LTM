@@ -46,10 +46,10 @@ public:
 	int id_team;
 	int number;
 };
-vector<Team> t;
-vector<string> splitTeam;
-void handleSplitStr(string s)
+vector<Team> handleSplitStr(string s)
 {
+	vector<Team> t;
+	vector<string> splitTeam;
 	stringstream stream(s);
 	string word;
 	while (getline(stream, word, '|')) {
@@ -59,14 +59,17 @@ void handleSplitStr(string s)
 			splitTeam.push_back(tmp);
 		}
 	}
-	for (int i = 0; i < splitTeam.size() - 2; i += 3) {
-		Team team;
-		team.id_team = stoi(splitTeam[i]);
-		team.team_name = splitTeam[i + 1];
-		team.number = stoi(splitTeam[i + 2]);
-		t.push_back(team);
+	int numOfMember = -1;
+	if (!splitTeam.empty()) {
+		for (int i = 0; i < splitTeam.size() - 2; i += 3) {
+			Team team;
+			team.id_team = stoi(splitTeam[i]);
+			team.team_name = splitTeam[i + 1];
+			team.number = stoi(splitTeam[i + 2]);
+			t.push_back(team);
+		}
 	}
-	cout << "team:" << t.size() << endl;
+	return t;
 }
 
 void declineJoinTeam(char *res) {
@@ -173,7 +176,7 @@ void handleResponse(char* res) {
 	subbuff[3] = '\0';
 	string pre;
 	switch (atoi(subbuff)) {
-//2
+		//2
 	case INVALID_COMMAND: {
 		cout << "Command is incorrect!" << endl;
 		break;
@@ -199,7 +202,7 @@ void handleResponse(char* res) {
 		cout << "You logged!" << endl;
 		break;
 	}
-//3
+						//3
 	case SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
 		break;
@@ -213,20 +216,22 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//4
+					   //4
 	case RES_GETTEAMS_SUCCESS: {
 		cout << "Get teams successfully" << endl;
-		handleSplitStr(res + 4);
+		vector<Team>  teams = handleSplitStr(res + 4);
 		cout << setw(5) << left << "ID";
 		cout << setw(30) << left << "Team'name";
 		cout << setw(20) << right << "Team'members" << endl;
 		cout << setfill('-');
 		cout << setw(55) << "-" << endl;
 		cout << setfill(' ');
-		for (Team team : t) {
-			cout << setw(5) << left << team.id_team;
-			cout << setw(30) << left << team.team_name;
-			cout << setw(20) << right << team.number << endl;
+		if (!teams.empty()) {
+			for (int i = 0; i < teams.size(); i++) {
+				cout << setw(5) << left << teams[i].id_team;
+				cout << setw(30) << left << teams[i].team_name;
+				cout << setw(20) << right << teams[i].number << endl;
+			}
 		}
 		break;
 	}
@@ -238,7 +243,7 @@ void handleResponse(char* res) {
 		cout << "User in game!" << endl;
 		break;
 	}
-//5
+					   //5
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Send request to join team successfully" << endl;
 		break;
@@ -264,7 +269,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//6
+					   //6
 	case CREATE_TEAM_SUCCESS: {
 		cout << "Create team success" << endl;
 		declineJoinTeam(res);
@@ -280,14 +285,14 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//7
+								   //7
 	case LOGOUT_SUCCESS: {
 		cout << "Sign out success!" << endl;
 		status = 0;
 		break;
 	}
 
-//8
+						 //8
 	case LEAVE_TEAM_SUCCESS: {
 		cout << "Leave team successfully" << endl;
 		status = 1;
@@ -302,13 +307,13 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//9
+							 //9
 	case GET_TEAMMBER_SUCCESS: {
 		cout << "Get members team successfully!" << endl;
 		cout << "Team member is:" << res + 4 << endl;
 	}
 
-//10
+							   //10
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
 		cout << "List user in waitting room: " << res + 4 << endl;
 		break;
@@ -318,7 +323,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//11
+						   //11
 	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
 		cout << "Send accept request success!" << endl;
 		break;
@@ -340,7 +345,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//12
+									//12
 	case DENY_JOIN_TEAM_SUCCESS: {
 		cout << "Deny join team success!" << endl;
 		break;
@@ -350,7 +355,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//13
+								 //13
 	case INVITE_USER_JOINTEAM_SUCCESS: {
 		cout << "Send invitation success!" << endl;
 		break;
@@ -367,7 +372,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//14
+											 //14
 	case USER_ACCEPT_JOINTEAM_SUCCESS: {
 		cout << "Join team success!" << endl;
 		idYourTeam = atoi(res + 4);
@@ -385,7 +390,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//15
+									//15
 	case USER_REFUSE_JOINTEAM_SUCCESS: {
 		cout << "Refuse success!" << endl;
 		break;
@@ -395,7 +400,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 16
+											  // 16
 	case KICK_USER_SUCCESS: {
 		cout << "Kick success!" << endl;
 		break;
@@ -411,25 +416,26 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//17
+							  //17
 	case GET_ALL_TEAMS: {
 		cout << "Get all team successfully" << endl;
-		handleSplitStr(res + 4);
+		vector<Team> teams = handleSplitStr(res + 4);
 		cout << setw(5) << left << "ID";
 		cout << setw(30) << left << "Team'name";
 		cout << setw(20) << right << "Team'members" << endl;
 		cout << setfill('-');
 		cout << setw(55) << "-" << endl;
 		cout << setfill(' ');
-		for (Team team : t) {
-			cout << setw(5) << left << team.id_team;
-			cout << setw(30) << left << team.team_name;
-			cout << setw(20) << right << team.number << endl;
+		if (!teams.empty()) {
+			for (int i = 0; i < teams.size(); i++) {
+				cout << setw(5) << left << teams[i].id_team;
+				cout << setw(30) << left << teams[i].team_name;
+				cout << setw(20) << right << teams[i].number << endl;
+			}
 		}
 		break;
 	}
-
-//18
+						//18
 	case CHALLENGE_SUCCESS: {
 		cout << "Send challenge success!" << endl;
 		break;
@@ -461,7 +467,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//19
+									//19
 	case MATCHING_GAME_SUCCESS: {
 		cout << "Matching game success!" << endl;
 		break;
@@ -474,7 +480,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//20
+									  //20
 	case REFUSE_CHALLENGE_SUCCESS: {
 		cout << "Refuse challenge success!" << endl;
 		break;
@@ -483,9 +489,9 @@ void handleResponse(char* res) {
 		cout << res + 4 << " refuse your challenge!" << endl;
 		break;
 	}
-//21
-//22
-//23
+									  //21
+									  //22
+									  //23
 	case GET_PERSIONAL_INFO: {
 		int sung[4] = { 0, 0, 0, 0 };
 		int dan[4] = { -1, -1, -1, -1 };
@@ -547,12 +553,12 @@ void handleResponse(char* res) {
 
 			}
 
-			if (count !=  4)token = strtok(NULL, " ");
+			if (count != 4)token = strtok(NULL, " ");
 		}
 		break;
 	}
 
-//24 
+							 //24 
 	case ATTACK_SUCCESS: {
 		cout << "Attack success!" << endl;
 		break;
@@ -629,7 +635,7 @@ void handleResponse(char* res) {
 	case SEND_TO_ALL_USER_WINTEAMS: {
 		break;
 	}
-// 25 
+									// 25 
 	case SEND_TO_ALL_USERS_QUIZ: {
 		cout << "You have quiz!" << endl;
 		char base[BUFF_SIZE];
@@ -642,7 +648,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 26
+								 // 26
 	case ANSWER_TRUE_AND_FASTEST: {
 		cout << "Your answer is true and fastest!" << endl;
 		break;
@@ -660,19 +666,19 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 27
+					   // 27
 	case SURRENDER_SUCCESS: {
 		cout << "Your team surrender success!" << endl;
 		break;
 	}
 	case SEND_TO_ALL_USERS_WINNER_TEAM_ID: {
 		cout << "Team id " << res + 4 << " won!" << endl;
-		
+
 		break;
 	}
 
 
-// 28 
+										   // 28 
 	case OUT_GAME: {
 		cout << res + 4 << " just exited the game" << endl;
 		break;
