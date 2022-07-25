@@ -75,7 +75,7 @@ vector<Team> handleSplitStr(string s)
 void declineJoinTeam(char *res) {
 	string idTeam;
 	idTeam = res + 4;
-	string pre = "261|";
+	string pre = "DECLINE ";
 	int idTeamInInt = stoi(idTeam);
 	for (int i = 0; i < NumberOfTeamInvite; i++) {
 		if (listTeamInvite[i] != idTeamInInt) {
@@ -83,7 +83,7 @@ void declineJoinTeam(char *res) {
 			stringstream ss;
 			ss << listTeamInvite[i];
 			ss >> str;
-			string sendData = pre + str;
+			string sendData = pre + str+ ENDING_DELIMITER;
 			char* returnData = (char*)malloc(sendData.length() * sizeof(char));
 			strcpy(returnData, sendData.c_str());
 			Send(global, returnData, strlen(returnData), 0);

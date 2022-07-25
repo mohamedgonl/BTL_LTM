@@ -115,6 +115,7 @@ using namespace std;
 #define KICK_USER_SUCCESS "370"
 #define USER_WANT_TOKICK_NOT_INTEAM "371"
 #define SEND_TO_USER_KICKED "372"
+#define YOU_CAN_NOT_KICK_YOU "373"
 
 //17
 #define GET_ALL_TEAMS "380"
