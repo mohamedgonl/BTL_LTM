@@ -58,15 +58,15 @@ int showMenu(int *status) {
 		cout << "================ Host ================" << endl;
 		cout << "1. Get users in waiting room" << endl;
 		cout << "2. Verify user want to join team" << endl;
-		cout << "3. Refuse user to join team" << endl;
+		cout << "3. Get list member" << endl;
 		cout << "4. Invite user to join team" << endl;
 		cout << "5. Kick user" << endl;
 		cout << "6. Get all teams" << endl;
 		cout << "7. Challenge team" << endl; 
 		cout << "8. Accept challenge" << endl;
 		cout << "9. Decline challenge" << endl;
-		cout << "10. Surrender" << endl;
-		cout << "Please select your options [1,2,3,4,5,6,7,8,9,10]: ";
+		cout << "10. Out team" << endl;
+		cout << "Please select your options [1,2,3,4,5,6,7,8,9]: ";
 		cin >> userInput;
 		string x;
 		getline(cin, x);
@@ -90,7 +90,7 @@ int showMenu(int *status) {
 	}
 
 	}
-	if (isNumber(userInput) && !crash) {
+	if (isNumber(userInput) && !crash && (userInput.length() < 3)) {
 		return stoi(userInput);
 	}
 	else {
@@ -183,12 +183,7 @@ string handleUserInput(int option) {
 			userInput = "M_ACCEPT " + username;
 		}
 		if (option == 3) {
-			string username;
-			cout << "Username you want to decline :";
-			cin >> username;
-			string x;
-			getline(cin, x);
-			userInput = "M_DECLINE " + username;
+			userInput = "GETMEMBERS";
 		}
 		if (option == 4) {
 			string username;
@@ -227,10 +222,9 @@ string handleUserInput(int option) {
 		}
 		if (option == 9) {
 			userInput = "DECLINECHALLENGE";
-
 		}
 		if (option == 10) {
-			userInput = "SURR";
+			userInput = "OUTTEAM";
 		}
 		break;
 	}
@@ -384,8 +378,10 @@ int main(int argc, char* argv[]) {
 				case 0: {
 					option = showMenu(&status);
 					if (status != 0) break;
+					cout << option << endl;
 					if (option <= 0 || option >= 3) {
 						cout << "Invalid options. Please try again!" << endl;
+						break;
 					}
 					userInput = handleUserInput(option);
 					if (status == 0) prepareToSendRequest = false;
@@ -396,6 +392,7 @@ int main(int argc, char* argv[]) {
 					if (status != 1) break;
 					if (option <= 0 || option >= 6) {
 						cout << "Invalid options. Please try again!" << endl;
+						break;
 					}
 					userInput = handleUserInput(option);
 					if (status == 1) prepareToSendRequest = false;
@@ -406,6 +403,7 @@ int main(int argc, char* argv[]) {
 					if (status != 2) break;
 					if (option <= 0 || option >= 3) {
 						cout << "Invalid options. Please try again!" << endl;
+						break;
 					}
 					userInput = handleUserInput(option);
 					if (status == 2) prepareToSendRequest = false;
@@ -417,6 +415,7 @@ int main(int argc, char* argv[]) {
 					if (status != 3) break;
 					if (option <= 0 || option >= 11) {
 						cout << "Invalid options. Please try again!" << endl;
+						break;
 					}
 					userInput = handleUserInput(option);
 					if (status == 3) prepareToSendRequest = false;
@@ -427,6 +426,7 @@ int main(int argc, char* argv[]) {
 					if (status != 4) break;
 					if (option <= 0 || option >= 7) {
 						cout << "Invalid options. Please try again!" << endl;
+						break;
 					}
 					userInput = handleUserInput(option);
 					if (status == 4) prepareToSendRequest = false;

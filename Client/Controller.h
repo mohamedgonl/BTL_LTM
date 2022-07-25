@@ -146,7 +146,7 @@ void handleResponse(char* res) {
 		cout << "You logged!" << endl;
 		break;
 	}
-						//3
+//3
 	case SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
 		break;
@@ -160,7 +160,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-					   //4
+//4
 	case RES_GETTEAMS_SUCCESS: {
 		cout << "Get teams successfully" << endl;
 		vector<Team>  teams = handleSplitStr(res + 4);
@@ -187,7 +187,7 @@ void handleResponse(char* res) {
 		cout << "User in game!" << endl;
 		break;
 	}
-					   //5
+//5
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Send request to join team successfully" << endl;
 		break;
@@ -213,7 +213,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-					   //6
+//6
 	case CREATE_TEAM_SUCCESS: {
 		cout << "Create team success" << endl;
 		declineJoinTeam(res);
@@ -229,14 +229,14 @@ void handleResponse(char* res) {
 		break;
 	}
 
-								   //7
+//7
 	case LOGOUT_SUCCESS: {
 		cout << "Sign out success!" << endl;
 		status = 0;
 		break;
 	}
 
-						 //8
+//8
 	case LEAVE_TEAM_SUCCESS: {
 		cout << "Leave team successfully" << endl;
 		status = 1;
@@ -251,14 +251,14 @@ void handleResponse(char* res) {
 		break;
 	}
 
-							 //9
+//9
 	case GET_TEAMMBER_SUCCESS: {
 		cout << "Get members team successfully!" << endl;
 		cout << "Team member is:" << res + 4 << endl;
 		break;
 	}
 
-							   //10
+//10
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
 		cout << "List user in waitting room: " << res + 4 << endl;
 		break;
@@ -268,7 +268,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-						   //11
+//11
 	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
 		cout << "Send accept request success!" << endl;
 		break;
@@ -290,7 +290,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-									//12
+//12
 	case DENY_JOIN_TEAM_SUCCESS: {
 		cout << "Deny join team success!" << endl;
 		break;
@@ -321,7 +321,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-											 //14
+//14
 	case USER_ACCEPT_JOINTEAM_SUCCESS: {
 		cout << "Join team success!" << endl;
 		idYourTeam = atoi(res + 4);
