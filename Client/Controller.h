@@ -314,10 +314,6 @@ void handleResponse(char* res) {
 			listTeamInvite[NumberOfTeamInvite] = stoi(idTeam);
 			NumberOfTeamInvite++;
 		}
-		cout << "Danh sach team moi: " << endl;
-		for (int i = 0; i < NumberOfTeamInvite; i++) {
-			cout << listTeamInvite[i] << endl;
-		}
 		break;
 	}
 
