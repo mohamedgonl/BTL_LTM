@@ -238,7 +238,98 @@ unsigned __stdcall workingThread(void* params) {
 					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
 					continue;
 				}
+				LoginSession* loginSession = &dataThread[startIndex].loginSession[index];
+				if (loginSession->userInfo.teamId != -1) {
+					int teamId = loginSession->userInfo.teamId;
+					if (teams[teamId]->members[0] == loginSession) {
+						if (teams[teamId]->roomId != -1) {
+							int roomId = teams[teamId]->roomId;
+							string sendBackData = SEND_TO_ALL_USERS_WINNER_TEAM_ID;
+							int idTeamWin = rooms[teams[teamId]->roomId]->team1->id == teamId ? rooms[teams[teamId]->roomId]->team2->id : rooms[teams[teamId]->roomId]->team1->id;
+							sendBackData = sendBackData + "|" + to_string(idTeamWin);
+							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+							strcpy(dataSend, sendBackData.c_str());
 
+							endGame(teams[teamId]);
+							endGame(teams[idTeamWin]);
+
+							for (int i = 1; i < 3; i++) {
+								Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+							}
+							for (int i = 0; i < 3; i++) {
+								Send(teams[idTeamWin]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+							}
+
+							rooms[roomId] = NULL;
+
+							for (int i = 2; i >= 1; i--) {
+								Send(loginSessions[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								if (teams[teamId]->members[i]) {
+									teams[teamId]->members[i]->userInfo.status = 1;
+									teams[teamId]->members[i]->userInfo.teamId = -1;
+								}
+							}
+							teams[teamId] = NULL;
+
+						}
+						string sendBackData = SEND_TO_TEAM_DISSOLVE;
+						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+						strcpy(dataSend, sendBackData.c_str());
+
+						for (int i = 2; i >= 1; i--) {
+							Send(loginSessions[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+							if (teams[teamId]->members[i]) {
+								teams[teamId]->members[i]->userInfo.status = 1;
+								teams[teamId]->members[i]->userInfo.teamId = -1;
+							}
+						}
+
+						//reset team
+						teams[teamId] = NULL;
+					}
+					else { // not team lead
+						if (teams[teamId]->roomId != -1) {
+							string sendBackData = SEND_TO_HAS_MEMBER_DISCONNECT;
+							sendBackData = sendBackData + "|" + loginSession->userInfo.username;
+							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+							strcpy(dataSend, sendBackData.c_str());
+							int indexOfLeaveUser = -1;
+							for (int i = 0; i < 3; i++) {
+								if (teams[teamId]->members[i] == loginSession) {
+									indexOfLeaveUser = i;
+									break;
+								}
+							}
+							int idTeamOP = rooms[teams[teamId]->roomId]->team1->id == teamId ? rooms[teams[teamId]->roomId]->team2->id : rooms[teams[teamId]->roomId]->team1->id;
+							for (int i = 0; i < 3; i++) {
+								if (indexOfLeaveUser != i) {
+									Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								}
+							}
+							for (int i = 0; i < 3; i++) {
+								Send(teams[idTeamOP]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+							}
+							teams[teamId]->members[indexOfLeaveUser] = NULL;
+						}
+						string sendBackData = SEND_TO_HAS_MEMBER_DISCONNECT;
+						sendBackData = sendBackData + "|" + loginSession->userInfo.username;
+						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+						strcpy(dataSend, sendBackData.c_str());
+						int indexOfLeaveUser = -1;
+						for (int i = 0; i < 3; i++) {
+							if (teams[teamId]->members[i] == loginSession) {
+								indexOfLeaveUser = i;
+								break;
+							}
+						}
+						teams[teamId]->members[indexOfLeaveUser] = NULL;
+					}
+				}
+				for (int i = 0; i < MAX_CLIENT; i++) {
+					if (loginSessions[i] == loginSession) {
+						loginSessions[i] = NULL;
+					}
+				}
 				freeSockInfo(dataThread[startIndex].loginSession, index);
 				closeEventInArray(dataThread[startIndex].events, index);
 				EnterCriticalSection(&critical);
