@@ -83,7 +83,7 @@ void declineJoinTeam(char *res) {
 			stringstream ss;
 			ss << listTeamInvite[i];
 			ss >> str;
-			string sendData = pre + str+ ENDING_DELIMITER;
+			string sendData = pre + str + ENDING_DELIMITER;
 			char* returnData = (char*)malloc(sendData.length() * sizeof(char));
 			strcpy(returnData, sendData.c_str());
 			Send(global, returnData, strlen(returnData), 0);
@@ -278,7 +278,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case USER_IN_ANOTHER_TEAM: {
-		cout << "This user is on another team!" << endl;
+		cout << "This user is in team!" << endl;
 		break;
 	}
 	case SEND_TO_JOIN_TEAM_SUCCESS: {
@@ -323,7 +323,6 @@ void handleResponse(char* res) {
 		idYourTeam = atoi(res + 4);
 		declineJoinTeam(res);
 		status = 2;
-		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
 	}
 	case TEAM_IN_GAME: {
@@ -334,14 +333,18 @@ void handleResponse(char* res) {
 		cout << res + 4 << " accepts your invitation!" << endl;
 		break;
 	}
+	case UNINVITED: {
+		cout << "You were uninvited" << endl;
+		break;
+	}
 
-									//15
+//15
 	case USER_REFUSE_JOINTEAM_SUCCESS: {
 		cout << "Refuse success!" << endl;
 		break;
 	}
 	case SEND_TO_HOST_USER_REFUSE_INVITATION: {
-		cout << res + 4 << "decline your invitation!" << endl;
+		cout << res + 4 << " decline your invitation!" << endl;
 		break;
 	}
 
