@@ -78,6 +78,7 @@ struct Team {
 	int roomId = -1;
 	string userRequestJoinTeam[MAX_CLIENT] = { "" };
 	string userInviteJoinTeam[MAX_CLIENT] = { "" };
+	int teamInviteToChallenge[MAX_TEAM] = { -1 };
 };
 
 // define room struct
