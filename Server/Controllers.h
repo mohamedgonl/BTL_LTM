@@ -979,12 +979,19 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 		return TEAM_LACK_MEMBER;
 	}
 
-	if (teams[enemyTeamId]->name == "") {
+	if (teams[enemyTeamId] == NULL) {
 		return OPONENT_INVALID;
 	}
 
 	if (teams[enemyTeamId]->status == 1) {
 		return OPONENT_IN_GAME;
+	}
+
+	for (int i = 0; i < MAX_TEAM; i++) {
+		if (teams[teamIndex]->teamInviteToChallenge[i] == -1) {
+			teams[teamIndex]->teamInviteToChallenge[i] = i;
+			break;
+		}
 	}
 
 	int numOfEnemyMember = 0;
@@ -1037,6 +1044,17 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		return OPONENT_IN_GAME;
 	}
 
+	int indexInArray = -1;
+	for (int i = 0; i < MAX_TEAM; i++) {
+		if (teams[enemyTeamId]->teamInviteToChallenge[i] == loginSession.userInfo.teamId) {
+			indexInArray = i;
+			break;
+		}
+	}
+
+	if (indexInArray == -1) {
+		return YOUR_TEAM_HAS_NOT_BEEN_CHALLENGE;
+	}
 
 	int teamIndex = loginSession.userInfo.teamId;
 	int numOfMember = 0;
@@ -1098,7 +1116,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		teams[teamIndex]->roomId = roomIndex;
 		teams[teamIndex]->status = 1;
 	}
-
+	teams[enemyTeamId]->teamInviteToChallenge[indexInArray] = 0;
 	return MATCHING_GAME_SUCCESS;
 }
 
@@ -1124,6 +1142,18 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 		return OPONENT_INVALID;
 	}
 
+	int indexInArray = -1;
+	for (int i = 0; i < MAX_TEAM; i++) {
+		if (teams[enemyTeamId]->teamInviteToChallenge[i] == loginSession.userInfo.teamId) {
+			indexInArray = i;
+			break;
+		}
+	}
+
+	if (indexInArray == -1) {
+		return YOUR_TEAM_HAS_NOT_BEEN_CHALLENGE;
+	}
+
 	if (teams[enemyTeamId]->status == 1) {
 		return OPONENT_IN_GAME;
 	}
@@ -1139,6 +1169,7 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 		return REQUEST_FAIL;
 	}
 
+	teams[enemyTeamId]->teamInviteToChallenge[indexInArray] = 0;
 	return REFUSE_CHALLENGE_SUCCESS;
 }
 
@@ -1293,19 +1324,18 @@ string getAllPlayers(UserInfo* userInfo) {
 	Team* team1 = room->team1;
 	Team* team2 = room->team2;
 	string response = GET_INFO_USERS_INGAME;
-	response += "|Team 1:\n";
 	// get member username and hp 
 	//team1
 	for (int i = 0; i < 3; i++) {
+		response += "|";
 		response += team1->members[i]->userInfo.username + " ";
 		for (int j = 0; j < 3; j++) {
 			response += to_string(team1->members[i]->userInfo.HP[j]) + " ";
 		}
-		response += "\n";
 	}
 	//team2;
-	response += "Team2:\n";
 	for (int i = 0; i < 3; i++) {
+		response += "|";
 		response += team2->members[i]->userInfo.username + " ";
 		for (int j = 0; j < 3; j++) {
 			response += to_string(team2->members[i]->userInfo.HP[j]) + " ";
