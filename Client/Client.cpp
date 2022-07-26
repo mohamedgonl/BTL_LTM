@@ -83,6 +83,7 @@ string handleUserInput(int option) {
 	string userInput;
 	switch (status)
 	{
+	// Not logged in yet
 	case 0: {
 		string username;
 		string password;
@@ -90,18 +91,23 @@ string handleUserInput(int option) {
 		getline(cin, username);
 		cout << "Please input your password: ";
 		getline(cin, password);
+		// Login function
 		if (option == 1) {
-			userInput = "LOGIN " + username + " " + password;
+			userInput = "LOGIN " + username + " " + password; 
 		}
+		// SignUp function
 		if (option == 2) {
 			userInput = "SIGNUP " + username + " " + password;
 		}
 		break;
 	}
+	// You are being in waiting room
 	case 1: {
+		// Get information about existing teams
 		if (option == 1) {
 			userInput = "GETTEAMS";
 		}
+		// Want to join team
 		if (option == 2) {
 			string id;
 			cout << "Please input ID team: ";
@@ -110,6 +116,7 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "JOIN " + id;
 		}
+		// Create team
 		if (option == 3) {
 			string teamName;
 			cout << "Please input your name team: ";
@@ -118,10 +125,11 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "CREATE " + teamName;
 		}
+		// Sign out
 		if (option == 4) {
 			userInput = "SIGNOUT";
 		}
-
+		// Accept invitation
 		if (option == 5) {
 			string id;
 			cout << "Accept invitation to join team with id: " ;
@@ -131,29 +139,27 @@ string handleUserInput(int option) {
 			userInput = "ACCEPT " + id;
 
 		}
-		if (option == 6) {
-			string id;
-			cout << "Decline invitation to join team with id: " ;
-			cin >> id;
-			string x;
-			getline(cin, x);
-			userInput = "DECLINE " + id;
-		}
 		break;
 	}
+	// You are a member
 	case 2: {
+		// Get information about team members
 		if (option == 1) {
 			userInput = "GETMEMBERS";
 		}
+		// Out team
 		if (option == 2) {
 			userInput = "OUTTEAM";
 		}
 		break;
 	}
+	// You are a leader
 	case 3: {
+		// Get information user in waiting room
 		if (option == 1) {
 			userInput = "GETUSERS";
 		}
+		// Accept user
 		if (option == 2) {
 			string username;
 			cout << "Username you want to accecpt :";
@@ -162,9 +168,11 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "M_ACCEPT " + username;
 		}
+		// Get information about team members
 		if (option == 3) {
 			userInput = "GETMEMBERS";
 		}
+		// Invite user to join team
 		if (option == 4) {
 			string username;
 			cout << "Username you want to invite: ";
@@ -173,6 +181,7 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "INVITE " + username;
 		}
+		// Kick member
 		if (option == 5) {
 			string username;
 			cout << "Username you want to kick: ";
@@ -181,9 +190,11 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "KICK " + username;
 		}
+		// Get list existing teams
 		if (option == 6) {
 			userInput = "GETTEAMS";
 		}
+		// send challenge
 		if (option == 7) {
 			string teamId;
 			cout << "Team id you want to challenge: ";
@@ -192,6 +203,7 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "CHALLENGE " + teamId;
 		}
+		// accept challenge 
 		if (option == 8) {
 			string teamId;
 			cout << "Team id you want to accept challenge: ";
@@ -200,6 +212,7 @@ string handleUserInput(int option) {
 			getline(cin, x);
 			userInput = "ACCEPTCHALLENGE " + teamId;
 		}
+		// Out team
 		if (option == 9) {
 			userInput = "OUTTEAM";
 		}
@@ -224,6 +237,7 @@ string handleUserInput(int option) {
 	return userInput;
 }
 
+// Reveice Thread
 unsigned __stdcall workerThread(void *param) {
 	SOCKET connectedSocket = *((SOCKET*)param);
 	char buff[BUFF_SIZE];
@@ -287,10 +301,6 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	// Set time-out for receiving
-	//int tv = 100000; //Time-out interval: 10000ms
-	//setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
-
 	// Specify server address
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
@@ -309,69 +319,64 @@ int main(int argc, char* argv[]) {
 	char buff[BUFF_SIZE];
 	int ret;
 	global = client;
+	// Begin workerThread
 	_beginthreadex(0, 0, workerThread, (void *)&client, 0, 0);
 	while (1) {
 
 		int option;
 		while (true) {
 			string userInput;
-			bool prepareToSendRequest = true;
+			bool prepareToSendRequest = true;// True -> prepare; False -> ready to send 
 			while (prepareToSendRequest) {
 				switch (status)
 				{
 				case 0: {
-					option = showMenu(&status);
+					option = showMenu(&status); // Press number
 					if (status != 0) break;
 					if (option <= 0 || option >= 3) {
 						cout << "Invalid options. Please try again!" << endl;
 						break;
 					}
-					userInput = handleUserInput(option);
+					userInput = handleUserInput(option); // Enter command
 					if (status == 0) prepareToSendRequest = false;
 					break;
 				}
 				case 1: {
-					option = showMenu(&status);
+					option = showMenu(&status); // Press number
 					if (status != 1) break;
 					if (option <= 0 || option >= 6) {
 						cout << "Invalid options. Please try again!" << endl;
 						break;
 					}
-					userInput = handleUserInput(option);
-					if (status == 1) prepareToSendRequest = false;
+					userInput = handleUserInput(option); // Enter command
+					if (status == 1) prepareToSendRequest = false; 
 					break;
 				}
 				case 2: {
-					option = showMenu(&status);
+					option = showMenu(&status); // Press number
 					if (status != 2) break;
 					if (option <= 0 || option >= 3) {
 						cout << "Invalid options. Please try again!" << endl;
 						break;
 					}
-					userInput = handleUserInput(option);
+					userInput = handleUserInput(option); // Enter command
 					if (status == 2) prepareToSendRequest = false;
 					break;
 				}
 				case 3: {
-					option = showMenu(&status);
+					option = showMenu(&status); // Press number
 					if (status != 3) break;
 					if (option <= 0 || option >= 11) {
 						cout << "Invalid options. Please try again!" << endl;
 						break;
 					}
-					userInput = handleUserInput(option);
+					userInput = handleUserInput(option); // Enter command
 					if (status == 3) prepareToSendRequest = false;
 					break;
 				}
 				case 4: {
-					/*option = showMenu(&status);
-					if (status != 4) break;
-					if (option <= 0 || option >= 7) {
-						cout << "Invalid options. Please try again!" << endl;
-						break;
-					}*/
-					userInput = handleUserInput(0);
-					if (status == 4) prepareToSendRequest = false;
+					userInput = handleUserInput(0); // Enter command
+					if (status == 4) prepareToSendRequest = false; 
 					break;
 				}
 

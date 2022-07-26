@@ -142,7 +142,7 @@ using namespace std;
 #define GET_INFO_USERS_INGAME 420
 
 //23
-#define GET_PERSIONAL_INFO 430
+#define GET_PERSONAL_INFO 430
 
 //24
 #define ATTACK_SUCCESS 440

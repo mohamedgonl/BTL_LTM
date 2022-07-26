@@ -58,23 +58,6 @@ list<char*> splitMsg(char* msg) {
 	return tmp;
 }
 
-
-int showMenu() {
-	string userInput;
-	cout << "================ Menu ================" << endl;
-	cout << "1. Login " << endl;
-	cout << "2. Post article " << endl;
-	cout << "3. Logout " << endl;
-	cout << "Please select your options [1,2,3]: ";
-	cin >> userInput;
-	if (isNumber(userInput)) {
-		return stoi(userInput);
-	}
-	else {
-		return 0;
-	}
-}
-
 class Team {
 public:
 	string team_name;
@@ -133,7 +116,8 @@ void handleResponse(char* res) {
 	subbuff[3] = '\0';
 	string pre;
 	switch (atoi(subbuff)) {
-		//2
+
+//2
 	case INVALID_COMMAND: {
 		cout << "Command is incorrect!" << endl;
 		break;
@@ -159,6 +143,7 @@ void handleResponse(char* res) {
 		cout << "You logged!" << endl;
 		break;
 	}
+
 //3
 	case SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
@@ -173,7 +158,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
- //4
+//4
 	case RES_GETTEAMS_SUCCESS: {
 		cout << "Get teams successfully" << endl;
 		vector<Team>  teams = handleSplitStr(res + 4);
@@ -200,6 +185,7 @@ void handleResponse(char* res) {
 		cout << "User is in game!" << endl;
 		break;
 	}
+
 //5
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Sending request to join team successfully" << endl;
@@ -271,7 +257,6 @@ void handleResponse(char* res) {
 	}
 
 //9
-	// Sua dinh dang
 	case GET_TEAMMBER_SUCCESS: {
 		cout << "==========Members in team==========" << endl;
 		stringstream ss(res + 4);
@@ -283,7 +268,6 @@ void handleResponse(char* res) {
 	}
 
 //10
-	// Sua dinh dang
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
 		cout << "==========List users in waitting room==========" << endl;
 		stringstream ss(res + 4);
@@ -338,7 +322,6 @@ void handleResponse(char* res) {
 		cout << "Send invitation successfully!" << endl;
 		break;
 	}
-
 	case SEND_TO_RECEIVE_INVITATION_SUCCESS: {
 		cout << endl << "Receive invitation from team id: " << (res + 4) << endl;
 		string idTeam;
@@ -377,7 +360,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_HOST_USER_REFUSE_INVITATION: {
-		cout << res + 4 << " declines your invitation!" << endl;
+		cout << endl << res + 4 << " declines your invitation!" << endl;
 		break;
 	}
 
@@ -465,7 +448,6 @@ void handleResponse(char* res) {
 	}
 	case SEND_TO_ALL_USERS_MATCHGAME: {
 		cout << endl << "Start game!" << endl;
-//		declineChallenge(res + 4);
 		status = 4;
 		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		break;
@@ -557,8 +539,7 @@ void handleResponse(char* res) {
 	}
 
 //23
-	
-	case GET_PERSIONAL_INFO: {
+	case GET_PERSONAL_INFO: {
 		vector<string> userInfo = getPersionalInfo(res + 4);
 		cout << "===========Personal info==========" << endl;
 		if (!userInfo.empty()) {
@@ -596,12 +577,10 @@ void handleResponse(char* res) {
 		cout << "This player is invaild!" << endl;
 		break;
 	}
-	// sua dinh dang
 	case LOADING_BULLET: {
-		cout << "You cannot attack, please waiting to reload bullet!" << endl;
+		cout << "You cannot attack, please waiting " << res + 4 <<  "s to reload bullet!" << endl;
 		break;
 	}
-
 	case SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK: {
 		cout << endl;
 		int count = 0;
@@ -648,7 +627,6 @@ void handleResponse(char* res) {
 				break;
 			}
 			}
-
 			token = strtok(NULL, "|");
 		}
 		break;
@@ -674,11 +652,31 @@ void handleResponse(char* res) {
 	case SEND_TO_ALL_USERS_QUIZ: {
 		cout << endl << "Do a quiz to get coin!" << endl;
 		char base[BUFF_SIZE];
+		int count = 1;
 		strcpy(base, res);
 		char * token = strtok(base + 4, "|");
 		while (token != NULL) {
+			switch (count) {
+			case 1: {
+				cout << "ID: ";
+				break;
+			}
+			case 2: {
+				cout << "Coins: ";
+				break;
+			}
+			case 3: {
+				cout << "Question: ";
+				break;
+			}
+			default: {
+				cout << "Answer " << count - 3 << ": ";
+				break;
+			}
+			}
 			cout << token << endl;
 			token = strtok(NULL, "|");
+			count++;
 		}
 		break;
 	}
