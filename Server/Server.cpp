@@ -52,6 +52,13 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	cout << "Please input the account file directory: ";
+	getline(cin, accountFileDirectory);
+	numOfAccount = getAccountFromTxtFile(accountFileDirectory);
+	cout << "Please input the question file directory: ";
+	getline(cin, questionFileDirectory);
+	numOfQuestion = getQuestionFromTxtFile(questionFileDirectory);
+
 	printf("Server start on port: %d\n", SERVER_PORT);
 
 	// Communicate with client
@@ -60,21 +67,11 @@ int main(int argc, char* argv[]) {
 	// Init array data
 	sockaddr_in clientAddr;
 
-	//for (int i = 0; i < MAX_TEAM; i++) {
-	//	Team* team = new Team;
-	//	teams[i] = team;
-	//}
-	//for (int i = 0; i < MAX_ROOM; i++) {
-	//	Room* room = new Room;
-	//	rooms[i] = room;
-	//}
 	for (int i = 0; i < MAX_THREAD; i++) {
 		for (int j = 0; j < MAX_CLIENT_IN_A_THREAD; j++) {
 			dataThread[i].loginSession[j].socketInfo.connSocket = 0;
 		}
 	}
-	numOfAccount = getAccountFromTxtFile(accountFileDirectory);
-	numOfQuestion = getQuestionFromTxtFile(questionFileDirectory);
 	int clientAddrLen = sizeof(clientAddr);
 	_beginthreadex(0, 0, &sendQuestionThread, NULL, 0, 0);
 	InitializeCriticalSection(&critical);
@@ -132,54 +129,6 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-//int main() {
-//	LoginSession lgs[9];
-//	SocketInfo sk[9];
-//	UserInfo us[9];
-//	for (int i = 0; i < 9; i++) {
-//		us[i].username = "long" + to_string(i);
-//		us[i].status = 1;
-//	}
-//	// team0 user 0 1 2
-//	us[0].status = 3;
-//	us[1].status = 2;
-//	us[2].status = 2;
-//	Team team0;
-//	team0.id = 0;
-//	team0.name = "team0";
-//	for (int i = 0; i < 3; i++) {
-//		us[i].teamId = 0;
-//		team0.members[i] = &lgs[i];
-//	}
-//	teams[0] = &team0;
-//
-//	// team1   user 3 4
-//	us[3].status = 3;
-//	us[4].status = 2;
-//	Team team1;
-//	team1.id = 1;
-//	team1.name = "team1";
-//	for (int i = 3; i < 5; i++) {
-//		us[i].teamId = 1;
-//	}
-//	for (int i = 0; i < 2; i++) {
-//		team1.members[i] = &lgs[i + 3];
-//	}
-//	teams[1] = &team1;
-//
-//	for (int i = 0; i < 9; i++) {
-//		lgs[i].socketInfo = sk[i];
-//		lgs[i].userInfo = us[i];
-//		loginSessions[i] = &lgs[i];
-//	}
-//	// test 
-//	cout <<"1: "<< getAllTeams(&us[0]) << endl;
-//	cout <<"2: "<< joinTeam(&us[5], 1)<<endl;
-//	cout <<"3: "<< getOutTeam(&us[3])<<endl;
-//	cout <<"4: "<< getAllTeams(&us[0]) << endl;
-//	cout <<"5: "<< getTeamMembers(&us[3]) << endl;
-//}
-//
 unsigned __stdcall sendQuestionThread(void* params) {
 	while (true) {
 		createQuestion();

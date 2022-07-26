@@ -530,6 +530,7 @@ void handleResponse(char* res) {
 				cout << setw(10) << left << users[i].hp;
 				cout << setw(10) << left << users[i].armor;
 				cout << setw(10) << left << users[i].coins << endl;
+
 			}
 		}
 		else {

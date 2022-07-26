@@ -92,9 +92,6 @@ int Receive(SOCKET s, char *buff, int size, int flags) {
 	int n;
 
 	n = recv(s, buff, size, flags);
-	if (n == SOCKET_ERROR) {
-		//printf("Error: %", WSAGetLastError());
-	}
 	return n;
 }
 
@@ -102,10 +99,6 @@ int Send(SOCKET s, char *buff, int size, int flags) {
 	int n;
 
 	n = send(s, buff, size, flags);
-	if (n == SOCKET_ERROR) {
-		//printf("Error: %", WSAGetLastError());
-	}
-
 	return n;
 }
 
@@ -139,7 +132,7 @@ vector<string> readFile(string pathname) {
 		myfile.close();
 	}
 	else {
-		cout << "Unable to open file. Please confirm your path to account.txt file./n";
+		cout << "Unable to open file. Please confirm your path to account.txt file.\n";
 	}
 	return inlineData;
 }
@@ -1492,18 +1485,25 @@ string getAllPlayers(UserInfo* userInfo) {
 	// get member username and hp 
 	//team1
 	for (int i = 0; i < 3; i++) {
+		if (team1->members[i] != NULL) {
 		response += "|";
 		response += team1->members[i]->userInfo.username + " ";
 		for (int j = 0; j < 3; j++) {
 			response += to_string(team1->members[i]->userInfo.HP[j]) + " ";
 		}
+		}
+		
 	}
+	response += "\n";
 	//team2;
 	for (int i = 0; i < 3; i++) {
+		if (team2->members[i] != NULL) {
 		response += "|";
 		response += team2->members[i]->userInfo.username + " ";
 		for (int j = 0; j < 3; j++) {
 			response += to_string(team2->members[i]->userInfo.HP[j]) + " ";
+		}
+
 		}
 	}
 	return response;
