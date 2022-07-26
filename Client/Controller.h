@@ -11,6 +11,31 @@
 	return 1;
 }
 
+vector<User> getAllUserIngame(string s) {
+	vector<User> users;
+	vector<string> splitUser;
+	stringstream stream(s);
+	string word;
+	while (getline(stream, word, '|')) {
+		stringstream ss(word);
+		string tmp;
+		while (getline(ss, tmp, ' ')) {
+			splitUser.push_back(tmp);
+		}
+	}
+	if (!splitUser.empty()) {
+		for (int i = 0; i < splitUser.size() - 3; i += 4) {
+			User user;
+			user.username = splitUser[i];
+			user.hp = stoi(splitUser[i + 1]);
+			user.armor = stoi(splitUser[i + 2]);
+			user.coins = stoi(splitUser[i + 3]);
+			users.push_back(user);
+		}
+	}
+	return users;
+}
+
 
 list<char*> splitMsg(char* msg) {
 	list<char*> tmp;
@@ -455,11 +480,79 @@ void handleResponse(char* res) {
 	}
 	case SEND_TO_HOST_OPONENT_REFUSE: {
 		cout << res + 4 << " refuse your challenge!" << endl;
+
 		break;
 	}
-									  //21
-									  //22
-									  //23
+//21
+	case BUY_ITEM_SUCCESS: {
+		cout << "Buy item success!" << endl;
+		break;
+	}
+	case LACK_MONEY: {
+		cout << "Not enough money!" << endl;
+		break;
+	}
+	case INVALID_ITEM: {
+		cout << "Item does not exist!" << endl;
+		break;
+	}
+	case MEMBER_NOT_INGAME: {
+		cout << "You are not in game!" << endl;
+		break;
+	}
+	case MEMBER_IS_DIE_INGAME: {
+		cout << "You were dead!" << endl;
+		break;
+	}
+	case EXCEED_MAX_ITEM: {
+		cout << "Cannot buy this item anymore!" << endl;
+		break;
+	}
+	case FAIL_TRANSACTION: {
+		cout << "Buy item fail!" << endl;
+		break;
+	}
+//22
+	case GET_INFO_USERS_INGAME: {
+		cout << "Get users in game successfully" << endl;
+		vector<User>  users = getAllUserIngame(res + 4);
+		if (!users.empty()) {
+			cout << "===========Team 1==========" << endl;
+			cout << setw(20) << left << "Username";
+			cout << setw(10) << left << "HP";
+			cout << setw(10) << left << "Armor";
+			cout << setw(10) << left << "Coins" << endl;
+			cout << setfill('-');
+			cout << setw(50) << "-" << endl;
+			cout << setfill(' ');
+			for (int i = 0; i < 3; i++) {
+				cout << setw(20) << left << users[i].username;
+				cout << setw(10) << left << users[i].hp;
+				cout << setw(10) << left << users[i].armor;
+				cout << setw(10) << left << users[i].coins << endl;
+			}
+			cout << "==========Team 2==========" << endl;
+			cout << setw(20) << left << "Username";
+			cout << setw(10) << left << "HP";
+			cout << setw(10) << left << "Armor";
+			cout << setw(10) << left << "Coins" << endl;
+			cout << setfill('-');
+			cout << setw(50) << "-" << endl;
+			cout << setfill(' ');
+			for (int i = 3; i < 6; i++) {
+				cout << setw(20) << left << users[i].username;
+				cout << setw(10) << left << users[i].hp;
+				cout << setw(10) << left << users[i].armor;
+				cout << setw(10) << left << users[i].coins << endl;
+			}
+		}
+		else {
+			cout << "There is no team available!";
+		}
+		break;
+	}
+
+//23
 	case GET_PERSIONAL_INFO: {
 		int sung[4] = { 0, 0, 0, 0 };
 		int dan[4] = { -1, -1, -1, -1 };
@@ -526,7 +619,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-							 //24 
+//24 
 	case ATTACK_SUCCESS: {
 		cout << "Attack success!" << endl;
 		break;
@@ -548,6 +641,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK: {
+		cout << endl;
 		int count = 0;
 		char string[BUFF_SIZE];
 		strcpy(string, res);
@@ -574,6 +668,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_ALL_USERS_WHO_DEADS: {
+		cout << endl;
 		int count = 0;
 		char string[BUFF_SIZE];
 		strcpy(string, res);
@@ -597,15 +692,24 @@ void handleResponse(char* res) {
 		break;
 	}
 	case SEND_TO_DEAD_USER_WHO_SHOT: {
-		cout << "Ban da bi ban chet boi " << res + 4 << endl;
+		cout << endl << "Ban da bi ban chet boi " << res + 4 << endl;
 		break;
 	}
-	case SEND_TO_ALL_USER_WINTEAMS: {
+	case SEND_TO_ALL_MEMBER_AT_END: {
+		cout << endl << "Team " << res + 4 << " won!" << endl;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
+		status = 2;
 		break;
 	}
-									// 25 
+	case SEND_TO_ALL_LEADER_AT_END: {
+		cout << endl << "Team " << res + 4 << " won!" << endl;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
+		status = 3;
+		break;
+	}
+// 25 
 	case SEND_TO_ALL_USERS_QUIZ: {
-		cout << "You have quiz!" << endl;
+		cout << endl << "You have quiz!" << endl;
 		char base[BUFF_SIZE];
 		strcpy(base, res);
 		char * token = strtok(base + 4, "|");
@@ -616,7 +720,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-								 // 26
+// 26
 	case ANSWER_TRUE_AND_FASTEST: {
 		cout << "Your answer is true and fastest!" << endl;
 		break;
@@ -634,16 +738,25 @@ void handleResponse(char* res) {
 		break;
 	}
 
-					   // 27
+// 27
 	case SURRENDER_SUCCESS: {
 		cout << "Your team surrender success!" << endl;
+		status = 3;
 		break;
 	}
 	case SEND_TO_ALL_USERS_WINNER_TEAM_ID: {
-		cout << "Team id " << res + 4 << " won!" << endl;
-
+		cout << "Team " << res + 4 << " won!" << endl;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
+		status = 2;
 		break;
 	}
+	case SEND_TO_LEADER_WINNER_TEAM_ID: {
+		cout << "Team " << res + 4 << " won!" << endl;
+		cout << "You just changed status, please press any key + Enter to continue!" << endl;
+		status = 3;
+		break;
+	}
+
 
 
 										   // 28 

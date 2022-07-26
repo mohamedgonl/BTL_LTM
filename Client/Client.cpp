@@ -4,17 +4,13 @@
 #include "FunctionPrototypes.h"
 #include "Controller.h"
 
-struct paramThread {
-	SOCKET connectedSocket;
-	sockaddr_in serverAddr;
-};
 
 int showMenu(int *status) {
-	bool crash = false;
+	bool crash = false; //Check if status just change when showMenu's running, crash will cancel command
 	string userInput;
 	switch (*status)
 	{
-		// not login
+// not login
 	case 0: {
 		cout << "================ Menu ================" << endl;
 		cout << "1. Login " << endl;
@@ -26,7 +22,7 @@ int showMenu(int *status) {
 		if (*status != 0) crash = true;
 		break;
 	}
-			// in waiting room
+// in waiting room
 	case 1: {
 		cout << "================ Waitting ================" << endl;
 		cout << "1. Get list team " << endl;
@@ -41,7 +37,7 @@ int showMenu(int *status) {
 		if (*status != 1) crash = true;
 		break;
 	}
-			// in a team
+// in a team
 	case 2: {
 		cout << "================ In team ================" << endl;
 		cout << "1. Get list member " << endl;
@@ -53,7 +49,7 @@ int showMenu(int *status) {
 		if (*status != 2) crash = true;
 		break;
 	}
-			// host'room
+// host'room
 	case 3: {
 		cout << "================ Host ================" << endl;
 		cout << "1. Get users in waiting room" << endl;
@@ -90,13 +86,13 @@ int showMenu(int *status) {
 
 	}
 	if (isNumber(userInput) && !crash && (userInput.length() < 3)) {
+		// if userInput.length < 3 it will a big number -> INVALID 
 		return stoi(userInput);
 	}
 	else {
 		return 0;
 	}
 }
-
 
 string handleUserInput(int option) {
 	string userInput;
@@ -225,39 +221,18 @@ string handleUserInput(int option) {
 		break;
 	}
 	case 4: {
-		if (option == 1) {
-			string item_name;
-			cout << "Item name you want to buy:";
-			cin >> item_name;
-			string x;
-			getline(cin, x);
-			userInput = "BUY " + item_name;
-		}
-		if (option == 2) {
-			userInput = "GETALL";
-		}
-		if (option == 3) {
-			userInput = "GETMINE";
-		}
-		if (option == 4) {
-			string oponent_name;
-			cout << "Oponent name you want to attack:";
-			cin >> oponent_name;
-			string x;
-			getline(cin, x);
-			userInput = "ATK " + oponent_name;
-		}
-		if (option == 5) {
-			string key;
-			cout << "Input your key" << endl;
-			cin >> key;
-			string x;
-			getline(cin, x);
-			userInput = "ANS " + key;
-		}
-		if (option == 6) {
-			userInput = "SURR";
-		}
+		cout << "1. De mua vat pham : BUY + vat pham" << endl;
+		cout << "vat pham : HP, bArmor(Basic Armor), aArmor(advanced)," << endl;
+		cout << "autogun, laze, rocket" << endl;
+		cout << "2. De lay thong tin cac player trong tran : GETALL" << endl;
+		cout << "3. De lay thong tin chi tiet cua ban : GETMINE" << endl;
+		cout << "4. De tan cong : ATK + ten muc tieu" << endl;
+		cout << "5. De tra loi quiz : ANS + thu tu dap an" << endl;
+		cout << "6. De dau hang(leader) : SURR" << endl;
+		cout << "Go lenh :";
+		cin >> userInput;
+		string x;
+		getline(cin, x);
 		break;
 	}
 	}
@@ -265,7 +240,7 @@ string handleUserInput(int option) {
 	return userInput;
 }
 
-unsigned __stdcall echoThread(void *param) {
+unsigned __stdcall workerThread(void *param) {
 	SOCKET connectedSocket = *((SOCKET*)param);
 	char buff[BUFF_SIZE];
 	int ret;
@@ -345,13 +320,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	printf("Connected server!\n");
-
 	// Communicate with server
 
-	char buff[BUFF_SIZE], temp[BUFF_SIZE];
-	int ret, messageLen, num;
+	char buff[BUFF_SIZE];
+	int ret;
 	global = client;
-	_beginthreadex(0, 0, echoThread, (void *)&client, 0, 0);
+	_beginthreadex(0, 0, workerThread, (void *)&client, 0, 0);
 	while (1) {
 
 		int option;
@@ -406,13 +380,13 @@ int main(int argc, char* argv[]) {
 					break;
 				}
 				case 4: {
-					option = showMenu(&status);
+					/*option = showMenu(&status);
 					if (status != 4) break;
 					if (option <= 0 || option >= 7) {
 						cout << "Invalid options. Please try again!" << endl;
 						break;
-					}
-					userInput = handleUserInput(option);
+					}*/
+					userInput = handleUserInput(0);
 					if (status == 4) prepareToSendRequest = false;
 					break;
 				}
