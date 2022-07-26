@@ -68,21 +68,6 @@ int showMenu(int *status) {
 		if (*status != 3) crash = true;
 		break;
 	}
-	case 4: {
-		cout << "================ In game ================" << endl;
-		cout << "1. BUY item" << endl;
-		cout << "2. Get information in game" << endl;
-		cout << "3. Get own information" << endl;
-		cout << "4. Attack oponent" << endl;
-		cout << "5. Answer quiz" << endl;
-		cout << "6. Surrender" << endl;
-		cout << "Please select your options [1,2,3,4,5,6]: ";
-		cin >> userInput;
-		string x;
-		getline(cin, x);
-		if (*status != 4) crash = true;
-		break;
-	}
 
 	}
 	if (isNumber(userInput) && !crash && (userInput.length() < 3)) {
@@ -221,15 +206,16 @@ string handleUserInput(int option) {
 		break;
 	}
 	case 4: {
-		cout << "1. De mua vat pham : BUY + vat pham" << endl;
-		cout << "vat pham: HP, bArmor(Basic Armor), aArmor(advanced)," << endl;
+		cout << "=====Usage:Type commands as below to buy items=====" << endl;
+		cout << "1. Command to buy items : BUY ITEM_NAME" << endl;
+		cout << "Item: HP, bArmor(Basic Armor), aArmor(advanced)," << endl;
 		cout << "autogun, laze, rocket" << endl;
-		cout << "2. De lay thong tin cac player trong tran : GETALL" << endl;
-		cout << "3. De lay thong tin chi tiet cua ban : GETMINE" << endl;
-		cout << "4. De tan cong : ATK + ten muc tieu" << endl;
-		cout << "5. De tra loi quiz : ANS + thu tu dap an" << endl;
-		cout << "6. De dau hang(leader) : SURR" << endl;
-		cout << "Go lenh :";
+		cout << "2. Get all players'infomation in game : GETALL" << endl;
+		cout << "3. Get your personal information : GETMINE" << endl;
+		cout << "4. Attack oponent : ATK OPONENT_NAME" << endl;
+		cout << "5. Answer quiz : ANS ID KEY" << endl;
+		cout << "6. Surrender oponent(leader) : SURR" << endl;
+		cout << "Input your command : ";
 		getline(cin, userInput);
 		break;
 	}
