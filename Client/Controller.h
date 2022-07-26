@@ -11,6 +11,16 @@
 	return 1;
 }
 
+vector<string> getPersionalInfo(string s) {
+	vector<string> splitPersionalInfo;
+	stringstream stream(s);
+	string word;
+	while (getline(stream, word, ' ')) {
+		splitPersionalInfo.push_back(word);
+	}
+	return splitPersionalInfo;
+}	
+
 vector<User> getAllUserIngame(string s) {
 	vector<User> users;
 	vector<string> splitUser;
@@ -116,28 +126,6 @@ void declineJoinTeam(char *res) {
 	}
 	NumberOfTeamInvite = 0;
 }
-
-
-//void declineChallenge(char *res) {
-//	string idTeam;
-//	idTeam = res + 4;
-//	string pre = "DECLINECHALLENGE ";
-//	int idTeamInInt = stoi(idTeam);
-//	for (int i = 0; i < NumberOfTeamInvite; i++) {
-//		if (listTeamChallenge[i] != idTeamInInt) {
-//			string str;
-//			stringstream ss;
-//			ss << listTeamChallenge[i];
-//			ss >> str;
-//			string sendData = pre + str + ENDING_DELIMITER;
-//			char* returnData = (char*)malloc(sendData.length() * sizeof(char));
-//			strcpy(returnData, sendData.c_str());
-//			Send(global, returnData, strlen(returnData), 0);
-//		}
-//	}
-//	NumberOfTeamChallenge = 0;
-//}
-//
 
 void handleResponse(char* res) {
 	char subbuff[4];
@@ -285,15 +273,24 @@ void handleResponse(char* res) {
 //9
 	// Sua dinh dang
 	case GET_TEAMMBER_SUCCESS: {
-		cout << "Get members team successfully!" << endl;
-		cout << "Team member: " << res + 4 << endl;
+		cout << "==========Members in team==========" << endl;
+		stringstream ss(res + 4);
+		string word;
+		while (getline(ss, word, ' ')) {
+			cout << word << endl;
+		}
 		break;
 	}
 
 //10
 	// Sua dinh dang
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
-		cout << "List users in waitting room: " << res + 4 << endl;
+		cout << "==========List users in waitting room==========" << endl;
+		stringstream ss(res + 4);
+		string word;
+		while (getline(ss, word, ' ')) {
+			cout << word << endl;
+		}
 		break;
 	}
 	case USER_IS_NOT_HOST: {
@@ -316,7 +313,6 @@ void handleResponse(char* res) {
 	}
 	case SEND_TO_JOIN_TEAM_SUCCESS: {
 		cout << endl << "Join team #" << res + 4 << " successfully!" << endl;
-		// Phải từ chối tất cả những team đã mời mình
 		declineJoinTeam(res);
 		status = 2;
 		cout << "You just changed status, please press any key + Enter to continue!" << endl;
@@ -523,7 +519,7 @@ void handleResponse(char* res) {
 //22
 	case GET_INFO_USERS_INGAME: {
 		cout << "Get users in game successfully" << endl;
-		vector<User>  users = getAllUserIngame(res + 4);
+		vector<User> users = getAllUserIngame(res + 4);
 		if (!users.empty()) {
 			cout << "===========Team 1==========" << endl;
 			cout << setw(20) << left << "Username";
@@ -561,68 +557,28 @@ void handleResponse(char* res) {
 	}
 
 //23
-	// sua dinh dang
+	
 	case GET_PERSIONAL_INFO: {
-		int sung[4] = { 0, 0, 0, 0 };
-		int dan[4] = { -1, -1, -1, -1 };
-		int count = 0;
-		char string[BUFF_SIZE];
-		strcpy(string, res);
-		char * token = strtok(string + 4, " ");
-		while (token != NULL) {
-			count++;
-			switch (count) {
-			case 1: {
-				cout << "HP: " << token << endl;
-				break;
-			}
-			case 2: {
-				cout << "ARMOR 1: " << token << endl;
-				break;
-			}
-			case 3: {
-				cout << "ARMOR 2: " << token << endl;
-				break;
-			}
-			case 4: {
-				for (int i = 0; i < 4; i++) {
-					if (atoi(token) > 0) {
-						sung[i] = 1;
-						dan[i] = atoi(token);
-					}
-					token = strtok(NULL, " ");
+		vector<string> userInfo = getPersionalInfo(res + 4);
+		cout << "===========Personal info==========" << endl;
+		if (!userInfo.empty()) {
+			cout << "HP: " << userInfo[0] << endl;
+			cout << "Basic armor: " << userInfo[1] << endl;
+			cout << "Advanced armor: " << userInfo[2] << endl;
+			for (int i = 3; i <= 6; i++) {
+				if (stoi(userInfo[i]) < 0) {
+					cout << "Gun barrel " << (i - 2) << ": No ammo available" << endl;
 				}
-				for (int i = 0; i < 4; i++) {
-					if (atoi(token) > 0) {
-						sung[i] = 2;
-						dan[i] = atoi(token);
-					}
-					token = strtok(NULL, " ");
+				else cout << "Gun barrel " << (i - 2) << ": " << userInfo[i] << endl;
+			}
+			for (int i = 7; i <= 10; i++) {
+				if (stoi(userInfo[i]) < 0) {
+					cout << "Laser beam " << (i - 6) << ": " << "Unavailable" << endl;
 				}
-				for (int i = 0; i < 4; i++) {
-					if (sung[i] == 0) {
-						cout << "Vi tri " << i << ": chua co u sung" << endl;
-					}
-					else if (sung[i] == 1) {
-						cout << "Vi tri " << i << ": sung tu dong " << dan[i] << " vien" << endl;
-					}
-					else if (sung[i] == 2) {
-						cout << "Vi tri " << i << ": sung laze " << dan[i] << " vien" << endl;
-					}
-				}
-				break;
+				else cout << "Laser beam " << (i - 6) << ": " << userInfo[i] << endl;
 			}
-			case 5: {
-				cout << "Rocket: " << token << " qua" << endl;
-				break;
-			}
-			case 6: {
-				cout << "Tien: " << token << " coin" << endl;
-				break;
-			}
-			}
-
-			if (count != 4)token = strtok(NULL, " ");
+			cout << "Rocket: " << userInfo[11] << endl;
+			cout << "Coins: " << userInfo[12] << endl;
 		}
 		break;
 	}
@@ -640,14 +596,12 @@ void handleResponse(char* res) {
 		cout << "This player is invaild!" << endl;
 		break;
 	}
+	// sua dinh dang
 	case LOADING_BULLET: {
 		cout << "You cannot attack, please waiting to reload bullet!" << endl;
 		break;
 	}
-	//case USER_IS_DEAD: {
-	//	cout << "You are dead! :(" << endl;
-	//	break;
-	//}
+
 	case SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK: {
 		cout << endl;
 		int count = 0;
