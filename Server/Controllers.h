@@ -443,6 +443,9 @@ string createTeam(LoginSession* logginSession, string teamName) {
 		newTeam->id = firstBlank;
 		newTeam->members[0] = logginSession;
 		newTeam->name = teamName;
+		for (int k = 0; k < MAX_TEAM; k++) {
+			newTeam->teamInviteToChallenge[k] = -1;
+		}
 		teams[firstBlank] = newTeam;
 		logginSession->userInfo.teamId = firstBlank;
 		logginSession->userInfo.status = 3;
@@ -1209,33 +1212,35 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		teams[teamIndex]->roomId = roomIndex;
 		teams[teamIndex]->status = 1;
 	}
-	teams[enemyTeamId]->teamInviteToChallenge[indexInArray] = 0;
+	teams[enemyTeamId]->teamInviteToChallenge[indexInArray] = -1;
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[teamIndex]->teamInviteToChallenge[i] != -1) {
+				cout << "Debug: check " << teams[teamIndex]->teamInviteToChallenge[i] << endl;
 			if (teams[teams[teamIndex]->teamInviteToChallenge[i]] != NULL) {
+				cout << "Debug: have send;" << endl;
 				if (teams[teams[teamIndex]->teamInviteToChallenge[i]]->status == 0) {
-					string sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
+					sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
 					sendBackData = sendBackData + "|" + loginSession.userInfo.username;
-					char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+					dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 					strcpy(dataSend, sendBackData.c_str());
-					cout << "(Debug) Send to lead of opponent team: " << dataSend << endl;
-					Send(teams[teams[teamIndex]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+					cout << "(Debug) Send to lead of opponent to refuse team: " << dataSend << endl;
+					if (teams[teams[teamIndex]->teamInviteToChallenge[i]]->members[0] != NULL) {
+						Send(teams[teams[teamIndex]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+					}
 				}
-
 			}
 			teams[teamIndex]->teamInviteToChallenge[i] = -1;
 		}
-
 	}
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[enemyTeamId]->teamInviteToChallenge[i] != -1) {
 			if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]] != NULL) {
 				if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->status == 0) {
-					string sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
+					sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
 					sendBackData = sendBackData + "|" + teams[enemyTeamId]->members[0]->userInfo.username;
-					char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+					dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 					strcpy(dataSend, sendBackData.c_str());
-					cout << "(Debug) Send to lead of opponent team: " << dataSend << endl;
+					cout << "(Debug) Send to lead of opponent to refuse team: " << dataSend << endl;
 					Send(teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 				}
 			}
@@ -1312,6 +1317,9 @@ string buyItem(UserInfo* userInfo, string item) {
 	case 4: {
 		//int coin = &(userInfo->coin);
 		if (userInfo->coin == 0) return LACK_MONEY;
+		if (itemsMap.find(item) == itemsMap.end()) {
+			return INVALID_ITEM;
+		}
 		switch (itemsMap.find(item)->second) {
 		case 1:// HP 
 		{
@@ -1462,11 +1470,6 @@ string buyItem(UserInfo* userInfo, string item) {
 			userInfo->rocket = numCanBuy;
 			userInfo->coin -= numCanBuy* Attack[2].b_price;
 			break;
-		}
-		default:
-		{
-			cout << "Item is invalid\n";
-			return INVALID_ITEM;
 		}
 		}
 		return BUY_ITEM_SUCCESS;
