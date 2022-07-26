@@ -356,6 +356,7 @@ unsigned __stdcall workingThread(void* params) {
 				for (int i = 0; i < MAX_CLIENT; i++) {
 					if (loginSessions[i] == loginSession) {
 						loginSessions[i] = NULL;
+						break;
 					}
 				}
 				freeSockInfo(dataThread[startIndex].loginSession, index);

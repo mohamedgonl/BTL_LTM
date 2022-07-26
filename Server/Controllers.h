@@ -9,7 +9,26 @@
 void freeSockInfo(LoginSession* siArray, int n) {
 	closesocket(siArray[n].socketInfo.connSocket);
 	for (int i = n; i < MAX_CLIENT_IN_A_THREAD; i++) {
+		int index = -1;
+		for (int j = 0; j < MAX_CLIENT; j++) {
+			if (loginSessions[j] == &siArray[i + 1]) {
+				index = j;
+				break;
+			}
+		}
 		siArray[i] = siArray[i + 1];
+		if (index != -1) {
+			int teamId = loginSessions[index]->userInfo.teamId;
+			if (teamId != -1) {
+				for (int k = 0; k < 3; k++) {
+					if (teams[teamId]->members[k] == loginSessions[index]) {
+						teams[teamId]->members[k] = &siArray[i];
+						break;
+					}
+				}
+			}
+			loginSessions[index] = &siArray[i];
+		}
 	}
 }
 
@@ -1015,7 +1034,7 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[teamIndex]->teamInviteToChallenge[i] == -1) {
-			teams[teamIndex]->teamInviteToChallenge[i] = i;
+			teams[teamIndex]->teamInviteToChallenge[i] = enemyTeamId;
 			break;
 		}
 	}
@@ -1037,9 +1056,12 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to opponent team invitation to challenge: " << dataSend << endl;
-	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (teams[enemyTeamId]->members[0] != NULL) {
+		int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+
 	}
 	return CHALLENGE_SUCCESS;
 }
