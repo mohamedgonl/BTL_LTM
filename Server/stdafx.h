@@ -28,7 +28,7 @@ using namespace std;
 #define MAX_A_ARMOR 1500
 #define MAX_AUTO_GUN 50
 #define MAX_LAZE 10
-#define MAX_ROCKET 1
+#define MAX_ROCKET 2
 
 #pragma comment (lib, "Ws2_32.lib")
 

@@ -222,7 +222,7 @@ string handleUserInput(int option) {
 	}
 	case 4: {
 		cout << "1. De mua vat pham : BUY + vat pham" << endl;
-		cout << "vat pham : HP, bArmor(Basic Armor), aArmor(advanced)," << endl;
+		cout << "vat pham: HP, bArmor(Basic Armor), aArmor(advanced)," << endl;
 		cout << "autogun, laze, rocket" << endl;
 		cout << "2. De lay thong tin cac player trong tran : GETALL" << endl;
 		cout << "3. De lay thong tin chi tiet cua ban : GETMINE" << endl;
