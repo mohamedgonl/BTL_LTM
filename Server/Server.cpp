@@ -239,37 +239,48 @@ unsigned __stdcall workingThread(void* params) {
 					continue;
 				}
 				LoginSession* loginSession = &dataThread[startIndex].loginSession[index];
+				// User in team
 				if (loginSession->userInfo.teamId != -1) {
 					int teamId = loginSession->userInfo.teamId;
+					// User is leader
 					if (teams[teamId]->members[0] == loginSession) {
+						// Team in game
 						if (teams[teamId]->roomId != -1) {
 							int roomId = teams[teamId]->roomId;
 							string sendBackData = SEND_TO_ALL_USERS_WINNER_TEAM_ID;
-							int idTeamWin = rooms[teams[teamId]->roomId]->team1->id == teamId ? rooms[teams[teamId]->roomId]->team2->id : rooms[teams[teamId]->roomId]->team1->id;
-							sendBackData = sendBackData + "|" + to_string(idTeamWin);
+							int idTeamWin = rooms[roomId]->team1->id == teamId ? rooms[roomId]->team2->id : rooms[roomId]->team1->id;
+							sendBackData = sendBackData + "|" + teams[idTeamWin]->name;
 							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 							strcpy(dataSend, sendBackData.c_str());
 							cout << "(Debug) Send to all member in team about winner team when lead disconnect: " << dataSend << endl;
+
+							for (int i = 1; i < 3; i++) {
+								if (teams[teamId]->members[i] != NULL) {
+									Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								}
+							}
+							for (int i = 1; i < 3; i++) {
+								if (teams[idTeamWin]->members[i] != NULL) {
+									Send(teams[idTeamWin]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								}
+							}
+							string sendBackDataToLeader = SEND_TO_TEAM_LEAD_WINNER_TEAM_ID;
+							idTeamWin = rooms[roomId]->team1->id == teamId ? rooms[roomId]->team2->id : rooms[roomId]->team1->id;
+							sendBackDataToLeader = sendBackDataToLeader + "|" + teams[idTeamWin]->name;
+							 dataSend = (char*)malloc(sendBackDataToLeader.length() * sizeof(char));
+							strcpy(dataSend, sendBackDataToLeader.c_str());
+							cout << "(Debug) Send to leader in team about winner team when lead disconnect: " << dataSend << endl;
 							endGame(teams[teamId]);
 							endGame(teams[idTeamWin]);
 
-							for (int i = 1; i < 3; i++) {
-								Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+							if (teams[teamId]->members[0] != NULL) {
+								Send(teams[teamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 							}
-							for (int i = 0; i < 3; i++) {
-								Send(teams[idTeamWin]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+							if (teams[idTeamWin]->members[0] != NULL) {
+								Send(teams[idTeamWin]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 							}
 
 							rooms[roomId] = NULL;
-
-							for (int i = 2; i >= 1; i--) {
-								Send(loginSessions[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-								if (teams[teamId]->members[i]) {
-									teams[teamId]->members[i]->userInfo.status = 1;
-									teams[teamId]->members[i]->userInfo.teamId = -1;
-								}
-							}
-							teams[teamId] = NULL;
 
 						}
 						string sendBackData = SEND_TO_TEAM_DISSOLVE;
@@ -277,18 +288,19 @@ unsigned __stdcall workingThread(void* params) {
 						strcpy(dataSend, sendBackData.c_str());
 						cout << "(Debug) Send to all member in team about dissolve: " << dataSend << endl;
 						for (int i = 2; i >= 1; i--) {
-							Send(loginSessions[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-							if (teams[teamId]->members[i]) {
+							if (teams[teamId]->members[i] != NULL) {
+								Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 								teams[teamId]->members[i]->userInfo.status = 1;
 								teams[teamId]->members[i]->userInfo.teamId = -1;
 							}
 						}
-
 						//reset team
 						teams[teamId] = NULL;
 					}
 					else { // not team lead
+						// In game
 						if (teams[teamId]->roomId != -1) {
+							int roomId = teams[teamId]->roomId;
 							string sendBackData = SEND_TO_HAS_MEMBER_DISCONNECT;
 							sendBackData = sendBackData + "|" + loginSession->userInfo.username;
 							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
@@ -301,35 +313,50 @@ unsigned __stdcall workingThread(void* params) {
 									break;
 								}
 							}
-							int idTeamOP = rooms[teams[teamId]->roomId]->team1->id == teamId ? rooms[teams[teamId]->roomId]->team2->id : rooms[teams[teamId]->roomId]->team1->id;
+							int idTeamOP = rooms[roomId]->team1->id == teamId ? rooms[roomId]->team2->id : rooms[roomId]->team1->id;
 							for (int i = 0; i < 3; i++) {
 								if (indexOfLeaveUser != i) {
-									Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+									if (teams[teamId]->members[i] != NULL) {
+										Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+									}
 								}
 							}
 							for (int i = 0; i < 3; i++) {
-								Send(teams[idTeamOP]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								if (teams[idTeamOP]->members[i] != NULL) {
+									Send(teams[idTeamOP]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								}
 							}
 							teams[teamId]->members[indexOfLeaveUser] = NULL;
 						}
-						string sendBackData = SEND_TO_HAS_MEMBER_DISCONNECT;
-						sendBackData = sendBackData + "|" + loginSession->userInfo.username;
-						char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
-						strcpy(dataSend, sendBackData.c_str());
-						cout << "(Debug) Send to all member in team about member disconnect: " << dataSend << endl;
-						int indexOfLeaveUser = -1;
-						for (int i = 0; i < 3; i++) {
-							if (teams[teamId]->members[i] == loginSession) {
-								indexOfLeaveUser = i;
-								break;
+						else {// Not in game
+							string sendBackData = SEND_TO_HAS_MEMBER_DISCONNECT;
+							sendBackData = sendBackData + "|" + loginSession->userInfo.username;
+							char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+							strcpy(dataSend, sendBackData.c_str());
+							cout << "(Debug) Send to all member in team about member disconnect: " << dataSend << endl;
+							int indexOfLeaveUser = -1;
+							for (int i = 0; i < 3; i++) {
+								if (teams[teamId]->members[i] == loginSession) {
+									indexOfLeaveUser = i;
+									break;
+								}
+							}
+							if (indexOfLeaveUser != -1) {
+								teams[teamId]->members[indexOfLeaveUser] = NULL;
+							}
+
+							for (int i = 0; i < 3; i++) {
+								if (teams[teamId]->members[i] != NULL) {
+									Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+								}
 							}
 						}
-						teams[teamId]->members[indexOfLeaveUser] = NULL;
 					}
 				}
 				for (int i = 0; i < MAX_CLIENT; i++) {
 					if (loginSessions[i] == loginSession) {
 						loginSessions[i] = NULL;
+						break;
 					}
 				}
 				freeSockInfo(dataThread[startIndex].loginSession, index);

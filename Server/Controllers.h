@@ -9,7 +9,26 @@
 void freeSockInfo(LoginSession* siArray, int n) {
 	closesocket(siArray[n].socketInfo.connSocket);
 	for (int i = n; i < MAX_CLIENT_IN_A_THREAD; i++) {
+		int index = -1;
+		for (int j = 0; j < MAX_CLIENT; j++) {
+			if (loginSessions[j] == &siArray[i + 1]) {
+				index = j;
+				break;
+			}
+		}
 		siArray[i] = siArray[i + 1];
+		if (index != -1) {
+			int teamId = loginSessions[index]->userInfo.teamId;
+			if (teamId != -1) {
+				for (int k = 0; k < 3; k++) {
+					if (teams[teamId]->members[k] == loginSessions[index]) {
+						teams[teamId]->members[k] = &siArray[i];
+						break;
+					}
+				}
+			}
+			loginSessions[index] = &siArray[i];
+		}
 	}
 }
 
@@ -145,23 +164,31 @@ void endGame(Team* team) {
 	team->status = 0;
 	team->roomId = -1;
 	for (int i = 0; i < 3; i++) {
-		team->members[i]->userInfo.coin = 0;
-		for (int j = 0; j < 4; j++) {
-			team->members[i]->userInfo.laze[j] = -90;
+		if (team->members[i] != NULL) {
+			team->members[i]->userInfo.coin = 0;
+			for (int j = 0; j < 4; j++) {
+				team->members[i]->userInfo.laze[j] = -90;
+			}
+			team->members[i]->userInfo.rocket = 0;
+			team->members[i]->userInfo.HP[0] = 1000;
+			team->members[i]->userInfo.HP[1] = 0;
+			team->members[i]->userInfo.HP[2] = 0;
+			team->members[i]->userInfo.autogun[0] = 50;
+			team->members[i]->userInfo.autogun[1] = -200;
+			team->members[i]->userInfo.autogun[2] = -200;
+			team->members[i]->userInfo.autogun[3] = -200;
+			team->members[i]->userInfo.lastTimeATK = 0;
 		}
-		team->members[i]->userInfo.rocket = 0;
-		team->members[i]->userInfo.HP[0] = 1000;
-		team->members[i]->userInfo.HP[1] = 0;
-		team->members[i]->userInfo.HP[2] = 0;
-		team->members[i]->userInfo.autogun[0] = 50;
-		team->members[i]->userInfo.autogun[1] = -200;
-		team->members[i]->userInfo.autogun[2] = -200;
-		team->members[i]->userInfo.autogun[3] = -200;
-		team->members[i]->userInfo.lastTimeATK = 0;
 	}
-	team->members[0]->userInfo.status = 3;
-	team->members[1]->userInfo.status = 2;
-	team->members[2]->userInfo.status = 2;
+	if (team->members[0] != NULL) {
+		team->members[0]->userInfo.status = 3;
+	}
+	if (team->members[1] != NULL) {
+		team->members[1]->userInfo.status = 2;
+	}
+	if (team->members[2] != NULL) {
+		team->members[2]->userInfo.status = 2;
+	}
 }
 void resetUserInfo(UserInfo* userInfo) {
 	userInfo->coin = 0;
@@ -1007,7 +1034,7 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[teamIndex]->teamInviteToChallenge[i] == -1) {
-			teams[teamIndex]->teamInviteToChallenge[i] = i;
+			teams[teamIndex]->teamInviteToChallenge[i] = enemyTeamId;
 			break;
 		}
 	}
@@ -1029,9 +1056,12 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to opponent team invitation to challenge: " << dataSend << endl;
-	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (teams[enemyTeamId]->members[0] != NULL) {
+		int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+
 	}
 	return CHALLENGE_SUCCESS;
 }
@@ -1104,8 +1134,8 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 	cout << "(Debug) Send to all member: " << dataSend << endl;
 	for (int i = 0; i < 3; i++) {
 		if (teams[enemyTeamId]->members[i] != NULL) {
-			teams[enemyTeamId]->members[i]->userInfo.status = 4;
 			Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+			teams[enemyTeamId]->members[i]->userInfo.status = 4;
 
 		}
 	}
@@ -1454,9 +1484,12 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	int enemyTeamId = rooms[roomId]->team1->id == teamId ? rooms[roomId]->team2->id : rooms[roomId]->team1->id;
 	int enemyIndex = -1;
 	for (int i = 0; i < 3; i++) {
-		if (teams[enemyTeamId]->members[i]->userInfo.username == username) {
-			enemyIndex = i;
-			break;
+		if (teams[enemyTeamId]->members[i] != NULL) {
+			if (teams[enemyTeamId]->members[i]->userInfo.username == username) {
+				enemyIndex = i;
+				break;
+			}
+
 		}
 	}
 	if (enemyIndex == -1) {
@@ -1503,74 +1536,104 @@ string attackEnemy(LoginSession &loginSession, string username) {
 
 	// Caculate user info
 	LoginSession* enemy = teams[enemyTeamId]->members[enemyIndex];
-	int i = 2;
-	while (damage > 0) {
-		if (enemy->userInfo.HP[i] > 0) {
-			int reducedHP = damage >= enemy->userInfo.HP[i] ? enemy->userInfo.HP[i] : damage;
-			enemy->userInfo.HP[i] -= reducedHP;
-			damage -= reducedHP;
-		}
-		else {
-			i--;
-		}
-	}
-
-	if (enemy->userInfo.HP[0] == 0) {
-		enemy->userInfo.status == 5;
-		string sendBackData = SEND_TO_DEAD_USER_WHO_SHOT;
-		sendBackData = sendBackData + "|" + loginSession.userInfo.username;
-		char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
-		strcpy(dataSend, sendBackData.c_str());
-		cout << "(Debug) Send to member die: " << dataSend << endl;
-		int ret = Send(enemy->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-		if (ret == SOCKET_ERROR) {
-			return REQUEST_FAIL;
-		}
-		sendBackData = SEND_TO_ALL_USERS_WHO_DEADS;
-		sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + enemy->userInfo.username;
-		dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
-		strcpy(dataSend, sendBackData.c_str());
-		cout << "(Debug) Send to all member about member die: " << dataSend << endl;
-		for (int i = 0; i < 3; i++) {
-			if (i != enemyIndex) {
-				Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+	if (enemy != NULL) {
+		int i = 2;
+		while (damage > 0) {
+			if (enemy->userInfo.HP[i] > 0) {
+				int reducedHP = damage >= enemy->userInfo.HP[i] ? enemy->userInfo.HP[i] : damage;
+				enemy->userInfo.HP[i] -= reducedHP;
+				damage -= reducedHP;
 			}
-		}
-		for (int i = 0; i < 3; i++) {
-			Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-		}
-
-		int numOfDeathPerson = 0;
-
-		for (int i = 0; i < 3; i++) {
-			if (teams[enemyTeamId]->status == 5) {
-				numOfDeathPerson++;
+			else {
+				i--;
 			}
 		}
 
-		if (numOfDeathPerson == 3) {
-			string sendBackData = SEND_TO_ALL_USER_WINTEAMS;
-			sendBackData = sendBackData + "|" + to_string(teamId);
+		if (enemy->userInfo.HP[0] == 0) {
+			enemy->userInfo.status == 5;
+			string sendBackData = SEND_TO_DEAD_USER_WHO_SHOT;
+			sendBackData = sendBackData + "|" + loginSession.userInfo.username;
+			char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+			strcpy(dataSend, sendBackData.c_str());
+			cout << "(Debug) Send to member die: " << dataSend << endl;
+			int ret = Send(enemy->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+			if (ret == SOCKET_ERROR) {
+				return REQUEST_FAIL;
+			}
+			sendBackData = SEND_TO_ALL_USERS_WHO_DEADS;
+			sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + enemy->userInfo.username;
 			dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 			strcpy(dataSend, sendBackData.c_str());
-			cout << "(Debug) Send to all member in room about win: " << dataSend << endl;
+			cout << "(Debug) Send to all member about member die: " << dataSend << endl;
 			for (int i = 0; i < 3; i++) {
-				Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-			}
-			for (int i = 0; i < 3; i++) {
-				if (teams[teamId]->members[i] != &loginSession) {
-					Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+				if (i != enemyIndex) {
+					Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 				}
 			}
-			endGame(teams[teamId]);
-			endGame(teams[enemyTeamId]);
-			rooms[roomId] = NULL;
-			EnterCriticalSection(&critical);
-			numOfRoom--;
-			LeaveCriticalSection(&critical);
-			return sendBackData;
-		}
+			for (int i = 0; i < 3; i++) {
+				Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+			}
 
+			int numOfDeathPerson = 0;
+
+			for (int i = 0; i < 3; i++) {
+				if (teams[enemyTeamId]->members[i] != NULL) {
+					if (teams[enemyTeamId]->members[i]->userInfo.status == 5) {
+						numOfDeathPerson++;
+					}
+
+				}
+				else {
+					numOfDeathPerson++;
+				}
+			}
+
+			if (numOfDeathPerson == 3) {
+				string sendBackData = SEND_TO_ALL_USER_WINTEAMS;
+				sendBackData = sendBackData + "|" + to_string(teamId);
+				dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+				strcpy(dataSend, sendBackData.c_str());
+				cout << "(Debug) Send to all member in room about win: " << dataSend << endl;
+				for (int i = 0; i < 3; i++) {
+					if (teams[enemyTeamId]->members[i] != NULL) {
+						Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+					}
+				}
+				for (int i = 0; i < 3; i++) {
+					if (teams[teamId]->members[i] != NULL) {
+						if (teams[teamId]->members[i] != &loginSession) {
+							Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+						}
+
+					}
+				}
+				string sendBackDataToLeader = SEND_TO_LEADER_WINTEAMS;
+				sendBackDataToLeader = sendBackDataToLeader + "|" + to_string(teamId);
+				dataSend = (char*)malloc(sendBackDataToLeader.length() * sizeof(char));
+				strcpy(dataSend, sendBackDataToLeader.c_str());
+				cout << "(Debug) Send to leader about win: " << dataSend << endl;
+				if (teams[enemyTeamId]->members[0] != NULL) {
+					Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+				}
+				if (teams[teamId]->members[0] != NULL&&teams[teamId]->members[0] != &loginSession) {
+					Send(teams[teamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+
+				}
+				endGame(teams[teamId]);
+				endGame(teams[enemyTeamId]);
+				rooms[roomId] = NULL;
+				EnterCriticalSection(&critical);
+				numOfRoom--;
+				LeaveCriticalSection(&critical);
+				if (teams[teamId]->members[0] == &loginSession) {
+					return sendBackDataToLeader;
+				}
+				else {
+					return sendBackData;
+				}
+			}
+
+		}
 	}
 	string sendBackData = SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK;
 	sendBackData = sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
@@ -1578,17 +1641,20 @@ string attackEnemy(LoginSession &loginSession, string username) {
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to all member in room about attack: " << dataSend << endl;
 	for (int i = 0; i < 3; i++) {
-		Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (teams[enemyTeamId]->members[i] != NULL) {
+			Send(teams[enemyTeamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		}
 	}
 	for (int i = 0; i < 3; i++) {
-		if (teams[teamId]->members[i] != &loginSession) {
-			Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (teams[teamId]->members[i] != NULL) {
+			if (teams[teamId]->members[i] != &loginSession) {
+				Send(teams[teamId]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+			}
 		}
 	}
 
 
-	sendBackData = ATTACK_SUCCESS;
-	return sendBackData + "|" + loginSession.userInfo.username + " " + teams[enemyTeamId]->members[enemyIndex]->userInfo.username + " " + to_string(tempDamage);
+	return sendBackData;
 }
 
 /*
@@ -1704,18 +1770,27 @@ string surrender(LoginSession &loginSession) {
 	string sendBackData = SEND_TO_ALL_USERS_WINNER_TEAM_ID;
 	int roomID = teams[teamIndexUserSurr]->roomId;
 	int idTeamWin = rooms[teams[teamIndexUserSurr]->roomId]->team1->id == teamIndexUserSurr ? rooms[teams[teamIndexUserSurr]->roomId]->team2->id : rooms[teams[teamIndexUserSurr]->roomId]->team1->id;
-	sendBackData = sendBackData + "|" + to_string(idTeamWin);
+	sendBackData = sendBackData + "|" + teams[idTeamWin]->name;
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to all member in room about surrered: " << dataSend << endl;
-	endGame(teams[teamIndexUserSurr]);
-	endGame(teams[idTeamWin]);
 
 	for (int i = 1; i < 3; i++) {
 		Send(teams[teamIndexUserSurr]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
-	for (int i = 0; i < 3; i++) {
+	for (int i = 1; i < 3; i++) {
 		Send(teams[idTeamWin]->members[i]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+	}
+	string sendBackDataToTeamLead = SEND_TO_TEAM_LEAD_WINNER_TEAM_ID;
+	sendBackDataToTeamLead = sendBackDataToTeamLead + "|" + teams[idTeamWin]->name;
+	dataSend = (char*)malloc(sendBackDataToTeamLead.length() * sizeof(char));
+	strcpy(dataSend, sendBackDataToTeamLead.c_str());
+	cout << "(Debug) Send to team lead about surrered: " << dataSend << endl;
+	endGame(teams[teamIndexUserSurr]);
+	endGame(teams[idTeamWin]);
+
+	if (teams[idTeamWin]->members[0] != NULL) {
+		Send(teams[idTeamWin]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 	}
 
 	rooms[roomID] = NULL;

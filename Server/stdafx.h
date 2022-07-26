@@ -163,6 +163,7 @@ using namespace std;
 #define SEND_TO_ALL_USERS_WHO_DEADS "446"
 #define SEND_TO_DEAD_USER_WHO_SHOT "447"
 #define SEND_TO_ALL_USER_WINTEAMS "448"
+#define SEND_TO_LEADER_WINTEAMS "449"
 
 
 //25
@@ -177,6 +178,8 @@ using namespace std;
 //27
 #define SURRENDER_SUCCESS "460"
 #define SEND_TO_ALL_USERS_WINNER_TEAM_ID "461" 
+#define SEND_TO_TEAM_LEAD_WINNER_TEAM_ID "462" 
+
 
 //28
 #define SEND_TO_HAS_MEMBER_DISCONNECT "470"
