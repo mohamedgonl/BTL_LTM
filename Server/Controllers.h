@@ -1310,134 +1310,168 @@ string buyItem(UserInfo* userInfo, string item) {
 	case 3: return MEMBER_NOT_INGAME;
 	case 5: return MEMBER_IS_DIE_INGAME;
 	case 4: {
-		unsigned int* coin = &(userInfo->coin);
-		if (*coin == 0) return LACK_MONEY;
-		else
-			switch (itemsMap.find(item)->second) {
-			case 1:// HP 
-			{
-				int hp = userInfo->HP[0];
+		//int coin = &(userInfo->coin);
+		if (userInfo->coin == 0) return LACK_MONEY;
+		switch (itemsMap.find(item)->second) {
+		case 1:// HP 
+		{
+			int hp = userInfo->HP[0];
 
-				if (hp == MAX_HP) return EXCEED_MAX_ITEM;
-				else
-				{
-					int hp_need = MAX_HP - hp;
-					if (hp_need <= *coin) {
-						userInfo->HP[0] = MAX_HP;
-						userInfo->coin -= MAX_HP - hp;
+			if (hp == MAX_HP) {
+				return EXCEED_MAX_ITEM;
+			}
+
+			int hpNeed = MAX_HP - hp;
+			if (hpNeed <= userInfo->coin) {
+				userInfo->HP[0] = MAX_HP;
+				userInfo->coin -= hpNeed;
+			}
+			else {
+				userInfo->HP[0] += userInfo->coin;
+				userInfo->coin = 0;
+			}
+			break;
+		}
+		case 2://bArmor
+		{
+			int bArmor = userInfo->HP[1];
+			if (bArmor == MAX_B_ARMOR) {
+				return EXCEED_MAX_ITEM;
+			}
+			if (userInfo->coin < Armor[1].price) {
+				return LACK_MONEY;
+			}
+			userInfo->HP[1] = MAX_B_ARMOR;
+			userInfo->coin -= Armor[1].price;
+			break;
+		}
+		case 3://aAmor 
+		{
+			int aArmor = userInfo->HP[2];
+			if (aArmor == MAX_A_ARMOR) {
+				return EXCEED_MAX_ITEM;
+			}
+
+			if (userInfo->coin < Armor[2].price) {
+				return LACK_MONEY;
+			}
+			userInfo->HP[2] = MAX_A_ARMOR;
+			userInfo->coin -= Armor[2].price;
+			break;
+		}
+		case 4://autogun
+		{
+			// full all 4 autoguns
+			bool isFull = true;
+			for (int i = 0; i < 4; i++) {
+				if (userInfo->autogun[i] < MAX_AUTO_GUN) {
+					isFull = false;
+					break;
+				}
+			}
+			if (isFull) {
+				return EXCEED_MAX_ITEM;
+			}
+
+			// Not enough money
+			if (userInfo->coin < Attack[0].b_price) {
+				return LACK_MONEY;
+			}
+
+			// find a new autogun or bullets can buy
+			for (int i = 0; i < 4; i++) {
+				if (userInfo->autogun[i] == MAX_AUTO_GUN) {// That gun if full
+					continue;
+				}
+
+				if (userInfo->autogun[i] < 0) {// Not have gun in that position
+					if (userInfo->coin >= Attack[0].price) {
+						userInfo->autogun[i] = MAX_AUTO_GUN;
+						userInfo->coin -= Attack[0].price;
+						continue;
+					}
+				}
+				else {
+					if (userInfo->coin >= Attack[0].b_price) {// already buy autogun but bulles not full
+						userInfo->autogun[i] = MAX_AUTO_GUN;
+						userInfo->coin -= Attack[0].b_price;
 					}
 					else {
-						userInfo->HP[0] += *coin;
-						userInfo->coin = 0;
+						break;
 					}
 				}
-				break;
 			}
-			case 2://bArmor
-			{
-				int bArmor = userInfo->HP[1];
-				if (bArmor == MAX_B_ARMOR) return EXCEED_MAX_ITEM;
-				else if (*coin >= Armor[1].price) {
-					userInfo->HP[1] = MAX_B_ARMOR;
-					userInfo->coin -= Armor[1].price;
+			break;
+		}
+		case 5://laze
+		{
+			// 4 lazes full
+			bool isFull = true;
+			for (int i = 0; i < 4; i++) {
+				if (userInfo->laze[i] < MAX_LAZE) {
+					isFull = false;
+					break;
 				}
-				else return LACK_MONEY;
-				break;
 			}
-			case 3://aAmor 
-			{
-				int aArmor = userInfo->HP[2];
-				if (aArmor == MAX_A_ARMOR) return EXCEED_MAX_ITEM;
-				else if (*coin >= Armor[2].price) {
-					userInfo->HP[2] = MAX_A_ARMOR;
-					userInfo->coin -= Armor[2].price;
-				}
-				else return LACK_MONEY;
-				break;
+			if (isFull) {
+				return EXCEED_MAX_ITEM;
 			}
-			case 4://autogun
-			{
-				// full all 4 autoguns
-				if (userInfo->autogun[0] == MAX_AUTO_GUN && userInfo->autogun[1] == MAX_AUTO_GUN && userInfo->autogun[2] == MAX_AUTO_GUN&& userInfo->autogun[3] == MAX_AUTO_GUN) return EXCEED_MAX_ITEM;
-				// not enough money to buy bullet
-				else if (*coin < Attack[0].b_price) return LACK_MONEY;
 
+			// not enough money to buy bullets
+			if (userInfo->coin < Attack[1].b_price) {
+				return LACK_MONEY;
+			}
+
+			for (int i = 0; i < 4; i++) {
+				int laze = userInfo->laze[i];
+
+				if (laze >= MAX_LAZE) {
+					continue; // already buy laze and bullets is full
+				}
+
+				if (laze < 0) {	 // not buy laze
+					if (userInfo->coin >= Attack[1].price) { // enough money 
+						userInfo->laze[i] = MAX_LAZE;
+						userInfo->coin -= Attack[1].price;
+					}
+				}
 				else
-					// find a new autogun or bullets can buy
-					for (int i = 0; i < 4; i++) {
-						int a_gun = userInfo->autogun[i];
-
-						if (a_gun >= MAX_AUTO_GUN) continue; // already buy autogun and bullets is full
-						else if (a_gun < 0) {	 // not buy autogun
-							if (*coin >= Attack[0].price) { // enough money 
-								userInfo->autogun[i] = MAX_AUTO_GUN;
-								userInfo->coin -= Attack[0].price;
-							}
-						}
-						else if (a_gun < MAX_AUTO_GUN && a_gun >= 0) { // already buy autogun but bulles not full
-							if (*coin >= Attack[0].b_price) { // enough money
-								userInfo->autogun[i] = MAX_AUTO_GUN;
-								userInfo->coin -= Attack[0].b_price;
-							}
-							else	// when not even enough money to buy bullets -> cant buy anything -> break
-								break;
-						}
+				{ // already buy laze but bulles not full
+					if (userInfo->coin >= Attack[1].b_price) { // enough money
+						userInfo->laze[i] = MAX_LAZE;
+						userInfo->coin -= Attack[1].b_price;
 					}
-				break;
-			}
-			case 5://laze
-			{
-				// 4 lazes full
-				if (userInfo->laze[0] == MAX_LAZE && userInfo->laze[1] == MAX_LAZE &&userInfo->laze[2] == MAX_LAZE &&userInfo->laze[3] == MAX_LAZE) return EXCEED_MAX_ITEM;
-				// not enough money to buy bullets
-				else if (*coin < Attack[1].b_price) return LACK_MONEY;
-
-				else {
-					for (int i = 0; i < 4; i++) {
-						int laze = userInfo->laze[i];
-						if (laze >= MAX_LAZE) continue; // already buy laze and bullets is full
-						else if (laze < 0) {	 // not buy laze
-							if (*coin >= Attack[1].price) { // enough money 
-								userInfo->laze[i] = MAX_LAZE;
-								userInfo->coin -= Attack[1].price;
-							}
-						}
-						else if (laze < MAX_LAZE && laze >= 0) { // already buy laze but bulles not full
-							if (*coin >= Attack[1].b_price) { // enough money
-								userInfo->laze[i] = MAX_LAZE;
-								userInfo->coin -= Attack[1].b_price;
-							}
-							else	// when not even enough money to buy bullets -> cant buy anything -> break
-								break;
-						}
-					}
+					else {
+						break;
+					}// when not even enough money to buy bullets -> cant buy anything -> break
 				}
+			}
+			break;
+		}
+		case 6:// rocket
+		{
+			// full 2 rockets
+			if (userInfo->rocket == MAX_ROCKET) {
+				return EXCEED_MAX_ITEM;
+			}
+			if (userInfo->coin < Attack[2].b_price) {
+				return LACK_MONEY;
+			}
 
-				break;
-			}
-			case 6:// rocket
-			{
-				// full 2 rockets
-				if (userInfo->rocket == MAX_ROCKET) return EXCEED_MAX_ITEM;
-				else if (*coin < Attack[2].b_price) return LACK_MONEY;
-				else {
-					unsigned int numCanBuy = *coin >= 2 * Attack[2].b_price ? 2 : 1;
-					userInfo->rocket = numCanBuy;
-					userInfo->coin -= numCanBuy* Attack[2].b_price;
-				}
-				break;
-			}
-			default:
-				cout << "ERROR at buy item\n";
-				return INVALID_ITEM;
-				break;
-			}
+			int numCanBuy = userInfo->rocket >= 2 * Attack[2].b_price ? 2 : 1;
+			userInfo->rocket = numCanBuy;
+			userInfo->coin -= numCanBuy* Attack[2].b_price;
+			break;
+		}
+		default:
+		{
+			cout << "Item is invalid\n";
+			return INVALID_ITEM;
+		}
+		}
 		return BUY_ITEM_SUCCESS;
 		// switch case 4 end
 	}
-	default:
-		cout << "Error at 21. Buy item function\n";
-		break;
 	}
 }
 
