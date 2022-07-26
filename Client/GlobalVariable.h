@@ -7,3 +7,10 @@ int listTeamInvite[1000];
 int NumberOfTeamInvite = 0;
 int listTeamChallenge[1000];
 int NumberOfTeamChallenge = 0;
+class User {
+public:
+	string username;
+	int hp;
+	int armor;
+	int coins;
+};
