@@ -478,7 +478,10 @@ void handleResponse(char* res) {
 		cout << "Do not receive challenge from this team!" << endl;
 		break;
 	}
-
+	case CHALLLENGED_YOURSELF: {
+		cout << "You cannot challenge yourself!" << endl;
+		break;
+	}
 //20
 	case REFUSE_CHALLENGE_SUCCESS: {
 		cout << "Refuse challenge successfully!" << endl;
@@ -650,7 +653,7 @@ void handleResponse(char* res) {
 		int count = 0;
 		char string[BUFF_SIZE];
 		strcpy(string, res);
-		char * token = strtok(string + 4, " ");
+		char * token = strtok(string + 4, "|");
 		while (token != NULL) {
 			count++;
 			cout << token;
@@ -668,7 +671,7 @@ void handleResponse(char* res) {
 				break;
 			}
 			}
-			token = strtok(NULL, " ");
+			token = strtok(NULL, "|");
 		}
 		break;
 	}
@@ -677,7 +680,7 @@ void handleResponse(char* res) {
 		int count = 0;
 		char string[BUFF_SIZE];
 		strcpy(string, res);
-		char * token = strtok(string + 4, " ");
+		char * token = strtok(string + 4, "|");
 		while (token != NULL) {
 			count++;
 			cout << token;
@@ -692,7 +695,7 @@ void handleResponse(char* res) {
 			}
 			}
 
-			token = strtok(NULL, " ");
+			token = strtok(NULL, "|");
 		}
 		break;
 	}

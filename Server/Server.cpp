@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 unsigned __stdcall sendQuestionThread(void* params) {
 	while (true) {
 		createQuestion();
-		Sleep(5000);
+		Sleep(30000);
 	}
 }
 

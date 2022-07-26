@@ -17,6 +17,7 @@ int numOfQuestion = 0;
 int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
+Question questions[MAX_QUESTION] = {};
 string accountFileDirectory = "C:\\LTM\\BTL_LTM\\Server\\account.txt";
 string questionFileDirectory = "C:\\LTM\\BTL_LTM\\Server\\question.txt";
 map<string, int> action = {

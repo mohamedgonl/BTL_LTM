@@ -66,8 +66,9 @@ struct QuestionDescription {
 struct Question {
 	int id = -1;
 	int status = 0; // 0 has answered, 1: answered
-	QuestionDescription* description;
+	QuestionDescription description;
 };
+
 
 // define team struct
 struct Team {
@@ -89,6 +90,7 @@ struct Room {
 	Team* team1;
 	Team* team2;
 	Question questions[MAX_QUESTION];
+	int currentQuestion = 0;
 };
 
 #endif 

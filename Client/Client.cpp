@@ -230,9 +230,7 @@ string handleUserInput(int option) {
 		cout << "5. De tra loi quiz : ANS + thu tu dap an" << endl;
 		cout << "6. De dau hang(leader) : SURR" << endl;
 		cout << "Go lenh :";
-		cin >> userInput;
-		string x;
-		getline(cin, x);
+		getline(cin, userInput);
 		break;
 	}
 	}
