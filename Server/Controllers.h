@@ -1064,8 +1064,8 @@ string challenge(LoginSession &loginSession, int enemyTeamId) {
 	}
 
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[teamIndex]->teamInviteToChallenge[i] == -1) {
-			teams[teamIndex]->teamInviteToChallenge[i] = enemyTeamId;
+		if (teams[enemyTeamId]->teamInviteToChallenge[i] == -1) {
+			teams[enemyTeamId]->teamInviteToChallenge[i] = teamIndex;
 			break;
 		}
 	}
@@ -1126,7 +1126,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 
 	int indexInArray = -1;
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[enemyTeamId]->teamInviteToChallenge[i] == loginSession.userInfo.teamId) {
+		if (teams[loginSession.userInfo.teamId]->teamInviteToChallenge[i] == enemyTeamId ) {
 			indexInArray = i;
 			break;
 		}
@@ -1212,17 +1212,15 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		teams[teamIndex]->roomId = roomIndex;
 		teams[teamIndex]->status = 1;
 	}
-	teams[enemyTeamId]->teamInviteToChallenge[indexInArray] = -1;
+	teams[teamIndex]->teamInviteToChallenge[indexInArray] = -1;
 	for (int i = 0; i < MAX_TEAM; i++) {
 		if (teams[teamIndex]->teamInviteToChallenge[i] != -1) {
-				cout << "Debug: check " << teams[teamIndex]->teamInviteToChallenge[i] << endl;
 			if (teams[teams[teamIndex]->teamInviteToChallenge[i]] != NULL) {
-				cout << "Debug: have send;" << endl;
 				if (teams[teams[teamIndex]->teamInviteToChallenge[i]]->status == 0) {
-					sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
-					sendBackData = sendBackData + "|" + loginSession.userInfo.username;
+				 string	sendBackDataToRefuse = SEND_TO_HOST_OPONENT_REFUSE;
+					sendBackDataToRefuse = sendBackDataToRefuse + "|" + loginSession.userInfo.username;
 					dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
-					strcpy(dataSend, sendBackData.c_str());
+					strcpy(dataSend, sendBackDataToRefuse.c_str());
 					cout << "(Debug) Send to lead of opponent to refuse team: " << dataSend << endl;
 					if (teams[teams[teamIndex]->teamInviteToChallenge[i]]->members[0] != NULL) {
 						Send(teams[teams[teamIndex]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
@@ -1236,12 +1234,14 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		if (teams[enemyTeamId]->teamInviteToChallenge[i] != -1) {
 			if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]] != NULL) {
 				if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->status == 0) {
-					sendBackData = SEND_TO_HOST_OPONENT_REFUSE;
-					sendBackData = sendBackData + "|" + teams[enemyTeamId]->members[0]->userInfo.username;
+					string	sendBackDataToRefuseEnemy  = SEND_TO_HOST_OPONENT_REFUSE;
+					sendBackDataToRefuseEnemy = sendBackDataToRefuseEnemy + "|" + teams[enemyTeamId]->members[0]->userInfo.username;
 					dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
-					strcpy(dataSend, sendBackData.c_str());
+					strcpy(dataSend, sendBackDataToRefuseEnemy.c_str());
 					cout << "(Debug) Send to lead of opponent to refuse team: " << dataSend << endl;
-					Send(teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+					if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->members[0] != NULL) {
+						Send(teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+					}
 				}
 			}
 			teams[enemyTeamId]->teamInviteToChallenge[i] = -1;
@@ -1277,7 +1277,7 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 
 	int indexInArray = -1;
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[enemyTeamId]->teamInviteToChallenge[i] == loginSession.userInfo.teamId) {
+		if (teams[loginSession.userInfo.teamId]->teamInviteToChallenge[i] == enemyTeamId) {
 			indexInArray = i;
 			break;
 		}
