@@ -20,7 +20,7 @@ using namespace std;
 #define BUFF_SIZE 2048
 #define MAX_CLIENT_IN_A_THREAD 64
 #define MAX_LENGTH_OF_CLIENT_REQUEST 2048
-#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "10.133.246.62"
 #define ENDING_DELIMITER "/"
 #define MAX_THREAD 50
 #define MAX_HP 1000

@@ -17,6 +17,7 @@ int numOfQuestion = 0;
 int numOfThread = 0;
 int numOfConn = 0;
 int SERVER_PORT = 5500;
+char* SERVER_ADDR = "127.0.0.1";
 Question questions[MAX_QUESTION] = {};
 string accountFileDirectory = "F:\\BTL\\BTL_LTM\\Server\\account.txt";
 string questionFileDirectory = "F:\\BTL\\BTL_LTM\\Server\\question.txt";

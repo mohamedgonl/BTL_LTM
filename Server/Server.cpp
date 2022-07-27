@@ -5,10 +5,10 @@
 #include "GlobalVariable.h"
 #pragma once
 int main(int argc, char* argv[]) {
-	if (argc == 2) {
-		if (isNumber(argv[1])) {
-			if (atoi(argv[1]) >= 0 && atoi(argv[1]) <= 65535) {
-				SERVER_PORT = atoi(argv[1]);
+	if (argc == 3) {
+		if (isNumber(argv[2])) {
+			if (atoi(argv[2]) >= 0 && atoi(argv[2]) <= 65535) {
+				SERVER_PORT = atoi(argv[2]);
 			}
 			else {
 				printf("Port is in range 0 to 65535, use 5500 as default port!\n");
@@ -17,10 +17,12 @@ int main(int argc, char* argv[]) {
 		else {
 			printf("Port must be number, use 5500 as default port!\n");
 		}
+		SERVER_ADDR = argv[1];
 	}
 	else {
 		printf("Command line parameter is not valid, use 5500 as default port!\n");
 	}
+
 	// Initiate WinSock
 	WSADATA wsaData;
 	DWORD wVersion = MAKEWORD(2, 2);
@@ -216,7 +218,7 @@ unsigned __stdcall workingThread(void* params) {
 							string sendBackDataToLeader = SEND_TO_TEAM_LEAD_WINNER_TEAM_ID;
 							idTeamWin = rooms[roomId]->team1->id == teamId ? rooms[roomId]->team2->id : rooms[roomId]->team1->id;
 							sendBackDataToLeader = sendBackDataToLeader + "|" + teams[idTeamWin]->name;
-							 dataSend = (char*)malloc(sendBackDataToLeader.length() * sizeof(char));
+							dataSend = (char*)malloc(sendBackDataToLeader.length() * sizeof(char));
 							strcpy(dataSend, sendBackDataToLeader.c_str());
 							cout << "(Debug) Send to leader in team about winner team when lead disconnect: " << dataSend << endl;
 							endGame(teams[teamId]);
@@ -378,6 +380,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 					responseData = joinTeam(&loginSession.userInfo, atoi(splitData(it, " ")[1].c_str()));
 					break;
 				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -451,6 +458,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 					responseData = acceptInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
 					break;
 				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -462,6 +474,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
 					responseData = declineInvitedToJoinTeam(loginSession, atoi(splitData(it, " ")[1].c_str()));
 					break;
+				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
 				}
 			}
 			else {
@@ -490,6 +507,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 					responseData = challenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
 					break;
 				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -502,6 +524,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 					responseData = acceptChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
 					break;
 				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
+				}
 			}
 			else {
 				responseData = INVALID_COMMAND;
@@ -513,6 +540,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
 					responseData = declineChallenge(loginSession, atoi(splitData(it, " ")[1].c_str()));
 					break;
+				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
 				}
 			}
 			else {
@@ -555,6 +587,11 @@ char* handleResponse(char* it, LoginSession &loginSession) {
 				if (isNumber((char*)splitData(it, " ")[1].c_str())) {
 					responseData = answerQuiz(loginSession, atoi(splitData(it, " ")[1].c_str()), splitData(it, " ")[2]);
 					break;
+				}
+				else {
+					responseData = INVALID_COMMAND;
+					break;
+
 				}
 			}
 			else {
