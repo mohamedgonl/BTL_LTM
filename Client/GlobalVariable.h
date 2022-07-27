@@ -14,3 +14,9 @@ public:
 	int armor;
 	int coins;
 };
+class Team {
+public:
+	string team_name;
+	int id_team;
+	int number;
+};

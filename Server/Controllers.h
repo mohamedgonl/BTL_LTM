@@ -6,7 +6,11 @@
 
 #ifndef Handle WSA Event
 
-
+/**
+* @funtion Swap: swap two Question pointer.
+* @param number_1: a Question pointer.
+* @param number_2: a Question pointer.
+**/
 void Swap(Question* number_1, Question* number_2)
 {
 	Question temp = *number_1;
@@ -14,10 +18,14 @@ void Swap(Question* number_1, Question* number_2)
 	*number_2 = temp;
 }
 
+/**
+* @funtion ShuffleArray: Randomly change the position of elements.
+* @param arr: a Question pointer.
+* @param n: size of Question array.
+**/
 void ShuffleArray(Question* arr, int n)
 {
 	srand(time(NULL));
-
 	int minPosition;
 	int maxPosition = n - 1;
 	int swapPosition;
@@ -63,6 +71,7 @@ void closeEventInArray(WSAEVENT* eventArr, int n) {
 		eventArr[i] = eventArr[i + 1];
 }
 
+
 vector<string> splitData(string inlineData, string del)
 {
 	vector<string> data;
@@ -76,6 +85,7 @@ vector<string> splitData(string inlineData, string del)
 	data.push_back(inlineData.substr(start, end - start));
 	return data;
 }
+
 
 list<char*> splitMsg(char* msg) {
 	list<char*> tmp;
@@ -101,6 +111,7 @@ int Send(SOCKET s, char *buff, int size, int flags) {
 	n = send(s, buff, size, flags);
 	return n;
 }
+
 
 int isNumber(char* text) {
 	int j = strlen(text);

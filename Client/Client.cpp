@@ -5,6 +5,13 @@
 #include "Controller.h"
 
 
+/**
+* @funtion showMenu: show features, allowing users to choose through number input.
+* crash is variable to control change of status
+* @param status: a int pointer (status of client).
+* @return:	a number 
+			0 if invalid or status changes
+**/
 int showMenu(int *status) {
 	bool crash = false; //Check if status just change when showMenu's running, crash will cancel command
 	string userInput;
@@ -79,6 +86,11 @@ int showMenu(int *status) {
 	}
 }
 
+/**
+* @funtion handleUserInput: build message.
+* @param option: int.
+* @return:	string - message client wants to send to server
+**/
 string handleUserInput(int option) {
 	string userInput;
 	switch (status)
@@ -402,8 +414,3 @@ int main(int argc, char* argv[]) {
 
 	return 0;
 }
-
-//string handleUserInput(string userInput) {
-//	// Handle user input here
-//	return userInput;
-//}
