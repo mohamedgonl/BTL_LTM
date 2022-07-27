@@ -389,9 +389,12 @@ string joinTeam(UserInfo* userInfo, unsigned int teamId) {
 					char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 					strcpy(dataSend, sendBackData.c_str());
 					cout << "(Debug) Send to user invitation: " << dataSend << endl;
-					int ret = Send(teams[teamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-					if (ret == SOCKET_ERROR) {
-						return REQUEST_FAIL;
+					if (teams[teamId]->members[0] != NULL) {
+						int ret = Send(teams[teamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+						if (ret == SOCKET_ERROR) {
+							return REQUEST_FAIL;
+						}
+
 					}
 					for (int i = 0; i < MAX_CLIENT; i++) {
 						if (teams[teamId]->userRequestJoinTeam[i] == "") {
@@ -664,9 +667,12 @@ string acceptRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUse
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to user want to join team: " << dataSend << endl;
-	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (loginSessions[userIndex] != NULL) {
+		int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+
 	}
 
 	// Handle success accept user
@@ -732,9 +738,12 @@ string declineRequestJoinTeam(LoginSession &loginSession, string nameOfRequestUs
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	cout << "(Debug) Send to user want to join team: " << dataSend << endl;
 	strcpy(dataSend, sendBackData.c_str());
-	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (loginSessions[userIndex] != NULL) {
+		int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+
 	}
 
 	// Handle success accept user
@@ -796,9 +805,12 @@ string inviteJoinTeam(LoginSession &loginSession, string usernameUser) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to user invitation: " << dataSend << endl;
-	int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (loginSessions[userIndex] != NULL) {
+		int ret = Send(loginSessions[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+
 	}
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
@@ -863,9 +875,12 @@ string acceptInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to lead of team: " << dataSend << endl;
-	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (teams[teamID]->members[0] != NULL) {
+		int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+
 	}
 
 	teams[teamID]->userInviteJoinTeam[indexInArray] = "";
@@ -913,9 +928,11 @@ string declineInvitedToJoinTeam(LoginSession &loginSession, int teamID) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to lead of team: " << dataSend << endl;
-	int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (teams[teamID]->members[0] != NULL) {
+		int ret = Send(teams[teamID]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
 	}
 	teams[teamID]->userInviteJoinTeam[indexInArray] = "";
 	// Handle success accept user
@@ -963,13 +980,16 @@ string kickUserOutRoom(LoginSession &loginSession, string username) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to user has been kicked: " << dataSend << endl;
-	int ret = Send(teams[loginSession.userInfo.teamId]->members[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
+	if (teams[loginSession.userInfo.teamId]->members[userIndex] != NULL) {
+		int ret = Send(teams[loginSession.userInfo.teamId]->members[userIndex]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
+		teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.status = 1;
+		teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.teamId = -1;
+		teams[loginSession.userInfo.teamId]->members[userIndex] = NULL;
+
 	}
-	teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.status = 1;
-	teams[loginSession.userInfo.teamId]->members[userIndex]->userInfo.teamId = -1;
-	teams[loginSession.userInfo.teamId]->members[userIndex] = NULL;
 
 	// Handle success accept user
 	return KICK_USER_SUCCESS;
@@ -1119,7 +1139,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 
 	int indexInArray = -1;
 	for (int i = 0; i < MAX_TEAM; i++) {
-		if (teams[loginSession.userInfo.teamId]->teamInviteToChallenge[i] == enemyTeamId ) {
+		if (teams[loginSession.userInfo.teamId]->teamInviteToChallenge[i] == enemyTeamId) {
 			indexInArray = i;
 			break;
 		}
@@ -1210,7 +1230,7 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		if (teams[teamIndex]->teamInviteToChallenge[i] != -1) {
 			if (teams[teams[teamIndex]->teamInviteToChallenge[i]] != NULL) {
 				if (teams[teams[teamIndex]->teamInviteToChallenge[i]]->status == 0) {
-				 string	sendBackDataToRefuse = SEND_TO_HOST_OPONENT_REFUSE;
+					string	sendBackDataToRefuse = SEND_TO_HOST_OPONENT_REFUSE;
 					sendBackDataToRefuse = sendBackDataToRefuse + "|" + loginSession.userInfo.username;
 					dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 					strcpy(dataSend, sendBackDataToRefuse.c_str());
@@ -1227,12 +1247,12 @@ string acceptChallenge(LoginSession &loginSession, int enemyTeamId) {
 		if (teams[enemyTeamId]->teamInviteToChallenge[i] != -1) {
 			if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]] != NULL) {
 				if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->status == 0) {
-					string	sendBackDataToRefuseEnemy  = SEND_TO_HOST_OPONENT_REFUSE;
-					sendBackDataToRefuseEnemy = sendBackDataToRefuseEnemy + "|" + teams[enemyTeamId]->members[0]->userInfo.username;
-					dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
-					strcpy(dataSend, sendBackDataToRefuseEnemy.c_str());
-					cout << "(Debug) Send to lead of opponent to refuse team: " << dataSend << endl;
 					if (teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->members[0] != NULL) {
+						string	sendBackDataToRefuseEnemy = SEND_TO_HOST_OPONENT_REFUSE;
+						sendBackDataToRefuseEnemy = sendBackDataToRefuseEnemy + "|" + teams[enemyTeamId]->members[0]->userInfo.username;
+						dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
+						strcpy(dataSend, sendBackDataToRefuseEnemy.c_str());
+						cout << "(Debug) Send to lead of opponent to refuse team: " << dataSend << endl;
 						Send(teams[teams[enemyTeamId]->teamInviteToChallenge[i]]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
 					}
 				}
@@ -1290,11 +1310,14 @@ string declineChallenge(LoginSession &loginSession, int enemyTeamId) {
 	char* dataSend = (char*)malloc(sendBackData.length() * sizeof(char));
 	strcpy(dataSend, sendBackData.c_str());
 	cout << "(Debug) Send to lead of opponent team: " << dataSend << endl;
-	int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
-	if (ret == SOCKET_ERROR) {
-		return REQUEST_FAIL;
-	}
+	if (teams[enemyTeamId]->members[0] != NULL) {
+		int ret = Send(teams[enemyTeamId]->members[0]->socketInfo.connSocket, dataSend, strlen(dataSend), 0);
+		if (ret == SOCKET_ERROR) {
+			return REQUEST_FAIL;
+		}
 
+
+	}
 	teams[enemyTeamId]->teamInviteToChallenge[indexInArray] = 0;
 	return REFUSE_CHALLENGE_SUCCESS;
 }
@@ -1486,23 +1509,23 @@ string getAllPlayers(UserInfo* userInfo) {
 	//team1
 	for (int i = 0; i < 3; i++) {
 		if (team1->members[i] != NULL) {
-		response += "|";
-		response += team1->members[i]->userInfo.username + " ";
-		for (int j = 0; j < 3; j++) {
-			response += to_string(team1->members[i]->userInfo.HP[j]) + " ";
+			response += "|";
+			response += team1->members[i]->userInfo.username + " ";
+			for (int j = 0; j < 3; j++) {
+				response += to_string(team1->members[i]->userInfo.HP[j]) + " ";
+			}
 		}
-		}
-		
+
 	}
 	response += "\n";
 	//team2;
 	for (int i = 0; i < 3; i++) {
 		if (team2->members[i] != NULL) {
-		response += "|";
-		response += team2->members[i]->userInfo.username + " ";
-		for (int j = 0; j < 3; j++) {
-			response += to_string(team2->members[i]->userInfo.HP[j]) + " ";
-		}
+			response += "|";
+			response += team2->members[i]->userInfo.username + " ";
+			for (int j = 0; j < 3; j++) {
+				response += to_string(team2->members[i]->userInfo.HP[j]) + " ";
+			}
 
 		}
 	}
@@ -1846,8 +1869,11 @@ string surrender(LoginSession &loginSession) {
 		return MEMBER_NOT_INGAME;
 	}
 
-	if (loginSession.userInfo.username != teams[loginSession.userInfo.teamId]->members[0]->userInfo.username) {
-		return USER_IS_NOT_HOST;
+	if (teams[loginSession.userInfo.teamId]->members[0] != NULL) {
+		if (loginSession.userInfo.username != teams[loginSession.userInfo.teamId]->members[0]->userInfo.username) {
+			return USER_IS_NOT_HOST;
+		}
+
 	}
 
 	if (loginSession.userInfo.status == 5) {

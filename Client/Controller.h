@@ -1,4 +1,18 @@
-﻿int isNumber(string text) {
+﻿vector<string> splitData(string inlineData, string del)
+{
+	vector<string> data;
+	int start = 0;
+	int end = inlineData.find(del);
+	while (end != -1) {
+		data.push_back(inlineData.substr(start, end - start));
+		start = end + del.size();
+		end = inlineData.find(del, start);
+	}
+	data.push_back(inlineData.substr(start, end - start));
+	return data;
+}
+
+int isNumber(string text) {
 	int j;
 	j = text.length();
 	while (j--)
@@ -19,7 +33,7 @@ vector<string> getPersionalInfo(string s) {
 		splitPersionalInfo.push_back(word);
 	}
 	return splitPersionalInfo;
-}	
+}
 
 vector<User> getAllUserIngame(string s) {
 	vector<User> users;
@@ -117,7 +131,7 @@ void handleResponse(char* res) {
 	string pre;
 	switch (atoi(subbuff)) {
 
-//2
+		//2
 	case INVALID_COMMAND: {
 		cout << "Command is incorrect!" << endl;
 		break;
@@ -144,7 +158,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//3
+						//3
 	case SIGNUP_SUCCESS: {
 		cout << "Sign up successful!" << endl;
 		break;
@@ -158,7 +172,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//4
+					   //4
 	case RES_GETTEAMS_SUCCESS: {
 		cout << "Get teams successfully" << endl;
 		vector<Team>  teams = handleSplitStr(res + 4);
@@ -186,7 +200,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//5
+					   //5
 	case SEND_REQUEST_JOINTEAM_SUCCESS: {
 		cout << "Sending request to join team successfully" << endl;
 		break;
@@ -212,7 +226,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//6
+					   //6
 	case CREATE_TEAM_SUCCESS: {
 		cout << "Create team successfully!" << endl;
 		declineJoinTeam(res);
@@ -228,14 +242,14 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//7
+								   //7
 	case LOGOUT_SUCCESS: {
 		cout << "Sign out successfully!" << endl;
 		status = 0;
 		break;
 	}
 
-//8
+						 //8
 	case LEAVE_TEAM_SUCCESS: {
 		cout << "Leave team successfully!" << endl;
 		status = 1;
@@ -246,17 +260,17 @@ void handleResponse(char* res) {
 		break;
 	}
 	case TEAM_WAS_DISSOLVED: {
-		cout << endl <<  "Your team was dissolved!" << endl;
+		cout << endl << "Your team was dissolved!" << endl;
 		cout << "You just changed status, please press any key + Enter to continue!" << endl;
 		status = 1;
 		break;
-	}	
+	}
 	case MEMBER_LEAVE: {
 		cout << endl << res + 4 << " leave your team!" << endl;
 		break;
 	}
 
-//9
+					   //9
 	case GET_TEAMMBER_SUCCESS: {
 		cout << "==========Members in team==========" << endl;
 		stringstream ss(res + 4);
@@ -267,7 +281,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//10
+							   //10
 	case GETUSERS_IN_WAITINGROOM_SUCCESS: {
 		cout << "==========List users in waitting room==========" << endl;
 		stringstream ss(res + 4);
@@ -282,7 +296,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//11
+						   //11
 	case ACCEPT_USER_JOIN_TEAM_SUCCESS: {
 		cout << "Send accept request successfully!" << endl;
 		break;
@@ -307,7 +321,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//12
+									  //12
 	case DENY_JOIN_TEAM_SUCCESS: {
 		cout << "Deny join team successfully!" << endl;
 		break;
@@ -317,7 +331,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//13
+								 //13
 	case INVITE_USER_JOINTEAM_SUCCESS: {
 		cout << "Send invitation successfully!" << endl;
 		break;
@@ -333,7 +347,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//14
+											 //14
 	case USER_ACCEPT_JOINTEAM_SUCCESS: {
 		cout << "Join team successfully!" << endl;
 		idYourTeam = atoi(res + 4);
@@ -354,7 +368,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//15
+					//15
 	case USER_REFUSE_JOINTEAM_SUCCESS: {
 		cout << "Refuse successfully!" << endl;
 		break;
@@ -364,7 +378,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 16
+											  // 16
 	case KICK_USER_SUCCESS: {
 		cout << "Kick member successfully!" << endl;
 		break;
@@ -384,7 +398,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//17
+					  //17
 	case GET_ALL_TEAMS: {
 		cout << "Get all team successfully" << endl;
 		vector<Team> teams = handleSplitStr(res + 4);
@@ -404,7 +418,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//18
+						//18
 	case CHALLENGE_SUCCESS: {
 		cout << "Send challenge successfully!" << endl;
 		break;
@@ -440,7 +454,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//19
+									//19
 	case MATCHING_GAME_SUCCESS: {
 		cout << "Matching game successfully!" << endl;
 		status = 4;
@@ -460,7 +474,7 @@ void handleResponse(char* res) {
 		cout << "You cannot challenge yourself!" << endl;
 		break;
 	}
-//20
+							   //20
 	case REFUSE_CHALLENGE_SUCCESS: {
 		cout << "Refuse challenge successfully!" << endl;
 		break;
@@ -469,7 +483,7 @@ void handleResponse(char* res) {
 		cout << res + 4 << " refuses your challenge!" << endl;
 		break;
 	}
-//21
+									  //21
 	case BUY_ITEM_SUCCESS: {
 		cout << "Buy item successfully!" << endl;
 		break;
@@ -498,48 +512,51 @@ void handleResponse(char* res) {
 		cout << "Buy item fail!" << endl;
 		break;
 	}
-//22
+						   //22
 	case GET_INFO_USERS_INGAME: {
 		cout << "Get users in game successfully" << endl;
-		vector<User> users = getAllUserIngame(res + 4);
-		if (!users.empty()) {
-			cout << "===========Team 1==========" << endl;
-			cout << setw(20) << left << "Username";
-			cout << setw(10) << left << "HP";
-			cout << setw(10) << left << "Armor";
-			cout << setw(10) << left << "Coins" << endl;
-			cout << setfill('-');
-			cout << setw(50) << "-" << endl;
-			cout << setfill(' ');
-			for (int i = 0; i < 3; i++) {
-				cout << setw(20) << left << users[i].username;
-				cout << setw(10) << left << users[i].hp;
-				cout << setw(10) << left << users[i].armor;
-				cout << setw(10) << left << users[i].coins << endl;
+		vector<string> splitTeam;
+		vector<string> listString1;
+		vector<string> listString2;
+		splitTeam = splitData(res + 4, "\n");
+		listString1 = splitData(splitTeam[0], "|");
+		listString2 = splitData(splitTeam[1].substr(1), "|");
+		cout << "===========Team 1==========" << endl;
+		cout << setw(20) << left << "Username";
+		cout << setw(10) << left << "HP";
+		cout << setw(10) << left << "Armor";
+		cout << setw(10) << left << "Coins" << endl;
+		cout << setfill('-');
+		cout << setw(50) << "-" << endl;
+		cout << setfill(' ');
+		if (!listString1.empty()) {
+			for (int i = 0; i < listString1.size(); i++) {
+				cout << setw(20) << left << splitData(listString1[i], " ")[0];
+				cout << setw(10) << left << splitData(listString1[i], " ")[1];
+				cout << setw(10) << left << splitData(listString1[i], " ")[2];
+				cout << setw(10) << left << splitData(listString1[i], " ")[3] << endl;
 			}
-			cout << "==========Team 2==========" << endl;
-			cout << setw(20) << left << "Username";
-			cout << setw(10) << left << "HP";
-			cout << setw(10) << left << "Armor";
-			cout << setw(10) << left << "Coins" << endl;
-			cout << setfill('-');
-			cout << setw(50) << "-" << endl;
-			cout << setfill(' ');
-			for (int i = 3; i < 6; i++) {
-				cout << setw(20) << left << users[i].username;
-				cout << setw(10) << left << users[i].hp;
-				cout << setw(10) << left << users[i].armor;
-				cout << setw(10) << left << users[i].coins << endl;
 
-			}
 		}
-		else {
-			cout << "There is no team available!";
+		cout << "===========Team 2==========" << endl;
+		cout << setw(20) << left << "Username";
+		cout << setw(10) << left << "HP";
+		cout << setw(10) << left << "Armor";
+		cout << setw(10) << left << "Coins" << endl;
+		cout << setfill('-');
+		cout << setw(50) << "-" << endl;
+		cout << setfill(' ');
+		if (!listString2.empty()) {
+			for (int i = 0; i < listString2.size(); i++) {
+				cout << setw(20) << left << splitData(listString2[i], " ")[0];
+				cout << setw(10) << left << splitData(listString2[i], " ")[1];
+				cout << setw(10) << left << splitData(listString2[i], " ")[2];
+				cout << setw(10) << left << splitData(listString2[i], " ")[3] << endl;
+			}
+
 		}
 		break;
-	}
-
-//23
+	}//23
 	case GET_PERSONAL_INFO: {
 		vector<string> userInfo = getPersionalInfo(res + 4);
 		cout << "===========Personal info==========" << endl;
@@ -565,7 +582,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-//24 
+							//24 
 	case ATTACK_SUCCESS: {
 		cout << "Attack successfully!" << endl;
 		break;
@@ -579,7 +596,7 @@ void handleResponse(char* res) {
 		break;
 	}
 	case LOADING_BULLET: {
-		cout << "You cannot attack, please waiting " << res + 4 <<  "s to reload bullet!" << endl;
+		cout << "You cannot attack, please waiting " << res + 4 << "s to reload bullet!" << endl;
 		break;
 	}
 	case SEND_TO_ALL_USERS_DAMAGE_OF_ATTACK: {
@@ -649,7 +666,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 25 
+									// 25 
 	case SEND_TO_ALL_USERS_QUIZ: {
 		cout << endl << "Do a quiz to get coin!" << endl;
 		char base[BUFF_SIZE];
@@ -682,7 +699,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 26
+								 // 26
 	case ANSWER_TRUE_AND_FASTEST: {
 		cout << "Your answer is true and fastest!" << endl;
 		break;
@@ -700,7 +717,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 27
+					   // 27
 	case SURRENDER_SUCCESS: {
 		cout << "Your team surrenders successfully!" << endl;
 		status = 3;
@@ -719,7 +736,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-// 28 
+										// 28 
 	case OUT_GAME: {
 		cout << endl << res + 4 << " exited the game" << endl;
 		break;
