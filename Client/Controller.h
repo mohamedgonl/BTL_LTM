@@ -1,4 +1,10 @@
-﻿vector<string> splitData(string inlineData, string del)
+﻿/**
+* @function splitData: split a string by delimeter and push them to vector
+* @param inlineDate : string input need to split
+* @param del: delimeter
+* @return vector<string>
+**/
+vector<string> splitData(string inlineData, string del)
 {
 	vector<string> data;
 	int start = 0;
@@ -12,6 +18,12 @@
 	return data;
 }
 
+/**
+* @funtion isNumber: confirm param text is number or not.
+* @param text: a string.
+* @return:	0 if text is not a number.
+			1 if text is a number
+**/
 int isNumber(string text) {
 	int j;
 	j = text.length();
@@ -25,6 +37,11 @@ int isNumber(string text) {
 	return 1;
 }
 
+/**
+* @function getPersionInfo: split input string and add to vector
+* @param s : string input need to split
+* @return vector<string>
+**/
 vector<string> getPersionalInfo(string s) {
 	vector<string> splitPersionalInfo;
 	stringstream stream(s);
@@ -35,6 +52,11 @@ vector<string> getPersionalInfo(string s) {
 	return splitPersionalInfo;
 }
 
+/**
+* @function getAllUserIngame: split a string by delimeter and push them to  string vector and assign user data to string vector
+* @param s : string input need to split
+* @return vector<User>
+**/
 vector<User> getAllUserIngame(string s) {
 	vector<User> users;
 	vector<string> splitUser;
@@ -60,24 +82,11 @@ vector<User> getAllUserIngame(string s) {
 	return users;
 }
 
-
-list<char*> splitMsg(char* msg) {
-	list<char*> tmp;
-	char* token = strtok(msg, ENDING_DELIMITER);
-	// loop through the string to extract all other tokens
-	while (token != NULL) {
-		tmp.push_back(token);
-		token = strtok(NULL, ENDING_DELIMITER);
-	}
-	return tmp;
-}
-
-class Team {
-public:
-	string team_name;
-	int id_team;
-	int number;
-};
+/**
+* @function handleSplitStr: split a string by delimeter and push them to  string vector and assign Team vector to string vector
+* @param s : string input need to split
+* @return vector<Team>
+**/
 vector<Team> handleSplitStr(string s)
 {
 	vector<Team> t;
@@ -104,6 +113,12 @@ vector<Team> handleSplitStr(string s)
 	return t;
 }
 
+/**
+* @funtion declineJoinTeam: decline invitations to join team in some cases.
+							Ex: when player creates a new room, accepts a invitation, was accepted to join team.
+* @param res: a string pointer.
+* @return:	nothing
+**/
 void declineJoinTeam(char *res) {
 	string idTeam;
 	idTeam = res + 4;
@@ -124,13 +139,18 @@ void declineJoinTeam(char *res) {
 	NumberOfTeamInvite = 0;
 }
 
+
+/**
+* @funtion handleResponse: handle every message from server and print to console.
+* @param res: a string pointer (message from server).
+* @return: nothing
+**/
 void handleResponse(char* res) {
 	char subbuff[4];
 	memcpy(subbuff, &res[0], 3);
 	subbuff[3] = '\0';
 	string pre;
 	switch (atoi(subbuff)) {
-
 		//2
 	case INVALID_COMMAND: {
 		cout << "Command is incorrect!" << endl;
@@ -242,7 +262,7 @@ void handleResponse(char* res) {
 		break;
 	}
 
-								   //7
+//7
 	case LOGOUT_SUCCESS: {
 		cout << "Sign out successfully!" << endl;
 		status = 0;
